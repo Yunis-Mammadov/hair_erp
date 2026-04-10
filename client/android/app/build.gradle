@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.yunis.erpsistemi"
+    namespace "com.yunis.hairerp"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.yunis.erpsistemi"
+        applicationId "com.yunis.hairerp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

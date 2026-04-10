@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:7079/api",
+  baseURL: import.meta.env.VITE_API_URL || "https://hair-erp-3.onrender.com/api",
   timeout: 15000,
 });
 

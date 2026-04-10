@@ -1,4 +1,4 @@
-package com.yunis.erpsistemi;
+package com.yunis.hairerp;
 
 import com.getcapacitor.BridgeActivity;
 
