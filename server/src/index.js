@@ -45,4 +45,7 @@ app.use("/api/payments", paymentsRoutes);
 app.use("/api/users", userRoutes);
 
 const PORT = process.env.PORT || 7079;
-app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
+});
