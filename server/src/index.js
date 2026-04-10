@@ -17,7 +17,13 @@ const purchasesRoutes = require("./routes/purchases.routes");
 const paymentsRoutes = require("./routes/payments.routes");
 const userRoutes = require("./routes/user.routes");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://senin-frontendin.vercel.app"],
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 
 // test
@@ -31,13 +37,12 @@ app.use("/api/catalog", catalogRoutes);
 app.use("/api/stock", stockRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/exp", expListRoutes);
-app.use("/api/orders", ordersRoutes);   
+app.use("/api/orders", ordersRoutes);
 app.use("/api/catalog/admin", catalogAdminRoutes);
 app.use("/api/returns", returnsRouter);
 app.use("/api/purchases", purchasesRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/users", userRoutes);
-
 
 const PORT = process.env.PORT || 7079;
 app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
