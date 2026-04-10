@@ -19,7 +19,7 @@ const userRoutes = require("./routes/user.routes");
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://senin-frontendin.vercel.app"],
+    origin: ["http://localhost:5173", "https://hair-erp-hnm9.vercel.app"],
     credentials: true,
   }),
 );
