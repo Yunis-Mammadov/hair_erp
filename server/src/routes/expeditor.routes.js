@@ -12,10 +12,10 @@ router.post(
   async (req, res) => {
     const { customer, paymentType, note, items } = req.body;
 
-    if (!customer?.name || !customer?.phone) {
+    if (!customerId && (!customerName || !customerPhone)) {
       return res
         .status(400)
-        .json({ message: "Customer name and phone required" });
+        .json({ message: "customer name and phone required" });
     }
     if (!paymentType) {
       return res.status(400).json({ message: "paymentType required" });
@@ -171,4 +171,3 @@ router.post(
 );
 
 module.exports = router;
-

@@ -1,47 +1,84 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { prisma } = require("../prismaClient");
 const { requireAuth } = require("../middleware/auth.middleware");
-const { PrismaClient } = require("@prisma/client");
 
-const prisma = new PrismaClient();
 const router = express.Router();
 
-router.get("/me", requireAuth, async (req, res) => {
-  // req.user token-dan gəlir
-  return res.json({ user: req.user });
+router.post("/pin-login", async (req, res) => {
+  try {
+    const { pin } = req.body;
+
+    if (!pin) {
+      return res.status(400).json({ message: "PIN daxil edilməlidir" });
+    }
+
+    const users = await prisma.user.findMany({
+      where: { isActive: true },
+    });
+
+    let foundUser = null;
+
+    for (const user of users) {
+      const isMatch = await bcrypt.compare(pin, user.pinHash);
+      if (isMatch) {
+        foundUser = user;
+        break;
+      }
+    }
+
+    if (!foundUser) {
+      return res.status(401).json({ message: "PIN yanlışdır" });
+    }
+
+    const token = jwt.sign(
+      {
+        userId: foundUser.id,
+        role: foundUser.role,
+        fullName: foundUser.fullName,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" }
+    );
+
+    return res.json({
+      message: "Giriş uğurludur",
+      token,
+      user: {
+        id: foundUser.id,
+        fullName: foundUser.fullName,
+        role: foundUser.role,
+      },
+    });
+  } catch (error) {
+    console.error("PIN_LOGIN_ERROR:", error);
+    return res.status(500).json({ message: "Login zamanı xəta baş verdi" });
+  }
 });
 
-// PIN LOGIN
-router.post("/pin-login", async (req, res) => {
-  const { pin } = req.body;
+router.get("/me", requireAuth, async (req, res) => {
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+      select: {
+        id: true,
+        fullName: true,
+        role: true,
+        isActive: true,
+        email: true,
+      },
+    });
 
-  if (!pin) {
-    return res.status(400).json({ message: "PIN required" });
-  }
-
-  const users = await prisma.user.findMany({
-    where: { isActive: true },
-  });
-
-  for (let user of users) {
-    const match = await bcrypt.compare(pin, user.pinHash);
-    if (match) {
-      const token = jwt.sign(
-        {
-          userId: user.id,
-          role: user.role,
-          fullName: user.fullName,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "8h" },
-      );
-
-      return res.json({ token });
+    if (!dbUser || !dbUser.isActive) {
+      return res.status(401).json({ message: "İstifadəçi tapılmadı və ya deaktivdir" });
     }
-  }
 
-  return res.status(401).json({ message: "Invalid PIN" });
+    return res.json(dbUser);
+  } catch (error) {
+    console.error("AUTH_ME_ERROR:", error);
+    return res.status(500).json({ message: "User məlumatı alınmadı" });
+  }
 });
 
 module.exports = router;

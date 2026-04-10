@@ -2,21 +2,42 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
+const app = express();
+
+const ordersRoutes = require("./routes/orders.routes");
 const authRoutes = require("./routes/auth.routes");
 const expRoutes = require("./routes/expeditor.routes");
-const app = express();
+const catalogRoutes = require("./routes/catalog.routes");
+const stockRoutes = require("./routes/stock.routes");
+const customerRoutes = require("./routes/customers.routes");
+const expListRoutes = require("./routes/expeditor.list.routes");
+const catalogAdminRoutes = require("./routes/catalog.admin.routes");
+const returnsRouter = require("./routes/returns.routes");
+const purchasesRoutes = require("./routes/purchases.routes");
+const paymentsRoutes = require("./routes/payments.routes");
+const userRoutes = require("./routes/user.routes");
 
 app.use(cors());
 app.use(express.json());
 
 // test
 app.get("/health", (req, res) => {
-    res.json({ ok: true });
+  res.json({ ok: true });
 });
-
 // routes
-app.use("/auth", authRoutes);
-app.use("/exp", expRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/exp", expRoutes);
+app.use("/api/catalog", catalogRoutes);
+app.use("/api/stock", stockRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/exp", expListRoutes);
+app.use("/api/orders", ordersRoutes);   
+app.use("/api/catalog/admin", catalogAdminRoutes);
+app.use("/api/returns", returnsRouter);
+app.use("/api/purchases", purchasesRoutes);
+app.use("/api/payments", paymentsRoutes);
+app.use("/api/users", userRoutes);
+
 
 const PORT = process.env.PORT || 7079;
 app.listen(PORT, () => console.log(`http://localhost:${PORT}`));

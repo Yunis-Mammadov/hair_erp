@@ -1,11 +1,8 @@
-import { api } from "../../lib/api";
+import axios from "axios";
+
+const API_URL = "http://localhost:7079";
 
 export async function pinLogin(pin) {
-  const res = await api.post("/auth/pin-login", { pin });
-  return res.data; // { token }
-}
-
-export async function getMe() {
-  const res = await api.get("/auth/me");
-  return res.data; // { user: {...} }
+  const res = await axios.post(`${API_URL}/api/auth/pin-login`, { pin });
+  return res.data;
 }

@@ -16,42 +16,105 @@ model Category {
 }
 
 model Product {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   name       String
   categoryId String
-  category   Category  @relation(fields: [categoryId], references: [id])
-  stock      Stock?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  stock     Stock?
+  salePrice Float  @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems    OrderItem[]
+  returnItems   ReturnItem[]
+  purchaseItems PurchaseItem[]
 
   @@unique([name, categoryId])
 }
 
+model Purchase {
+  id          String   @id @default(cuid())
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  supplier    String?
+  invoiceNo   String?
+  note        String?
+  createdAt   DateTime @default(now())
+
+  items PurchaseItem[]
+}
+
+model PurchaseItem {
+  id         String   @id @default(cuid())
+  purchaseId String
+  productId  String
+  quantity   Int
+  unitCost   Float    @default(0)
+  createdAt  DateTime @default(now())
+
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id])
+}
+
 model Stock {
-  productId String  @id
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int     @default(0)
+  productId String   @id
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(0)
   updatedAt DateTime @updatedAt
 }
 
 model Customer {
-  id        String   @id @default(cuid())
-  name      String
-  phone     String
-  salon     String?
-  address   String?
+  id      String  @id @default(cuid())
+  name    String
+  phone   String?
+  salon   String?
+  address String?
+  lat     Float?
+  lng     Float?
+
+  assignedExpeditorId String?
+  assignedExpeditor   User?   @relation("CustomerAssignedExpeditor", fields: [assignedExpeditorId], references: [id])
+
+  orders   Order[]
+  returns  Return[]
+  payments Payment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  orders    Order[]
-  returns   Return[]
 }
 
 enum PaymentType {
-  CASH
-  CARD
-  TRANSFER
-  OTHER
+  REALİZASİYA
+  NAĞD
+  HİSSƏLİ
+  DİGƏR
+}
+
+enum UserRole {
+  ADMIN
+  EXPEDITOR
+  WAREHOUSE
+  DRIVER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  fullName  String   @default("User")
+  pinHash   String   @default("")
+  isActive  Boolean  @default(true)
+  email     String?  @unique
+  password  String?
+  role      UserRole @default(DRIVER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders            Order[]
+  returns           Return[]
+  purchases         Purchase[]
+  paymentsCreated   Payment[]  @relation("PaymentCreatedBy")
+  assignedCustomers Customer[] @relation("CustomerAssignedExpeditor")
 }
 
 model Order {
@@ -64,35 +127,57 @@ model Order {
   note        String?
   createdAt   DateTime    @default(now())
 
-  items       OrderItem[]
+  items OrderItem[]
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
-  orderId   String
-  order     Order    @relation(fields: [orderId], references: [id])
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  quantity  Int
+  id          String  @id @default(cuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(10, 2)
+  returnedQty Int     @default(0)
+  isGift      Boolean @default(false) // ✅ əlavə olundu
+
+  order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product      @relation(fields: [productId], references: [id])
+  returnItems ReturnItem[]
 }
 
 model Return {
-  id          String      @id @default(cuid())
+  id          String   @id @default(cuid())
   customerId  String
-  customer    Customer    @relation(fields: [customerId], references: [id])
+  customer    Customer @relation(fields: [customerId], references: [id])
   createdById String
-  createdBy   User        @relation(fields: [createdById], references: [id])
+  createdBy   User     @relation(fields: [createdById], references: [id])
   note        String?
-  createdAt   DateTime    @default(now())
+  createdAt   DateTime @default(now())
 
-  items       ReturnItem[]
+  items ReturnItem[]
 }
 
 model ReturnItem {
-  id        String   @id @default(cuid())
-  returnId  String
-  return    Return   @relation(fields: [returnId], references: [id])
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  quantity  Int
+  id          String   @id @default(cuid())
+  returnId    String
+  orderItemId String?
+  productId   String
+  quantity    Int
+  unitPrice   Decimal  @default(0) @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+
+  returnDoc Return     @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id])
+  product   Product    @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  customerId  String
+  createdById String?
+  amount      Float
+  note        String?
+  createdAt   DateTime @default(now())
+
+  customer  Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdBy User?    @relation("PaymentCreatedBy", fields: [createdById], references: [id])
 }

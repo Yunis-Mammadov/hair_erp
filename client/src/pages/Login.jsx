@@ -2,21 +2,54 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { pinLogin } from "../features/auth/authApi";
+import { useAuth } from "../features/auth/useAuth";
+
+function getDefaultRouteByRole(role) {
+  switch (role) {
+    case "ADMIN":
+      return "/";
+    case "EXPEDITOR":
+      return "/exp/sales";
+    case "WAREHOUSE":
+      return "/warehouse/stock";
+    case "DRIVER":
+      return "/driver/deliveries";
+    default:
+      return "/";
+  }
+}
 
 export default function Login() {
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+
     try {
       const data = await pinLogin(pin);
-      localStorage.setItem("token", data.token);
-      navigate("/", { replace: true });
+      console.log("PIN LOGIN RESPONSE:", data);
+
+      if (!data?.token) {
+        alert("Token gəlmədi");
+        return;
+      }
+
+      if (!data?.user) {
+        alert("User məlumatı gəlmədi");
+        return;
+      }
+
+      login(data.token, data.user);
+
+      const nextRoute = getDefaultRouteByRole(data.user.role);
+      navigate(nextRoute, { replace: true });
     } catch (err) {
-      alert("PIN səhvdir");
+      console.error("LOGIN_ERROR:", err);
+      alert(err?.response?.data?.message || "PIN səhvdir");
     } finally {
       setLoading(false);
     }
