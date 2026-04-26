@@ -17,7 +17,7 @@ export default function AuthProvider({ children }) {
       }
 
       try {
-        const res = await axios.get("http://localhost:7079/api/auth/me", {
+        const res = await axios.get("https://hair-erp-3.onrender.com/api/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
