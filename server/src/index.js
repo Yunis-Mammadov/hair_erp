@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
@@ -16,6 +17,11 @@ const returnsRouter = require("./routes/returns.routes");
 const purchasesRoutes = require("./routes/purchases.routes");
 const paymentsRoutes = require("./routes/payments.routes");
 const userRoutes = require("./routes/user.routes");
+const areasRoutes = require("./routes/areas.routes");
+const deliveryRoutes = require("./routes/delivery.routes");
+const liveLocationRoutes = require("./routes/liveLocation.routes");
+const uploadsRoutes = require("./routes/uploads.routes");
+const areaRoutes = require("./routes/area.routes")
 
 app.use(
   cors({
@@ -23,6 +29,9 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(express.json());
 
@@ -43,6 +52,13 @@ app.use("/api/returns", returnsRouter);
 app.use("/api/purchases", purchasesRoutes);
 app.use("/api/payments", paymentsRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/areas", areasRoutes);
+app.use("/api/delivery", deliveryRoutes);
+app.use("/api/live-location", liveLocationRoutes);
+app.use("/api/uploads", uploadsRoutes);
+app.use("/api/areas", areaRoutes);
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const PORT = process.env.PORT || 7079;
 

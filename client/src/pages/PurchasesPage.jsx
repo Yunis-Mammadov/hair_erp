@@ -29,6 +29,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Paper,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
@@ -41,6 +42,11 @@ import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined
 import SellOutlinedIcon from "@mui/icons-material/SellOutlined";
 import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import SearchIcon from "@mui/icons-material/Search";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import PaidOutlinedIcon from "@mui/icons-material/PaidOutlined";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { api } from "../lib/api";
 
 function formatMoney(value) {
@@ -56,6 +62,7 @@ export default function PurchasePage() {
   const [qty, setQty] = useState({});
   const [costs, setCosts] = useState({});
   const [salePrices, setSalePrices] = useState({});
+  const [search, setSearch] = useState("");
 
   const [supplier, setSupplier] = useState("");
   const [invoiceNo, setInvoiceNo] = useState("");
@@ -80,6 +87,7 @@ export default function PurchasePage() {
     categoryId: "",
     salePrice: "",
   });
+
   const [newProductErrors, setNewProductErrors] = useState({
     name: "",
     categoryId: "",
@@ -95,17 +103,17 @@ export default function PurchasePage() {
         const list = await fetchCategories();
         if (!alive) return;
 
-        if (list.length) {
-          const first = list[0].id;
-          setExpanded((p) => ({ ...p, [first]: true }));
-          await ensureProductsLoaded(first);
+        const allClosed = {};
+        for (const category of list) {
+          allClosed[category.id] = false;
         }
+        setExpanded(allClosed);
       } catch (e) {
         console.error(e);
         setToast({
           open: true,
           type: "error",
-          msg: e?.response?.data?.message || "Categories error",
+          msg: e?.response?.data?.message || "Kateqoriyalar yüklənmədi",
         });
       } finally {
         if (!alive) return;
@@ -116,7 +124,6 @@ export default function PurchasePage() {
     return () => {
       alive = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function fetchCategories() {
@@ -130,8 +137,8 @@ export default function PurchasePage() {
     const existing = productsByCat[categoryId];
     if (existing?.loading || Array.isArray(existing?.items)) return;
 
-    setProductsByCat((p) => ({
-      ...p,
+    setProductsByCat((prev) => ({
+      ...prev,
       [categoryId]: { loading: true, items: [] },
     }));
 
@@ -142,20 +149,20 @@ export default function PurchasePage() {
 
       const items = res.data?.products ?? [];
 
-      setProductsByCat((p) => ({
-        ...p,
+      setProductsByCat((prev) => ({
+        ...prev,
         [categoryId]: { loading: false, items },
       }));
     } catch (e) {
       console.error(e);
-      setProductsByCat((p) => ({
-        ...p,
+      setProductsByCat((prev) => ({
+        ...prev,
         [categoryId]: { loading: false, items: [] },
       }));
       setToast({
         open: true,
         type: "error",
-        msg: e?.response?.data?.message || "Products error",
+        msg: e?.response?.data?.message || "Məhsullar yüklənmədi",
       });
     }
   }
@@ -164,70 +171,72 @@ export default function PurchasePage() {
     const openCatIds = Object.keys(expanded).filter((k) => expanded[k]);
 
     for (const catId of openCatIds) {
-      setProductsByCat((p) => ({
-        ...p,
-        [catId]: { loading: true, items: p[catId]?.items || [] },
+      setProductsByCat((prev) => ({
+        ...prev,
+        [catId]: { loading: true, items: prev[catId]?.items || [] },
       }));
 
       const pr = await api.get("/catalog/products", {
         params: { categoryId: catId },
       });
 
-      setProductsByCat((p) => ({
-        ...p,
+      setProductsByCat((prev) => ({
+        ...prev,
         [catId]: { loading: false, items: pr.data?.products ?? [] },
       }));
     }
   }
 
   function toggleCategory(catId) {
-    setExpanded((prev) => {
-      const next = !prev[catId];
-      return { ...prev, [catId]: next };
-    });
+    const currentlyOpen = !!expanded[catId];
 
-    if (!expanded[catId]) {
+    setExpanded((prev) => ({
+      ...prev,
+      [catId]: !currentlyOpen,
+    }));
+
+    if (!currentlyOpen) {
       ensureProductsLoaded(catId);
     }
   }
 
-  function getDbStock(p) {
-    return Number(p?.stockQty ?? 0);
+  function getDbStock(product) {
+    return Number(product?.stockQty ?? product?.stock?.quantity ?? 0);
   }
 
-  function getSelected(p) {
-    return Number(qty[p.id] || 0);
+  function getSelected(product) {
+    return Number(qty[product.id] || 0);
   }
 
-  function ensureDefaultSalePrice(p) {
+  function ensureDefaultSalePrice(product) {
     setSalePrices((prev) => {
-      if (prev[p.id] !== undefined && prev[p.id] !== "") return prev;
-      return { ...prev, [p.id]: String(Number(p?.salePrice || 0)) };
+      if (prev[product.id] !== undefined && prev[product.id] !== "") return prev;
+      return { ...prev, [product.id]: String(Number(product?.salePrice || 0)) };
     });
   }
 
-  function inc(p) {
-    const cur = getSelected(p);
-    setQty((prev) => ({ ...prev, [p.id]: cur + 1 }));
-    ensureDefaultSalePrice(p);
+  function inc(product) {
+    const cur = getSelected(product);
+    setQty((prev) => ({ ...prev, [product.id]: cur + 1 }));
+    ensureDefaultSalePrice(product);
   }
 
-  function dec(p) {
-    const cur = getSelected(p);
+  function dec(product) {
+    const cur = getSelected(product);
     const nextQty = Math.max(cur - 1, 0);
 
-    setQty((prev) => ({ ...prev, [p.id]: nextQty }));
+    setQty((prev) => ({ ...prev, [product.id]: nextQty }));
 
     if (nextQty === 0) {
       setCosts((prev) => {
         const next = { ...prev };
-        delete next[p.id];
+        delete next[product.id];
         return next;
       });
 
       setSalePrices((prev) => {
         const next = { ...prev };
-        delete next[p.id];
+        delete next[product.id];
         return next;
       });
     }
@@ -268,11 +277,12 @@ export default function PurchasePage() {
     setSupplier("");
     setInvoiceNo("");
     setNote("");
+    setSearch("");
     setErrors({
       supplier: "",
       invoiceNo: "",
     });
-    setToast({ open: true, type: "info", msg: "Sıfırlandı" });
+    setToast({ open: true, type: "info", msg: "Bütün seçimlər sıfırlandı" });
   }
 
   const selectedItems = useMemo(() => {
@@ -306,6 +316,7 @@ export default function PurchasePage() {
         name: p?.name || `${productId.slice(0, 6)}…`,
         category: p?.category?.name || "—",
         currentSalePrice: Number(p?.salePrice || 0),
+        stockQty: getDbStock(p),
       });
 
       totalQty += quantity;
@@ -355,7 +366,7 @@ export default function PurchasePage() {
 
   async function confirmPurchase() {
     if (selectedItems.totalQty <= 0) {
-      setToast({ open: true, type: "info", msg: "Heç nə seçilməyib" });
+      setToast({ open: true, type: "info", msg: "Heç bir məhsul seçilməyib" });
       return;
     }
 
@@ -364,7 +375,7 @@ export default function PurchasePage() {
       setToast({
         open: true,
         type: "warning",
-        msg: "Supplier və qaimə nömrəsi yazılmalıdır",
+        msg: "Supplier və qaimə nömrəsi mütləqdir",
       });
       return;
     }
@@ -427,7 +438,7 @@ export default function PurchasePage() {
       setToast({
         open: true,
         type: "error",
-        msg: e?.response?.data?.message || e.message || "Purchase error",
+        msg: e?.response?.data?.message || e.message || "Alış yazılmadı",
       });
     } finally {
       setBusy(false);
@@ -443,11 +454,14 @@ export default function PurchasePage() {
     }
 
     try {
-      await api.post("/catalog/admin/categories", {
-        name,
-      });
+      await api.post("/catalog/admin/categories", { name });
 
-      await fetchCategories();
+      const list = await fetchCategories();
+      const allClosed = {};
+      for (const category of list) {
+        allClosed[category.id] = expanded[category.id] || false;
+      }
+      setExpanded(allClosed);
 
       setNewCategoryName("");
       setNewCategoryError("");
@@ -463,7 +477,7 @@ export default function PurchasePage() {
       setToast({
         open: true,
         type: "error",
-        msg: e?.response?.data?.message || "Category create error",
+        msg: e?.response?.data?.message || "Category yaradılmadı",
       });
     }
   }
@@ -510,6 +524,12 @@ export default function PurchasePage() {
         [newProduct.categoryId]: true,
       }));
 
+      setProductsByCat((prev) => {
+        const next = { ...prev };
+        delete next[newProduct.categoryId];
+        return next;
+      });
+
       await ensureProductsLoaded(newProduct.categoryId);
       await refreshOpenCategoriesStock();
 
@@ -537,97 +557,75 @@ export default function PurchasePage() {
       setToast({
         open: true,
         type: "error",
-        msg: e?.response?.data?.message || "Product create error",
+        msg: e?.response?.data?.message || "Məhsul yaradılmadı",
       });
     }
   }
 
+  const totalCategories = categories.length;
+  const totalSelectedProducts = selectedItems.items.length;
+
   return (
-    <Box sx={{ p: { xs: 2, md: 3 }, maxWidth: 1500, mx: "auto" }}>
-      <Card sx={{ borderRadius: 4, mb: 2 }}>
-        <CardContent>
+    <Box sx={{ p: { xs: 2, md: 3 }, maxWidth: 1600, mx: "auto", bgcolor: "#f8fafc", minHeight: "100vh" }}>
+      <Card
+        sx={{
+          borderRadius: 5,
+          mb: 2.5,
+          border: "1px solid",
+          borderColor: "divider",
+          boxShadow: "0 12px 35px rgba(15,23,42,0.06)",
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 60%, rgba(241,245,249,1) 100%)",
+        }}
+      >
+        <CardContent sx={{ p: { xs: 2, md: 3 } }}>
           <Stack
-            direction={{ xs: "column", lg: "row" }}
-            spacing={2}
-            alignItems={{ lg: "center" }}
+            direction={{ xs: "column", xl: "row" }}
+            spacing={2.5}
             justifyContent="space-between"
+            alignItems={{ xl: "center" }}
           >
             <Box>
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: 900, letterSpacing: -0.6 }}
-              >
-                Alış
-              </Typography>
-              <Typography sx={{ opacity: 0.8, mt: 0.5 }}>
-                Məhsul seç → Miqdar yaz → Alış qiyməti + Satış qiyməti yaz →
-                Confirm
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                <AutoAwesomeIcon />
+                <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: -0.8 }}>
+                  Alış
+                </Typography>
+              </Stack>
+
+              <Typography sx={{ opacity: 0.78, maxWidth: 760 }}>
+                Məhsulları rahat seç, alış qiyməti və satış qiymətini yaz, sonra bir kliklə alış sənədini yarat.
               </Typography>
             </Box>
 
-            <Stack
-              direction="row"
-              spacing={1}
-              alignItems="center"
-              flexWrap="wrap"
-            >
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1} flexWrap="wrap" useFlexGap>
               <Chip
-                label={`${selectedItems.totalQty} ədəd`}
-                sx={{ fontWeight: 900, borderRadius: 999 }}
+                icon={<CategoryOutlinedIcon />}
+                label={`Kateqoriya: ${totalCategories}`}
+                sx={{ fontWeight: 800, borderRadius: 999 }}
               />
               <Chip
+                icon={<ShoppingBagOutlinedIcon />}
+                label={`Seçilən məhsul: ${totalSelectedProducts}`}
+                sx={{ fontWeight: 800, borderRadius: 999 }}
+              />
+              <Chip
+                icon={<InventoryIcon />}
+                label={`${selectedItems.totalQty} ədəd`}
+                color="primary"
+                variant="outlined"
+                sx={{ fontWeight: 800, borderRadius: 999 }}
+              />
+              <Chip
+                icon={<PaidOutlinedIcon />}
                 label={formatMoney(selectedItems.totalAmount)}
                 color="success"
                 sx={{ fontWeight: 900, borderRadius: 999 }}
               />
-
-              <Button
-                variant="outlined"
-                startIcon={<CategoryOutlinedIcon />}
-                onClick={() => setOpenCategoryModal(true)}
-                sx={{ borderRadius: 3, textTransform: "none", fontWeight: 900 }}
-              >
-                Yeni category
-              </Button>
-
-              <Button
-                variant="outlined"
-                startIcon={<Inventory2OutlinedIcon />}
-                onClick={() => setOpenProductModal(true)}
-                sx={{ borderRadius: 3, textTransform: "none", fontWeight: 900 }}
-              >
-                Yeni məhsul
-              </Button>
-
-              <Button
-                variant="outlined"
-                startIcon={<RestartAltIcon />}
-                onClick={resetAll}
-                sx={{ borderRadius: 3, textTransform: "none", fontWeight: 900 }}
-              >
-                Sıfırla
-              </Button>
-
-              <Button
-                variant="contained"
-                startIcon={<DoneAllIcon />}
-                disabled={
-                  busy ||
-                  selectedItems.totalQty <= 0 ||
-                  hasInvalidCost ||
-                  hasInvalidSalePrice ||
-                  !supplier.trim() ||
-                  !invoiceNo.trim()
-                }
-                onClick={confirmPurchase}
-                sx={{ borderRadius: 3, textTransform: "none", fontWeight: 900 }}
-              >
-                {busy ? "Yazılır..." : "Confirm"}
-              </Button>
             </Stack>
           </Stack>
 
-          <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 2.2 }} />
 
           <Box
             sx={{
@@ -690,9 +688,68 @@ export default function PurchasePage() {
             />
           </Box>
 
-          <Typography sx={{ mt: 1, fontSize: 12, opacity: 0.7 }}>
-            * Alışı yazmaq üçün supplier, qaimə nömrəsi, ən azı bir məhsul, alış
-            qiyməti və satış qiyməti mütləqdir.
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={1.25}
+            sx={{ mt: 2 }}
+            flexWrap="wrap"
+            useFlexGap
+          >
+            <Button
+              variant="outlined"
+              startIcon={<CategoryOutlinedIcon />}
+              onClick={() => setOpenCategoryModal(true)}
+              sx={{ borderRadius: 3, textTransform: "none", fontWeight: 800 }}
+            >
+              Yeni category
+            </Button>
+
+            <Button
+              variant="outlined"
+              startIcon={<Inventory2OutlinedIcon />}
+              onClick={() => setOpenProductModal(true)}
+              sx={{ borderRadius: 3, textTransform: "none", fontWeight: 800 }}
+            >
+              Yeni məhsul
+            </Button>
+
+            <Button
+              variant="outlined"
+              color="inherit"
+              startIcon={<RestartAltIcon />}
+              onClick={resetAll}
+              sx={{ borderRadius: 3, textTransform: "none", fontWeight: 800 }}
+            >
+              Sıfırla
+            </Button>
+
+            <Box sx={{ flex: 1 }} />
+
+            <Button
+              variant="contained"
+              startIcon={<DoneAllIcon />}
+              disabled={
+                busy ||
+                selectedItems.totalQty <= 0 ||
+                hasInvalidCost ||
+                hasInvalidSalePrice ||
+                !supplier.trim() ||
+                !invoiceNo.trim()
+              }
+              onClick={confirmPurchase}
+              sx={{
+                borderRadius: 3,
+                textTransform: "none",
+                fontWeight: 900,
+                px: 3,
+              }}
+            >
+              {busy ? "Yazılır..." : "Alışı təsdiqlə"}
+            </Button>
+          </Stack>
+
+          <Typography sx={{ mt: 1.2, fontSize: 12, opacity: 0.72 }}>
+            * Supplier, qaimə nömrəsi, məhsul sayı, alış qiyməti və satış qiyməti mütləqdir.
           </Typography>
         </CardContent>
       </Card>
@@ -700,246 +757,317 @@ export default function PurchasePage() {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr", lg: "480px 1fr" },
-          gap: 2,
+          gridTemplateColumns: { xs: "1fr", xl: "520px 1fr" },
+          gap: 2.5,
+          alignItems: "start",
         }}
       >
-        <Card sx={{ borderRadius: 4 }}>
-          <CardContent>
-            <Typography sx={{ fontWeight: 900, mb: 1 }}>
-              Kateqoriyalar
-            </Typography>
+        <Card
+          sx={{
+            borderRadius: 5,
+            border: "1px solid",
+            borderColor: "divider",
+            boxShadow: "0 10px 30px rgba(15,23,42,0.05)",
+            position: { xl: "sticky" },
+            top: { xl: 24 },
+          }}
+        >
+          <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
+            <Stack spacing={1.5}>
+              <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                Kateqoriyalar və məhsullar
+              </Typography>
 
-            {loadingCats ? (
-              <Stack spacing={1}>
-                <Skeleton height={54} />
-                <Skeleton height={54} />
-                <Skeleton height={54} />
-              </Stack>
-            ) : categories.length === 0 ? (
-              <Typography sx={{ opacity: 0.75 }}>Kateqoriya yoxdur.</Typography>
-            ) : (
-              <Stack spacing={1}>
-                {categories.map((c) => {
-                  const open = !!expanded[c.id];
-                  const block = productsByCat[c.id];
-                  const loading = !!block?.loading;
-                  const items = block?.items || [];
+              <TextField
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Məhsul və ya category axtar..."
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ opacity: 0.7 }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-                  return (
-                    <Accordion
-                      key={c.id}
-                      expanded={open}
-                      onChange={() => toggleCategory(c.id)}
-                      disableGutters
-                      sx={{
-                        border: "1px solid",
-                        borderColor: "divider",
-                        borderRadius: 3,
-                        overflow: "hidden",
-                        "&:before": { display: "none" },
-                      }}
-                    >
-                      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          alignItems="center"
-                          sx={{ width: "100%" }}
+              {loadingCats ? (
+                <Stack spacing={1}>
+                  <Skeleton height={56} />
+                  <Skeleton height={56} />
+                  <Skeleton height={56} />
+                  <Skeleton height={56} />
+                </Stack>
+              ) : categories.length === 0 ? (
+                <Alert severity="info">Kateqoriya yoxdur.</Alert>
+              ) : (
+                <Stack spacing={1}>
+                  {categories
+                    .filter((category) => {
+                      const categoryName = category.name?.toLowerCase() || "";
+                      const q = search.trim().toLowerCase();
+
+                      if (!q) return true;
+                      if (categoryName.includes(q)) return true;
+
+                      const items = productsByCat[category.id]?.items || [];
+                      return items.some((p) =>
+                        (p.name || "").toLowerCase().includes(q),
+                      );
+                    })
+                    .map((category) => {
+                      const open = !!expanded[category.id];
+                      const block = productsByCat[category.id];
+                      const loading = !!block?.loading;
+                      const items = block?.items || [];
+
+                      const visibleItems = items.filter((p) => {
+                        const q = search.trim().toLowerCase();
+                        if (!q) return true;
+                        return (
+                          (p.name || "").toLowerCase().includes(q) ||
+                          (p.category?.name || category.name || "")
+                            .toLowerCase()
+                            .includes(q)
+                        );
+                      });
+
+                      return (
+                        <Accordion
+                          key={category.id}
+                          expanded={open}
+                          onChange={() => toggleCategory(category.id)}
+                          disableGutters
+                          sx={{
+                            border: "1px solid",
+                            borderColor: open ? "primary.main" : "divider",
+                            borderRadius: "20px !important",
+                            overflow: "hidden",
+                            backgroundColor: open ? "rgba(25,118,210,0.03)" : "#fff",
+                            boxShadow: open
+                              ? "0 10px 25px rgba(25,118,210,0.08)"
+                              : "none",
+                            "&:before": { display: "none" },
+                          }}
                         >
-                          <Typography sx={{ fontWeight: 900 }}>
-                            {c.name}
-                          </Typography>
-                          <Box sx={{ flex: 1 }} />
-                          <Chip
-                            size="small"
-                            label={loading ? "..." : items.length}
-                            sx={{ fontWeight: 900, borderRadius: 999 }}
-                          />
-                        </Stack>
-                      </AccordionSummary>
+                          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                              sx={{ width: "100%" }}
+                            >
+                              <Typography sx={{ fontWeight: 900 }}>
+                                {category.name}
+                              </Typography>
+                              <Box sx={{ flex: 1 }} />
+                              <Chip
+                                size="small"
+                                label={loading ? "..." : visibleItems.length}
+                                sx={{ fontWeight: 900, borderRadius: 999 }}
+                                color={open ? "primary" : "default"}
+                                variant={open ? "filled" : "outlined"}
+                              />
+                            </Stack>
+                          </AccordionSummary>
 
-                      <AccordionDetails sx={{ pt: 0.5 }}>
-                        {loading ? (
-                          <Stack spacing={1}>
-                            <Skeleton height={44} />
-                            <Skeleton height={44} />
-                            <Skeleton height={44} />
-                          </Stack>
-                        ) : items.length === 0 ? (
-                          <Typography sx={{ opacity: 0.75, py: 1 }}>
-                            Məhsul yoxdur.
-                          </Typography>
-                        ) : (
-                          <List dense disablePadding>
-                            {items.map((p) => {
-                              const dbStock = getDbStock(p);
-                              const cur = getSelected(p);
+                          <AccordionDetails sx={{ pt: 0.5 }}>
+                            {loading ? (
+                              <Stack spacing={1}>
+                                <Skeleton height={52} />
+                                <Skeleton height={52} />
+                                <Skeleton height={52} />
+                              </Stack>
+                            ) : visibleItems.length === 0 ? (
+                              <Typography sx={{ opacity: 0.75, py: 1 }}>
+                                Bu kateqoriyada uyğun məhsul tapılmadı.
+                              </Typography>
+                            ) : (
+                              <List dense disablePadding>
+                                {visibleItems.map((product) => {
+                                  const dbStock = getDbStock(product);
+                                  const cur = getSelected(product);
 
-                              return (
-                                <ListItem
-                                  key={p.id}
-                                  divider
-                                  sx={{
-                                    px: 0.5,
-                                    py: 0.6,
-                                  }}
-                                  secondaryAction={
-                                    <Stack
-                                      direction="row"
-                                      spacing={0.5}
-                                      alignItems="center"
+                                  return (
+                                    <Paper
+                                      key={product.id}
+                                      variant="outlined"
+                                      sx={{
+                                        mb: 1,
+                                        borderRadius: 3,
+                                        overflow: "hidden",
+                                        borderColor:
+                                          cur > 0 ? "primary.main" : "divider",
+                                        backgroundColor:
+                                          cur > 0 ? "rgba(25,118,210,0.04)" : "#fff",
+                                      }}
                                     >
-                                      <Tooltip title="Azalt">
-                                        <span>
-                                          <IconButton
-                                            size="small"
-                                            onClick={() => dec(p)}
-                                            disabled={cur <= 0}
+                                      <ListItem
+                                        sx={{ px: 1.25, py: 1 }}
+                                        secondaryAction={
+                                          <Stack
+                                            direction="row"
+                                            spacing={0.5}
+                                            alignItems="center"
                                           >
-                                            <RemoveIcon fontSize="small" />
-                                          </IconButton>
-                                        </span>
-                                      </Tooltip>
+                                            <Tooltip title="Azalt">
+                                              <span>
+                                                <IconButton
+                                                  size="small"
+                                                  onClick={() => dec(product)}
+                                                  disabled={cur <= 0}
+                                                >
+                                                  <RemoveIcon fontSize="small" />
+                                                </IconButton>
+                                              </span>
+                                            </Tooltip>
 
-                                      <TextField
-                                        size="small"
-                                        value={cur}
-                                        onFocus={(e) => e.target.select()}
-                                        onChange={(e) => {
-                                          const onlyDigits = String(
-                                            e.target.value || "",
-                                          ).replace(/\D/g, "");
+                                            <TextField
+                                              size="small"
+                                              value={cur}
+                                              onFocus={(e) => e.target.select()}
+                                              onChange={(e) => {
+                                                const onlyDigits = String(
+                                                  e.target.value || "",
+                                                ).replace(/\D/g, "");
 
-                                          if (onlyDigits === "") {
-                                            setQty((prev) => ({
-                                              ...prev,
-                                              [p.id]: 0,
-                                            }));
-                                            return;
-                                          }
+                                                if (onlyDigits === "") {
+                                                  setQty((prev) => ({
+                                                    ...prev,
+                                                    [product.id]: 0,
+                                                  }));
+                                                  return;
+                                                }
 
-                                          const parsed = Number(onlyDigits);
-                                          if (
-                                            !Number.isInteger(parsed) ||
-                                            parsed < 0
-                                          )
-                                            return;
+                                                const parsed = Number(onlyDigits);
+                                                if (
+                                                  !Number.isInteger(parsed) ||
+                                                  parsed < 0
+                                                )
+                                                  return;
 
-                                          setQty((prev) => ({
-                                            ...prev,
-                                            [p.id]: parsed,
-                                          }));
+                                                setQty((prev) => ({
+                                                  ...prev,
+                                                  [product.id]: parsed,
+                                                }));
 
-                                          if (parsed > 0) {
-                                            ensureDefaultSalePrice(p);
-                                          }
-                                        }}
-                                        inputProps={{
-                                          inputMode: "numeric",
-                                          pattern: "[0-9]*",
-                                          min: 0,
-                                          style: {
-                                            textAlign: "center",
-                                            padding: "8px 6px",
-                                            width: 42,
-                                            fontWeight: 900,
-                                          },
-                                        }}
-                                        sx={{
-                                          width: 58,
-                                          "& .MuiOutlinedInput-root": {
-                                            borderRadius: 999,
-                                            height: 34,
-                                          },
-                                        }}
-                                      />
+                                                if (parsed > 0) {
+                                                  ensureDefaultSalePrice(product);
+                                                }
+                                              }}
+                                              inputProps={{
+                                                inputMode: "numeric",
+                                                pattern: "[0-9]*",
+                                                min: 0,
+                                                style: {
+                                                  textAlign: "center",
+                                                  padding: "8px 6px",
+                                                  width: 44,
+                                                  fontWeight: 900,
+                                                },
+                                              }}
+                                              sx={{
+                                                width: 60,
+                                                "& .MuiOutlinedInput-root": {
+                                                  borderRadius: 999,
+                                                  height: 36,
+                                                },
+                                              }}
+                                            />
 
-                                      <Tooltip title="Artır">
-                                        <span>
-                                          <IconButton
-                                            size="small"
-                                            onClick={() => inc(p)}
-                                          >
-                                            <AddIcon fontSize="small" />
-                                          </IconButton>
-                                        </span>
-                                      </Tooltip>
-                                    </Stack>
-                                  }
-                                >
-                                  <ListItemText
-                                    primary={
-                                      <Stack
-                                        direction="row"
-                                        spacing={1}
-                                        alignItems="center"
-                                        flexWrap="wrap"
+                                            <Tooltip title="Artır">
+                                              <span>
+                                                <IconButton
+                                                  size="small"
+                                                  onClick={() => inc(product)}
+                                                >
+                                                  <AddIcon fontSize="small" />
+                                                </IconButton>
+                                              </span>
+                                            </Tooltip>
+                                          </Stack>
+                                        }
                                       >
-                                        <Typography
-                                          sx={{ fontWeight: 900 }}
-                                          noWrap
-                                        >
-                                          {p.name}
-                                        </Typography>
+                                        <ListItemText
+                                          primary={
+                                            <Stack
+                                              direction="row"
+                                              spacing={1}
+                                              alignItems="center"
+                                              flexWrap="wrap"
+                                              useFlexGap
+                                            >
+                                              <Typography sx={{ fontWeight: 900 }}>
+                                                {product.name}
+                                              </Typography>
 
-                                        <Chip
-                                          size="small"
-                                          label={`Stok: ${dbStock}`}
-                                          sx={{
-                                            fontWeight: 900,
-                                            borderRadius: 999,
-                                            opacity: 0.7,
-                                          }}
-                                          variant="outlined"
-                                        />
+                                              <Chip
+                                                size="small"
+                                                label={`Stok: ${dbStock}`}
+                                                sx={{
+                                                  fontWeight: 800,
+                                                  borderRadius: 999,
+                                                }}
+                                                variant="outlined"
+                                              />
 
-                                        <Chip
-                                          size="small"
-                                          label={`Cari satış: ${formatMoney(
-                                            p?.salePrice || 0,
-                                          )}`}
-                                          sx={{
-                                            fontWeight: 900,
-                                            borderRadius: 999,
-                                          }}
-                                          color="success"
-                                          variant="outlined"
+                                              <Chip
+                                                size="small"
+                                                label={`Cari satış: ${formatMoney(
+                                                  product?.salePrice || 0,
+                                                )}`}
+                                                color="success"
+                                                variant="outlined"
+                                                sx={{
+                                                  fontWeight: 800,
+                                                  borderRadius: 999,
+                                                }}
+                                              />
+                                            </Stack>
+                                          }
+                                          secondary={
+                                            <Typography
+                                              sx={{ fontSize: 12, opacity: 0.75, mt: 0.35 }}
+                                            >
+                                              {product.category?.name || category.name}
+                                            </Typography>
+                                          }
                                         />
-                                      </Stack>
-                                    }
-                                    secondary={
-                                      <Typography
-                                        sx={{ fontSize: 12, opacity: 0.75 }}
-                                      >
-                                        {p.category?.name || c.name}
-                                      </Typography>
-                                    }
-                                  />
-                                </ListItem>
-                              );
-                            })}
-                          </List>
-                        )}
-                      </AccordionDetails>
-                    </Accordion>
-                  );
-                })}
-              </Stack>
-            )}
+                                      </ListItem>
+                                    </Paper>
+                                  );
+                                })}
+                              </List>
+                            )}
+                          </AccordionDetails>
+                        </Accordion>
+                      );
+                    })}
+                </Stack>
+              )}
+            </Stack>
           </CardContent>
         </Card>
 
-        <Card sx={{ borderRadius: 4 }}>
-          <CardContent>
+        <Card
+          sx={{
+            borderRadius: 5,
+            border: "1px solid",
+            borderColor: "divider",
+            boxShadow: "0 10px 30px rgba(15,23,42,0.05)",
+          }}
+        >
+          <CardContent sx={{ p: { xs: 2, md: 2.5 } }}>
             <Stack
-              direction="row"
-              alignItems="center"
+              direction={{ xs: "column", sm: "row" }}
+              alignItems={{ sm: "center" }}
               justifyContent="space-between"
-              flexWrap="wrap"
-              gap={1}
+              spacing={1}
             >
-              <Typography sx={{ fontWeight: 900 }}>Seçilənlər</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                Seçilən alış səbəti
+              </Typography>
 
               <Stack direction="row" spacing={1}>
                 <Chip
@@ -954,60 +1082,68 @@ export default function PurchasePage() {
               </Stack>
             </Stack>
 
-            <Divider sx={{ my: 1.3 }} />
+            <Divider sx={{ my: 1.6 }} />
 
             {selectedItems.items.length === 0 ? (
-              <Typography sx={{ opacity: 0.75 }}>
-                Hələ heç nə seçilməyib. Sol paneldən + ilə miqdar yaz.
-              </Typography>
+              <Alert severity="info">
+                Hələ məhsul seçilməyib. Soldakı kateqoriyalardan məhsul əlavə et.
+              </Alert>
             ) : (
-              <Stack spacing={1}>
+              <Stack spacing={1.2}>
                 {selectedItems.items.map((it) => (
-                  <Box
+                  <Paper
                     key={it.productId}
+                    variant="outlined"
                     sx={{
-                      border: "1px solid",
+                      borderRadius: 4,
+                      p: 1.5,
                       borderColor: "divider",
-                      borderRadius: 3,
-                      p: 1.2,
+                      background:
+                        "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 100%)",
                     }}
                   >
-                    <Stack spacing={1.2}>
+                    <Stack spacing={1.25}>
                       <Stack
                         direction={{ xs: "column", md: "row" }}
-                        spacing={1.5}
+                        spacing={1.2}
                         alignItems={{ xs: "stretch", md: "center" }}
                       >
                         <Box sx={{ minWidth: 0, flex: 1 }}>
                           <Typography sx={{ fontWeight: 900 }} noWrap>
                             {it.name}
                           </Typography>
-                          <Typography
-                            sx={{ fontSize: 12, opacity: 0.75 }}
-                            noWrap
-                          >
+                          <Typography sx={{ fontSize: 12, opacity: 0.7 }} noWrap>
                             {it.category}
                           </Typography>
                         </Box>
 
                         <Chip
                           label={`x${it.quantity}`}
-                          sx={{ fontWeight: 900, borderRadius: 999 }}
                           color="primary"
+                          sx={{ fontWeight: 900, borderRadius: 999 }}
+                        />
+
+                        <Chip
+                          label={`Stok: ${it.stockQty}`}
+                          variant="outlined"
+                          sx={{ fontWeight: 800, borderRadius: 999 }}
                         />
 
                         <Chip
                           label={`Cari satış: ${formatMoney(it.currentSalePrice)}`}
                           variant="outlined"
                           color="success"
-                          sx={{ fontWeight: 900, borderRadius: 999 }}
+                          sx={{ fontWeight: 800, borderRadius: 999 }}
                         />
                       </Stack>
 
-                      <Stack
-                        direction={{ xs: "column", md: "row" }}
-                        spacing={1.2}
-                        alignItems={{ xs: "stretch", md: "center" }}
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: { xs: "1fr", md: "160px 160px 1fr auto" },
+                          gap: 1.2,
+                          alignItems: "center",
+                        }}
                       >
                         <TextField
                           size="small"
@@ -1017,11 +1153,7 @@ export default function PurchasePage() {
                           onChange={(e) =>
                             handleCostChange(it.productId, e.target.value)
                           }
-                          sx={{ width: { xs: "100%", md: 150 } }}
-                          inputProps={{
-                            min: 0,
-                            step: "0.01",
-                          }}
+                          inputProps={{ min: 0, step: "0.01" }}
                           InputProps={{
                             endAdornment: (
                               <InputAdornment position="end">₼</InputAdornment>
@@ -1037,11 +1169,7 @@ export default function PurchasePage() {
                           onChange={(e) =>
                             handleSalePriceChange(it.productId, e.target.value)
                           }
-                          sx={{ width: { xs: "100%", md: 150 } }}
-                          inputProps={{
-                            min: 0,
-                            step: "0.01",
-                          }}
+                          inputProps={{ min: 0, step: "0.01" }}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
@@ -1054,22 +1182,51 @@ export default function PurchasePage() {
                           }}
                         />
 
-                        <Box sx={{ flex: 1 }} />
+                        <Box />
 
                         <Chip
                           label={formatMoney(it.lineTotal)}
                           color="success"
-                          variant="outlined"
+                          variant="filled"
                           sx={{ fontWeight: 900, borderRadius: 999 }}
                         />
-                      </Stack>
+                      </Box>
                     </Stack>
-                  </Box>
+                  </Paper>
                 ))}
               </Stack>
             )}
 
-            <Divider sx={{ my: 1.6 }} />
+            <Divider sx={{ my: 1.8 }} />
+
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 2,
+                borderRadius: 4,
+                bgcolor: "#f8fafc",
+                borderStyle: "dashed",
+              }}
+            >
+              <Stack spacing={1}>
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography color="text.secondary">Seçilən məhsul sayı</Typography>
+                  <Typography fontWeight={800}>{totalSelectedProducts}</Typography>
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography color="text.secondary">Ümumi miqdar</Typography>
+                  <Typography fontWeight={800}>{selectedItems.totalQty} ədəd</Typography>
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography color="text.secondary">Toplam alış məbləği</Typography>
+                  <Typography fontWeight={900} color="success.main">
+                    {formatMoney(selectedItems.totalAmount)}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Paper>
 
             <Button
               fullWidth
@@ -1088,15 +1245,15 @@ export default function PurchasePage() {
                 borderRadius: 3,
                 textTransform: "none",
                 fontWeight: 900,
-                py: 1.2,
+                py: 1.35,
+                mt: 1.8,
               }}
             >
-              {busy ? "Yazılır..." : "Confirm purchase"}
+              {busy ? "Yazılır..." : "Alışı təsdiqlə"}
             </Button>
 
-            <Typography sx={{ fontSize: 12, opacity: 0.7, mt: 1 }}>
-              Confirm edəndə stok artır və satış qiyməti məhsulun default
-              qiyməti kimi yenilənir.
+            <Typography sx={{ fontSize: 12, opacity: 0.72, mt: 1 }}>
+              Confirm edəndə stok artır və məhsulun satış qiyməti yenilənir.
             </Typography>
           </CardContent>
         </Card>
@@ -1204,13 +1361,14 @@ export default function PurchasePage() {
                 ))}
               </Select>
             </FormControl>
+
             {!!newProductErrors.categoryId && (
               <Typography sx={{ color: "error.main", fontSize: 12, mt: -1 }}>
                 {newProductErrors.categoryId}
               </Typography>
             )}
 
-            <TextField
+            {/* <TextField
               label="Satış qiyməti"
               type="number"
               value={newProduct.salePrice}
@@ -1224,12 +1382,12 @@ export default function PurchasePage() {
                 }
               }}
               error={!!newProductErrors.salePrice}
-              helperText={newProductErrors.salePrice || "0 da yaza bilərsən"}
+              helperText={newProductErrors.salePrice}
               inputProps={{
                 min: 0,
                 step: "0.01",
               }}
-            />
+            /> */}
           </Stack>
         </DialogContent>
 

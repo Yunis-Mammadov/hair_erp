@@ -94,6 +94,11 @@ router.get(
               role: true,
             },
           },
+          soldItems: {
+            include: {
+              product: true,
+            },
+          },
         },
         orderBy: {
           createdAt: "desc",
@@ -115,7 +120,15 @@ router.post(
   requireRole("ADMIN", "EXPEDITOR"),
   async (req, res) => {
     try {
-      const { customerId, amount, note } = req.body;
+      const {
+        customerId,
+        amount,
+        note,
+        paymentType,
+        date,
+        imageUrl,
+        soldItems = [],
+      } = req.body;
 
       if (!customerId || typeof customerId !== "string") {
         return res.status(400).json({ message: "customerId tələb olunur" });
@@ -125,6 +138,10 @@ router.post(
 
       if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
         return res.status(400).json({ message: "Məbləğ düzgün deyil" });
+      }
+
+      if (!Array.isArray(soldItems)) {
+        return res.status(400).json({ message: "soldItems düzgün deyil" });
       }
 
       const customer = await prisma.customer.findUnique({
@@ -148,12 +165,30 @@ router.post(
         });
       }
 
+      const normalizedSoldItems = soldItems
+        .map((item) => ({
+          productId: item.productId,
+          quantity: Number(item.quantity || 0),
+          note: item.note ? String(item.note).trim() : null,
+        }))
+        .filter((item) => item.productId && item.quantity > 0);
+
       const payment = await prisma.payment.create({
         data: {
           customerId,
           amount: numericAmount,
+          paymentType: paymentType ? String(paymentType).trim() : null,
+          paymentDate: date ? new Date(date) : new Date(),
+          imageUrl: imageUrl ? String(imageUrl).trim() : null,
           note: note ? String(note).trim() : null,
           createdById: req.user.userId,
+          soldItems: {
+            create: normalizedSoldItems.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              note: item.note,
+            })),
+          },
         },
         include: {
           customer: {
@@ -172,6 +207,11 @@ router.post(
               id: true,
               fullName: true,
               role: true,
+            },
+          },
+          soldItems: {
+            include: {
+              product: true,
             },
           },
         },

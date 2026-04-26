@@ -19,6 +19,7 @@ import {
   Tab,
   Tabs,
   Typography,
+  TextField,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -27,14 +28,17 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import StoreIcon from "@mui/icons-material/Store";
 import PlaceIcon from "@mui/icons-material/Place";
 import PaidIcon from "@mui/icons-material/Paid";
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import LaunchIcon from "@mui/icons-material/Launch";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerById } from "../lib/customers";
+import { api } from "../lib/api";
 
 function formatDate(dateString) {
   if (!dateString) return "-";
@@ -54,6 +58,7 @@ function getItemsCount(items = []) {
 
 function getOrderNumber(order, index) {
   return (
+    order?.invoiceNo ||
     order?.invoiceNumber ||
     order?.orderNumber ||
     order?.orderNo ||
@@ -183,13 +188,10 @@ function getStatusChipProps(status) {
   switch (status) {
     case "ODENIB":
       return { label: "Ödənib", color: "success" };
-
     case "QISMEN_ODENIB":
       return { label: "Qismən ödənib", color: "warning" };
-
     case "BORCLU":
       return { label: "Borclu", color: "error" };
-
     default:
       return { label: "Naməlum", color: "default" };
   }
@@ -269,6 +271,13 @@ export default function CustomerDetailPage() {
   const [tab, setTab] = useState(0);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
+  const [problemModalOpen, setProblemModalOpen] = useState(false);
+  const [problemSaving, setProblemSaving] = useState(false);
+  const [problemNote, setProblemNote] = useState("");
+
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [selectedPaymentImage, setSelectedPaymentImage] = useState(null);
+
   async function fetchCustomerDetail() {
     try {
       setLoading(true);
@@ -292,6 +301,57 @@ export default function CustomerDetailPage() {
 
   const customer = data?.customer || null;
   const summary = data?.summary || customer?.summary || {};
+
+  useEffect(() => {
+    setProblemNote(customer?.problemNote || "");
+  }, [customer?.problemNote]);
+
+  function openPaymentImage(payment) {
+    if (!payment?.imageUrl) return;
+    setSelectedPaymentImage(payment);
+    setImagePreviewOpen(true);
+  }
+
+  function closePaymentImage() {
+    setImagePreviewOpen(false);
+    setSelectedPaymentImage(null);
+  }
+
+  async function handleSaveProblemCustomer() {
+    try {
+      setProblemSaving(true);
+
+      await api.put(`/customers/${id}`, {
+        isProblematic: true,
+        problemNote: problemNote.trim(),
+      });
+
+      setProblemModalOpen(false);
+      await fetchCustomerDetail();
+    } catch (err) {
+      console.error("PROBLEM_CUSTOMER_SAVE_ERROR:", err);
+    } finally {
+      setProblemSaving(false);
+    }
+  }
+
+  async function handleClearProblemCustomer() {
+    try {
+      setProblemSaving(true);
+
+      await api.put(`/customers/${id}`, {
+        isProblematic: false,
+        problemNote: "",
+      });
+
+      setProblemModalOpen(false);
+      await fetchCustomerDetail();
+    } catch (err) {
+      console.error("PROBLEM_CUSTOMER_CLEAR_ERROR:", err);
+    } finally {
+      setProblemSaving(false);
+    }
+  }
 
   const orders = customer?.orders || [];
   const returns = customer?.returns || [];
@@ -407,8 +467,8 @@ export default function CustomerDetailPage() {
   const sortedPayments = useMemo(() => {
     return [...payments].sort(
       (a, b) =>
-        new Date(b.createdAt || b.date || 0).getTime() -
-        new Date(a.createdAt || a.date || 0).getTime(),
+        new Date(b.paymentDate || b.createdAt || b.date || 0).getTime() -
+        new Date(a.paymentDate || a.createdAt || a.date || 0).getTime(),
     );
   }, [payments]);
 
@@ -464,10 +524,11 @@ export default function CustomerDetailPage() {
           borderRadius: 5,
           mb: 3,
           border: "1px solid",
-          borderColor: "divider",
+          borderColor: customer.isProblematic ? "error.light" : "divider",
           boxShadow: "0 12px 40px rgba(15,23,42,0.07)",
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 55%, rgba(241,245,249,1) 100%)",
+          background: customer.isProblematic
+            ? "linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(254,242,242,1) 55%, rgba(255,245,245,1) 100%)"
+            : "linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,250,252,1) 55%, rgba(241,245,249,1) 100%)",
         }}
       >
         <Stack
@@ -481,6 +542,8 @@ export default function CustomerDetailPage() {
               spacing={1.5}
               alignItems="center"
               sx={{ mb: 1 }}
+              flexWrap="wrap"
+              useFlexGap
             >
               <Button
                 variant="outlined"
@@ -498,9 +561,26 @@ export default function CustomerDetailPage() {
                 variant="outlined"
                 size="small"
               />
+
+              {customer.isProblematic && (
+                <Chip
+                  icon={<WarningAmberIcon />}
+                  label="Problemli müştəri"
+                  color="error"
+                  size="small"
+                  sx={{ fontWeight: 800 }}
+                />
+              )}
             </Stack>
 
-            <Typography variant="h4" fontWeight={900} sx={{ mb: 1 }}>
+            <Typography
+              variant="h4"
+              fontWeight={900}
+              sx={{
+                mb: 1,
+                color: customer.isProblematic ? "error.main" : "inherit",
+              }}
+            >
               {customer.name || "Adsız müştəri"}
             </Typography>
 
@@ -526,6 +606,37 @@ export default function CustomerDetailPage() {
                 label={customer.address || "Ünvan daxil edilməyib"}
               />
             </Stack>
+
+            {customer.isProblematic && customer.problemNote ? (
+              <Paper
+                variant="outlined"
+                sx={{
+                  mt: 2,
+                  p: 1.5,
+                  borderRadius: 3,
+                  borderColor: "error.light",
+                  bgcolor: "rgba(244, 67, 54, 0.05)",
+                  maxWidth: 700,
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ color: "error.main", fontWeight: 800, mb: 0.5 }}
+                >
+                  Problem qeydi
+                </Typography>
+                <Typography variant="body2">{customer.problemNote}</Typography>
+                {customer.problemMarkedAt ? (
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: "block", mt: 0.75 }}
+                  >
+                    İşarələnib: {formatDate(customer.problemMarkedAt)}
+                  </Typography>
+                ) : null}
+              </Paper>
+            ) : null}
           </Box>
 
           <Stack
@@ -536,6 +647,16 @@ export default function CustomerDetailPage() {
             flexWrap="wrap"
             useFlexGap
           >
+            <Button
+              variant={customer.isProblematic ? "contained" : "outlined"}
+              color="error"
+              startIcon={<WarningAmberIcon />}
+              onClick={() => setProblemModalOpen(true)}
+              sx={{ borderRadius: 3, minWidth: 190 }}
+            >
+              Problemli müştəri
+            </Button>
+
             <Button
               variant="contained"
               endIcon={<LaunchIcon />}
@@ -558,15 +679,6 @@ export default function CustomerDetailPage() {
               sx={{ borderRadius: 3, minWidth: 130 }}
             >
               Waze
-            </Button>
-
-            <Button
-              variant="outlined"
-              startIcon={<ReceiptLongIcon />}
-              onClick={() => window.print()}
-              sx={{ borderRadius: 3 }}
-            >
-              Çap et
             </Button>
           </Stack>
         </Stack>
@@ -643,7 +755,13 @@ export default function CustomerDetailPage() {
                 <Typography variant="body2" color="text.secondary">
                   Müştəri adı
                 </Typography>
-                <Typography variant="body1" fontWeight={700}>
+                <Typography
+                  variant="body1"
+                  fontWeight={700}
+                  sx={{
+                    color: customer.isProblematic ? "error.main" : "inherit",
+                  }}
+                >
                   {customer.name || "-"}
                 </Typography>
               </Box>
@@ -702,6 +820,25 @@ export default function CustomerDetailPage() {
                   {formatDate(customer.updatedAt)}
                 </Typography>
               </Box>
+
+              {customer.isProblematic && (
+                <>
+                  <Divider />
+
+                  <Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Problem statusu
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      fontWeight={700}
+                      color="error.main"
+                    >
+                      Problemli müştəri
+                    </Typography>
+                  </Box>
+                </>
+              )}
 
               <Divider />
 
@@ -1004,74 +1141,167 @@ export default function CustomerDetailPage() {
                   Bu müştəri üçün hələ mədaxil qeydi yoxdur.
                 </Alert>
               ) : (
-                <List sx={{ p: 0 }}>
+                <Stack spacing={2}>
                   {sortedPayments.map((payment, index) => (
-                    <Box key={payment.id || index}>
-                      <ListItem sx={{ px: 0, py: 1.5 }}>
-                        <ListItemText
-                          primary={
-                            <Stack
-                              direction={{ xs: "column", sm: "row" }}
-                              justifyContent="space-between"
-                              spacing={1}
-                            >
-                              <Stack
-                                direction="row"
-                                spacing={1}
-                                alignItems="center"
-                              >
-                                <Typography fontWeight={800}>
-                                  {payment.referenceNumber ||
-                                    payment.receiptNumber ||
-                                    `Mədaxil #${index + 1}`}
-                                </Typography>
-                                <Chip
-                                  size="small"
-                                  color="success"
-                                  label={getPaymentMethodLabel(
-                                    payment.paymentType || payment.method,
-                                  )}
-                                />
-                              </Stack>
+                    <Paper
+                      key={payment.id || index}
+                      variant="outlined"
+                      sx={{ p: 2.25, borderRadius: 4 }}
+                    >
+                      <Stack
+                        direction={{ xs: "column", md: "row" }}
+                        justifyContent="space-between"
+                        spacing={2}
+                      >
+                        <Box sx={{ flex: 1 }}>
+                          <Stack
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={1}
+                            alignItems={{ xs: "flex-start", sm: "center" }}
+                            sx={{ mb: 1 }}
+                          >
+                            <Typography fontWeight={800}>
+                              {payment.referenceNumber ||
+                                payment.receiptNumber ||
+                                `Mədaxil #${index + 1}`}
+                            </Typography>
 
-                              <Typography fontWeight={800} color="success.main">
-                                {formatCurrency(getPaymentAmount(payment))}
-                              </Typography>
-                            </Stack>
-                          }
-                          secondary={
+                            <Chip
+                              size="small"
+                              color="success"
+                              label={getPaymentMethodLabel(
+                                payment.paymentType || payment.method,
+                              )}
+                            />
+
+                            {payment.imageUrl ? (
+                              <Chip
+                                size="small"
+                                icon={<ImageOutlinedIcon />}
+                                label="Şəkil var"
+                                color="info"
+                                variant="outlined"
+                              />
+                            ) : null}
+
+                            {payment.soldItems?.length > 0 ? (
+                              <Chip
+                                size="small"
+                                icon={<Inventory2OutlinedIcon />}
+                                label={`Məhsul: ${payment.soldItems.length}`}
+                                color="primary"
+                                variant="outlined"
+                              />
+                            ) : null}
+                          </Stack>
+
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 0.5 }}
+                          >
+                            Tarix:{" "}
+                            {formatDate(
+                              payment.paymentDate ||
+                                payment.createdAt ||
+                                payment.date,
+                            )}
+                          </Typography>
+
+                          {payment.note ? (
+                            <Typography variant="body2" sx={{ mb: 0.5 }}>
+                              Qeyd: {payment.note}
+                            </Typography>
+                          ) : null}
+
+                          {payment.createdBy?.fullName ||
+                          payment.user?.fullName ? (
+                            <Typography variant="body2" sx={{ mb: 0.5 }}>
+                              Əlavə edən:{" "}
+                              {payment.createdBy?.fullName ||
+                                payment.user?.fullName}
+                            </Typography>
+                          ) : null}
+
+                          {payment.soldItems?.length > 0 ? (
                             <Box sx={{ mt: 1 }}>
                               <Typography
                                 variant="body2"
                                 color="text.secondary"
+                                sx={{ mb: 0.5 }}
                               >
-                                Tarix:{" "}
-                                {formatDate(payment.createdAt || payment.date)}
+                                Satılmış kimi qeyd olunan məhsullar:
                               </Typography>
 
-                              {payment.note ? (
-                                <Typography variant="body2" sx={{ mt: 0.5 }}>
-                                  Qeyd: {payment.note}
-                                </Typography>
-                              ) : null}
-
-                              {payment.createdBy?.fullName ||
-                              payment.user?.fullName ? (
-                                <Typography variant="body2" sx={{ mt: 0.5 }}>
-                                  Əlavə edən:{" "}
-                                  {payment.createdBy?.fullName ||
-                                    payment.user?.fullName}
-                                </Typography>
-                              ) : null}
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                flexWrap="wrap"
+                                useFlexGap
+                              >
+                                {payment.soldItems.map((item) => (
+                                  <Chip
+                                    key={item.id}
+                                    size="small"
+                                    variant="outlined"
+                                    label={`${
+                                      item.product?.name || "Məhsul"
+                                    } (${item.quantity || 0} əd.)`}
+                                  />
+                                ))}
+                              </Stack>
                             </Box>
-                          }
-                        />
-                      </ListItem>
+                          ) : null}
+                        </Box>
 
-                      {index !== sortedPayments.length - 1 ? <Divider /> : null}
-                    </Box>
+                        <Box
+                          sx={{
+                            minWidth: { xs: "100%", md: 220 },
+                            p: 1.5,
+                            borderRadius: 3,
+                            bgcolor: "#f8fafc",
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          <Stack spacing={1}>
+                            <Typography
+                              variant="h6"
+                              fontWeight={800}
+                              color="success.main"
+                              sx={{ textAlign: { xs: "left", md: "right" } }}
+                            >
+                              {formatCurrency(getPaymentAmount(payment))}
+                            </Typography>
+
+                            <Stack
+                              direction={{
+                                xs: "column",
+                                sm: "row",
+                                md: "column",
+                              }}
+                              spacing={1}
+                            >
+                              {payment.imageUrl ? (
+                                <Button
+                                  variant="outlined"
+                                  startIcon={<ImageOutlinedIcon />}
+                                  onClick={() => openPaymentImage(payment)}
+                                  sx={{
+                                    textTransform: "none",
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  Şəkilə bax
+                                </Button>
+                              ) : null}
+                            </Stack>
+                          </Stack>
+                        </Box>
+                      </Stack>
+                    </Paper>
                   ))}
-                </List>
+                </Stack>
               )}
             </TabPanel>
 
@@ -1436,13 +1666,158 @@ export default function CustomerDetailPage() {
             </Stack>
           ) : null}
         </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={imagePreviewOpen}
+        onClose={closePaymentImage}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>
+          <Typography component="span" variant="h6" fontWeight={800}>
+            Mədaxil şəkli
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent dividers>
+          {!selectedPaymentImage ? (
+            <Typography>Məlumat tapılmadı</Typography>
+          ) : (
+            <Stack spacing={2}>
+              <Paper
+                variant="outlined"
+                sx={{ p: 2, borderRadius: 3, bgcolor: "#f8fafc" }}
+              >
+                <Stack spacing={1}>
+                  <Typography>
+                    <b>Məbləğ:</b>{" "}
+                    {formatCurrency(getPaymentAmount(selectedPaymentImage))}
+                  </Typography>
+                  <Typography>
+                    <b>Tarix:</b>{" "}
+                    {formatDate(
+                      selectedPaymentImage.paymentDate ||
+                        selectedPaymentImage.createdAt ||
+                        selectedPaymentImage.date,
+                    )}
+                  </Typography>
+                  <Typography>
+                    <b>Ödəniş növü:</b>{" "}
+                    {getPaymentMethodLabel(
+                      selectedPaymentImage.paymentType ||
+                        selectedPaymentImage.method,
+                    )}
+                  </Typography>
+                  <Typography>
+                    <b>Qeyd:</b> {selectedPaymentImage.note || "-"}
+                  </Typography>
+                </Stack>
+              </Paper>
+
+              {selectedPaymentImage.soldItems?.length > 0 && (
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 3 }}>
+                  <Typography fontWeight={800} mb={1.5}>
+                    Bu mədaxildə qeyd olunan satılmış məhsullar
+                  </Typography>
+
+                  <Stack spacing={1}>
+                    {selectedPaymentImage.soldItems.map((item) => (
+                      <Stack
+                        key={item.id}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Typography>{item.product?.name || "-"}</Typography>
+                        <Chip label={`${item.quantity} ədəd`} size="small" />
+                      </Stack>
+                    ))}
+                  </Stack>
+                </Paper>
+              )}
+
+              {selectedPaymentImage.imageUrl ? (
+                <Box
+                  component="img"
+                  src={selectedPaymentImage.imageUrl}
+                  alt="payment-proof"
+                  sx={{
+                    width: "100%",
+                    maxHeight: "70vh",
+                    objectFit: "contain",
+                    borderRadius: 2,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    bgcolor: "#fff",
+                  }}
+                />
+              ) : (
+                <Alert severity="info">Şəkil tapılmadı</Alert>
+              )}
+            </Stack>
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={closePaymentImage}>Bağla</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={problemModalOpen}
+        onClose={() => setProblemModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Problemli müştəri qeydi</DialogTitle>
+
+        <DialogContent dividers>
+          <Stack spacing={2}>
+            <Typography variant="body2" color="text.secondary">
+              Bu müştəri problemli kimi işarələnəcək. Qeyd yazıldıqdan sonra
+              ümumi siyahıda adı qırmızı görünəcək.
+            </Typography>
+
+            <TextField
+              label="Qeyd"
+              value={problemNote}
+              onChange={(e) => setProblemNote(e.target.value)}
+              multiline
+              minRows={4}
+              fullWidth
+              placeholder="Məsələn: ödəniş problemi var, kobud davranış edib, sifarişlə bağlı risk var və s."
+            />
+          </Stack>
+        </DialogContent>
 
         <DialogActions sx={{ p: 2 }}>
-          <Button variant="outlined" onClick={() => window.print()}>
-            Çap et
-          </Button>
-          <Button variant="contained" onClick={() => setSelectedOrder(null)}>
+          {customer?.isProblematic && (
+            <Button
+              color="warning"
+              variant="outlined"
+              onClick={handleClearProblemCustomer}
+              disabled={problemSaving}
+            >
+              Problem statusunu sil
+            </Button>
+          )}
+
+          <Button
+            variant="outlined"
+            onClick={() => setProblemModalOpen(false)}
+            disabled={problemSaving}
+          >
             Bağla
+          </Button>
+
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleSaveProblemCustomer}
+            disabled={problemSaving}
+          >
+            {problemSaving ? "Yazılır..." : "Təsdiqlə"}
           </Button>
         </DialogActions>
       </Dialog>

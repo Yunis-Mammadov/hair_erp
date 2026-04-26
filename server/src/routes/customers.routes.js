@@ -137,12 +137,14 @@ router.get(
           { phone: { contains: q } },
           { salon: { contains: q, mode: "insensitive" } },
           { address: { contains: q, mode: "insensitive" } },
+          { area: { name: { contains: q, mode: "insensitive" } } },
         ];
       }
 
       const customers = await prisma.customer.findMany({
         where,
         include: {
+          area: true,
           assignedExpeditor: {
             select: {
               id: true,
@@ -153,6 +155,7 @@ router.get(
           },
           orders: {
             include: {
+              area: true,
               createdBy: {
                 select: {
                   id: true,
@@ -204,6 +207,11 @@ router.get(
                   id: true,
                   fullName: true,
                   role: true,
+                },
+              },
+              soldItems: {
+                include: {
+                  product: true,
                 },
               },
             },
@@ -246,6 +254,7 @@ router.get(
       const customer = await prisma.customer.findFirst({
         where: customerWhere,
         include: {
+          area: true,
           assignedExpeditor: {
             select: {
               id: true,
@@ -256,6 +265,7 @@ router.get(
           },
           orders: {
             include: {
+              area: true,
               createdBy: {
                 select: {
                   id: true,
@@ -309,6 +319,15 @@ router.get(
                   role: true,
                 },
               },
+              soldItems: {
+                include: {
+                  product: {
+                    include: {
+                      category: true,
+                    },
+                  },
+                },
+              },
             },
             orderBy: {
               createdAt: "desc",
@@ -347,7 +366,7 @@ router.post(
   requireRole("ADMIN", "EXPEDITOR"),
   async (req, res) => {
     try {
-      const { name, phone, salon, address, lat, lng } = req.body;
+      const { name, phone, salon, address, lat, lng, areaId } = req.body;
 
       if (!name || String(name).trim().length < 2) {
         return res.status(400).json({ message: "name invalid" });
@@ -374,6 +393,21 @@ router.post(
         return res.status(400).json({ message: "location required" });
       }
 
+      if (!areaId || !String(areaId).trim()) {
+        return res.status(400).json({ message: "area required" });
+      }
+
+      const area = await prisma.area.findFirst({
+        where: {
+          id: String(areaId).trim(),
+          isActive: true,
+        },
+      });
+
+      if (!area) {
+        return res.status(400).json({ message: "invalid areaId" });
+      }
+
       const customer = await prisma.customer.create({
         data: {
           name: String(name).trim(),
@@ -382,10 +416,12 @@ router.post(
           address: String(address).trim(),
           lat: Number(lat),
           lng: Number(lng),
+          areaId: area.id,
           assignedExpeditorId:
             req.user.role === "EXPEDITOR" ? req.user.userId : null,
         },
         include: {
+          area: true,
           assignedExpeditor: {
             select: {
               id: true,
@@ -405,6 +441,108 @@ router.post(
   },
 );
 
+// PUT /customers/:id
+router.put(
+  "/:id",
+  requireAuth,
+  requireRole("ADMIN", "EXPEDITOR"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const isExpeditor = req.user.role === "EXPEDITOR";
+
+      const {
+        name,
+        phone,
+        salon,
+        address,
+        lat,
+        lng,
+        areaId,
+        assignedExpeditorId,
+        isProblematic,
+        problemNote,
+      } = req.body;
+
+      const where = { id };
+
+      if (isExpeditor) {
+        where.assignedExpeditorId = req.user.userId;
+      }
+
+      const existingCustomer = await prisma.customer.findFirst({ where });
+
+      if (!existingCustomer) {
+        return res.status(404).json({ message: "Müştəri tapılmadı" });
+      }
+
+      let finalAreaId = existingCustomer.areaId || null;
+
+      if (areaId !== undefined) {
+        if (!areaId || !String(areaId).trim()) {
+          return res.status(400).json({ message: "area required" });
+        }
+
+        const area = await prisma.area.findFirst({
+          where: {
+            id: String(areaId).trim(),
+            isActive: true,
+          },
+        });
+
+        if (!area) {
+          return res.status(400).json({ message: "invalid areaId" });
+        }
+
+        finalAreaId = area.id;
+      }
+
+      const updateData = {
+        areaId: finalAreaId,
+      };
+
+      if (isProblematic !== undefined) {
+        updateData.isProblematic = Boolean(isProblematic);
+      }
+
+      if (problemNote !== undefined) {
+        updateData.problemNote = problemNote
+          ? String(problemNote).trim()
+          : null;
+      }
+
+      if (isProblematic === true) {
+        updateData.problemMarkedAt = new Date();
+      }
+
+      if (isProblematic === false) {
+        updateData.problemMarkedAt = null;
+      }
+
+      const customer = await prisma.customer.update({
+        where: { id },
+        data: updateData,
+        include: {
+          area: true,
+          assignedExpeditor: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
+      });
+
+      return res.json({ customer });
+    } catch (error) {
+      console.error("Update customer error:", error);
+      return res.status(500).json({ message: error.message || "Server error" });
+    }
+  },
+);
+
 // DELETE /customers/reset-all-test-data
 router.delete(
   "/reset-all-test-data",
@@ -413,6 +551,7 @@ router.delete(
   async (req, res) => {
     try {
       const result = await prisma.$transaction(async (tx) => {
+        const deletedPaymentSoldItems = await tx.paymentSoldItem.deleteMany({});
         const deletedPayments = await tx.payment.deleteMany({});
         const deletedReturnItems = await tx.returnItem.deleteMany({});
         const deletedReturns = await tx.return.deleteMany({});
@@ -421,6 +560,7 @@ router.delete(
         const deletedCustomers = await tx.customer.deleteMany({});
 
         return {
+          paymentSoldItems: deletedPaymentSoldItems.count,
           payments: deletedPayments.count,
           returnItems: deletedReturnItems.count,
           returns: deletedReturns.count,

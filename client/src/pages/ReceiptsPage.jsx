@@ -21,6 +21,8 @@ import {
   TableRow,
   TextField,
   Typography,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import PaidIcon from "@mui/icons-material/Paid";
 import SearchIcon from "@mui/icons-material/Search";
@@ -29,6 +31,12 @@ import StoreIcon from "@mui/icons-material/Store";
 import PhoneIcon from "@mui/icons-material/Phone";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import PhotoCameraBackOutlinedIcon from "@mui/icons-material/PhotoCameraBackOutlined";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 import { getCustomers } from "../lib/customers";
 import { api } from "../lib/api";
 
@@ -64,6 +72,7 @@ function calcOrdersTotal(customer) {
 
   return (customer?.orders || []).reduce((sum, order) => {
     const itemsTotal = (order?.items || []).reduce((itemSum, item) => {
+      if (item?.isGift) return itemSum;
       return (
         itemSum + Number(item?.quantity || 0) * Number(item?.unitPrice || 0)
       );
@@ -100,6 +109,10 @@ function calcReturnsTotal(customer) {
     return Number(customer.stats.totalReturnsAmount || 0);
   }
 
+  if (customer?.summary?.returnTotal != null) {
+    return Number(customer.summary.returnTotal || 0);
+  }
+
   return (customer?.returns || []).reduce((sum, ret) => {
     const itemsTotal = (ret?.items || []).reduce((itemSum, item) => {
       return (
@@ -129,6 +142,59 @@ function getCustomerDebt(customer) {
   return debt > 0 ? debt : 0;
 }
 
+function getCustomerAggregatedProducts(customer) {
+  if (!customer?.orders || !Array.isArray(customer.orders)) return [];
+
+  const soldMap = {};
+  const returnedMap = {};
+
+  for (const order of customer.orders || []) {
+    for (const item of order.items || []) {
+      if (!item?.productId || item?.isGift) continue;
+
+      if (!soldMap[item.productId]) {
+        soldMap[item.productId] = {
+          productId: item.productId,
+          productName: item.product?.name || "-",
+          categoryName: item.product?.category?.name || "-",
+          soldQty: 0,
+          returnedQty: 0,
+          returnableQty: 0,
+        };
+      }
+
+      soldMap[item.productId].soldQty += Number(item.quantity || 0);
+    }
+  }
+
+  for (const ret of customer.returns || []) {
+    for (const item of ret.items || []) {
+      if (!item?.productId) continue;
+      returnedMap[item.productId] =
+        Number(returnedMap[item.productId] || 0) + Number(item.quantity || 0);
+    }
+  }
+
+  const result = Object.values(soldMap)
+    .map((item) => {
+      const returnedQty = Number(returnedMap[item.productId] || 0);
+      const returnableQty = Math.max(
+        Number(item.soldQty || 0) - returnedQty,
+        0,
+      );
+
+      return {
+        ...item,
+        returnedQty,
+        returnableQty,
+      };
+    })
+    .filter((item) => item.returnableQty > 0);
+
+  result.sort((a, b) => a.productName.localeCompare(b.productName, "az"));
+  return result;
+}
+
 export default function ReceiptsPage() {
   const currentUser = useMemo(() => getStoredUser(), []);
 
@@ -156,6 +222,9 @@ export default function ReceiptsPage() {
     paymentType: "NAĞD",
     note: "",
     date: new Date().toISOString().slice(0, 10),
+    imageFile: null,
+    imagePreview: "",
+    soldItems: [],
   });
 
   async function fetchCustomers(searchValue = "", selectedExpeditorId = "") {
@@ -236,6 +305,17 @@ export default function ReceiptsPage() {
       .length;
   }, [filteredCustomers]);
 
+  const customerProducts = useMemo(() => {
+    return getCustomerAggregatedProducts(selectedCustomer);
+  }, [selectedCustomer]);
+
+  const selectedSoldItemsCount = useMemo(() => {
+    return form.soldItems.reduce(
+      (sum, item) => sum + Number(item.quantity || 0),
+      0,
+    );
+  }, [form.soldItems]);
+
   function openReceiptModal(customer) {
     if (!canCreateReceipt) return;
 
@@ -245,6 +325,9 @@ export default function ReceiptsPage() {
       paymentType: "NAĞD",
       note: "",
       date: new Date().toISOString().slice(0, 10),
+      imageFile: null,
+      imagePreview: "",
+      soldItems: [],
     });
     setOpen(true);
   }
@@ -252,6 +335,115 @@ export default function ReceiptsPage() {
   function closeReceiptModal() {
     setOpen(false);
     setSelectedCustomer(null);
+
+    if (form.imagePreview) {
+      URL.revokeObjectURL(form.imagePreview);
+    }
+
+    setForm({
+      amount: "",
+      paymentType: "NAĞD",
+      note: "",
+      date: new Date().toISOString().slice(0, 10),
+      imageFile: null,
+      imagePreview: "",
+      soldItems: [],
+    });
+  }
+
+  function handleRefresh() {
+    fetchCustomers(search, expeditorId);
+  }
+
+  function handleReset() {
+    setSearch("");
+    setExpeditorId("");
+    fetchCustomers("", "");
+  }
+
+  function handleImageChange(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (form.imagePreview) {
+      URL.revokeObjectURL(form.imagePreview);
+    }
+
+    const preview = URL.createObjectURL(file);
+
+    setForm((prev) => ({
+      ...prev,
+      imageFile: file,
+      imagePreview: preview,
+    }));
+  }
+
+  function removeSelectedImage() {
+    if (form.imagePreview) {
+      URL.revokeObjectURL(form.imagePreview);
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      imageFile: null,
+      imagePreview: "",
+    }));
+  }
+
+  function changeSoldItemQty(product, nextQty) {
+    const safeMax = Number(product.returnableQty || 0);
+    const safeQty = Math.max(0, Math.min(Number(nextQty || 0), safeMax));
+
+    setForm((prev) => {
+      const others = prev.soldItems.filter(
+        (item) => item.productId !== product.productId,
+      );
+
+      if (safeQty <= 0) {
+        return {
+          ...prev,
+          soldItems: others,
+        };
+      }
+
+      return {
+        ...prev,
+        soldItems: [
+          ...others,
+          {
+            productId: product.productId,
+            quantity: safeQty,
+          },
+        ],
+      };
+    });
+  }
+
+  function getSelectedQty(productId) {
+    return (
+      form.soldItems.find((item) => item.productId === productId)?.quantity || 0
+    );
+  }
+
+  async function uploadImageAndGetUrl(file) {
+    if (!file) return "";
+
+    // Əgər ayrıca upload endpoint-in varsa bunu onunla əvəz et
+    // const fd = new FormData();
+    // fd.append("file", file);
+    // const { data } = await api.post("/uploads", fd, {
+    //   headers: { "Content-Type": "multipart/form-data" },
+    // });
+    // return data.url;
+
+    // Müvəqqəti variant: base64 çevirib göndərmək
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   async function handleSaveReceipt() {
@@ -273,12 +465,20 @@ export default function ReceiptsPage() {
     try {
       setSaving(true);
 
+      let imageUrl = "";
+
+      if (form.imageFile) {
+        imageUrl = await uploadImageAndGetUrl(form.imageFile);
+      }
+
       await api.post("/payments", {
         customerId: selectedCustomer.id,
         amount,
         paymentType: form.paymentType,
         note: form.note,
         date: form.date,
+        imageUrl,
+        soldItems: form.soldItems,
       });
 
       closeReceiptModal();
@@ -289,16 +489,6 @@ export default function ReceiptsPage() {
     } finally {
       setSaving(false);
     }
-  }
-
-  function handleRefresh() {
-    fetchCustomers(search, expeditorId);
-  }
-
-  function handleReset() {
-    setSearch("");
-    setExpeditorId("");
-    fetchCustomers("", "");
   }
 
   return (
@@ -623,7 +813,7 @@ export default function ReceiptsPage() {
         )}
       </Paper>
 
-      <Dialog open={open} onClose={closeReceiptModal} fullWidth maxWidth="sm">
+      <Dialog open={open} onClose={closeReceiptModal} fullWidth maxWidth="md">
         <DialogTitle>
           <Typography component="span" variant="h6" fontWeight={800}>
             Mədaxil əlavə et
@@ -660,53 +850,283 @@ export default function ReceiptsPage() {
                 </Stack>
               </Paper>
 
-              <TextField
-                label="Məbləğ"
-                type="number"
-                value={form.amount}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, amount: e.target.value }))
-                }
-                fullWidth
-              />
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Məbləğ"
+                    type="number"
+                    value={form.amount}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, amount: e.target.value }))
+                    }
+                    fullWidth
+                  />
+                </Grid>
 
-              <TextField
-                select
-                label="Ödəniş növü"
-                value={form.paymentType}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, paymentType: e.target.value }))
-                }
-                fullWidth
-              >
-                {PAYMENT_METHODS.map((item) => (
-                  <MenuItem key={item} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-              </TextField>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    select
+                    label="Ödəniş növü"
+                    value={form.paymentType}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        paymentType: e.target.value,
+                      }))
+                    }
+                    fullWidth
+                  >
+                    {PAYMENT_METHODS.map((item) => (
+                      <MenuItem key={item} value={item}>
+                        {item}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
 
-              <TextField
-                label="Tarix"
-                type="date"
-                value={form.date}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, date: e.target.value }))
-                }
-                InputLabelProps={{ shrink: true }}
-                fullWidth
-              />
+                <Grid item xs={12}>
+                  <TextField
+                    label="Tarix"
+                    type="date"
+                    value={form.date}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, date: e.target.value }))
+                    }
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                  />
+                </Grid>
 
-              <TextField
-                label="Qeyd"
-                value={form.note}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, note: e.target.value }))
-                }
-                multiline
-                minRows={3}
-                fullWidth
-              />
+                <Grid item xs={12}>
+                  <TextField
+                    label="Qeyd"
+                    value={form.note}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, note: e.target.value }))
+                    }
+                    multiline
+                    minRows={3}
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 3 }}>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: "stretch", sm: "center" }}
+                  spacing={2}
+                  mb={form.imagePreview ? 2 : 0}
+                >
+                  <Box>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <ImageOutlinedIcon />
+                      <Typography fontWeight={800}>Şəkil əlavə et</Typography>
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary">
+                      Çek, vitrin və ya ödənişlə bağlı şəkil əlavə edə bilərsən
+                    </Typography>
+                  </Box>
+
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      startIcon={<PhotoCameraBackOutlinedIcon />}
+                    >
+                      Qalereyadan seç
+                      <input
+                        hidden
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                    </Button>
+
+                    {form.imagePreview && (
+                      <Button
+                        color="error"
+                        variant="outlined"
+                        startIcon={<DeleteOutlineOutlinedIcon />}
+                        onClick={removeSelectedImage}
+                      >
+                        Sil
+                      </Button>
+                    )}
+                  </Stack>
+                </Stack>
+
+                {form.imagePreview && (
+                  <Box
+                    sx={{
+                      mt: 1,
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={form.imagePreview}
+                      alt="payment-preview"
+                      sx={{
+                        width: "100%",
+                        maxWidth: 320,
+                        height: 220,
+                        objectFit: "cover",
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    />
+                  </Box>
+                )}
+              </Paper>
+
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 3 }}>
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: "stretch", sm: "center" }}
+                  spacing={1.5}
+                  mb={2}
+                >
+                  <Box>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Inventory2OutlinedIcon />
+                      <Typography fontWeight={800}>
+                        Satılmış məhsulları qeyd et
+                      </Typography>
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary">
+                      Bu mədaxildə hansı məhsulların pulu yığıldığını qeyd et
+                    </Typography>
+                  </Box>
+
+                  <Chip
+                    color="primary"
+                    variant="outlined"
+                    label={`Seçilən ümumi say: ${selectedSoldItemsCount}`}
+                  />
+                </Stack>
+
+                <Divider sx={{ mb: 2 }} />
+
+                {customerProducts.length === 0 ? (
+                  <Alert severity="info">
+                    Bu müştərinin seçilə biləcək satış məhsulu tapılmadı
+                  </Alert>
+                ) : (
+                  <Stack spacing={1.5}>
+                    {customerProducts.map((product) => {
+                      const selectedQty = getSelectedQty(product.productId);
+
+                      return (
+                        <Paper
+                          key={product.productId}
+                          variant="outlined"
+                          sx={{
+                            p: 1.5,
+                            borderRadius: 2.5,
+                            backgroundColor:
+                              selectedQty > 0
+                                ? "rgba(25,118,210,0.04)"
+                                : "#fff",
+                          }}
+                        >
+                          <Stack
+                            direction={{ xs: "column", md: "row" }}
+                            spacing={2}
+                            alignItems={{ xs: "stretch", md: "center" }}
+                            justifyContent="space-between"
+                          >
+                            <Box sx={{ flex: 1 }}>
+                              <Typography fontWeight={800}>
+                                {product.productName}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {product.categoryName}
+                              </Typography>
+
+                              <Stack
+                                direction={{ xs: "column", sm: "row" }}
+                                spacing={1}
+                                mt={1}
+                              >
+                                <Chip
+                                  size="small"
+                                  label={`Satılıb: ${product.soldQty}`}
+                                  variant="outlined"
+                                />
+                                <Chip
+                                  size="small"
+                                  label={`Qaytarılıb: ${product.returnedQty}`}
+                                  variant="outlined"
+                                />
+                                <Chip
+                                  size="small"
+                                  color="primary"
+                                  label={`Qeyd edilə bilər: ${product.returnableQty}`}
+                                  variant="outlined"
+                                />
+                              </Stack>
+                            </Box>
+
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                              justifyContent="center"
+                            >
+                              <IconButton
+                                onClick={() =>
+                                  changeSoldItemQty(
+                                    product,
+                                    Number(selectedQty || 0) - 1,
+                                  )
+                                }
+                                disabled={selectedQty <= 0}
+                              >
+                                <RemoveIcon />
+                              </IconButton>
+
+                              <TextField
+                                size="small"
+                                type="number"
+                                label="Satıldı"
+                                value={selectedQty}
+                                onChange={(e) =>
+                                  changeSoldItemQty(product, e.target.value)
+                                }
+                                inputProps={{
+                                  min: 0,
+                                  max: product.returnableQty,
+                                }}
+                                sx={{ width: 120 }}
+                              />
+
+                              <IconButton
+                                onClick={() =>
+                                  changeSoldItemQty(
+                                    product,
+                                    Number(selectedQty || 0) + 1,
+                                  )
+                                }
+                                disabled={selectedQty >= product.returnableQty}
+                              >
+                                <AddIcon />
+                              </IconButton>
+                            </Stack>
+                          </Stack>
+                        </Paper>
+                      );
+                    })}
+                  </Stack>
+                )}
+              </Paper>
             </Stack>
           )}
         </DialogContent>

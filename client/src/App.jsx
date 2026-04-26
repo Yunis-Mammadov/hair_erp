@@ -1,8 +1,10 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { useAuth } from "./features/auth/useAuth";
 import AppShell from "./layout/AppShell";
 import CustomerDetailPage from "./pages/CustomersDetailPage";
 import CustomersPage from "./pages/CustomersPage";
 import Dashboard from "./pages/Dashboard";
+import DeliveryPage from "./pages/DeliveryPage";
 import Forbidden from "./pages/Forbidden";
 import Login from "./pages/Login";
 import PurchaseHistoryPage from "./pages/PurchasesHistoryPage";
@@ -15,7 +17,7 @@ import SalesPage from "./pages/SalesPage";
 import StockPage from "./pages/StockPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRoute from "./routes/RoleRoute";
-import { useAuth } from "./features/auth/useAuth";
+import LiveLocationPage from "./pages/LiveLocationPage";
 
 // placeholders
 const Placeholder = ({ title }) => <div style={{ padding: 16 }}>{title}</div>;
@@ -213,7 +215,7 @@ export default function App() {
           <ProtectedRoute>
             <RoleRoute allow={["DRIVER", "ADMIN"]}>
               <AppShell>
-                <Placeholder title="Çatdırılma bölməsi" />
+                <DeliveryPage />
               </AppShell>
             </RoleRoute>
           </ProtectedRoute>
@@ -227,6 +229,19 @@ export default function App() {
             <RoleRoute allow={["DRIVER", "ADMIN"]}>
               <AppShell>
                 <Placeholder title="Rutlar bölməsi" />
+              </AppShell>
+            </RoleRoute>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/driver/live-location"
+        element={
+          <ProtectedRoute>
+            <RoleRoute allow={["DRIVER", "ADMIN"]}>
+              <AppShell>
+                <LiveLocationPage />
               </AppShell>
             </RoleRoute>
           </ProtectedRoute>

@@ -27,9 +27,10 @@ model Product {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orderItems    OrderItem[]
-  returnItems   ReturnItem[]
-  purchaseItems PurchaseItem[]
+  orderItems       OrderItem[]
+  returnItems      ReturnItem[]
+  purchaseItems    PurchaseItem[]
+  paymentSoldItems PaymentSoldItem[]
 
   @@unique([name, categoryId])
 }
@@ -65,6 +66,20 @@ model Stock {
   updatedAt DateTime @updatedAt
 }
 
+model Area {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  routeZone String?
+  routeDay  Int?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customers Customer[]
+  orders    Order[]
+}
+
 model Customer {
   id      String  @id @default(cuid())
   name    String
@@ -74,8 +89,15 @@ model Customer {
   lat     Float?
   lng     Float?
 
+  areaId String?
+  area   Area?   @relation(fields: [areaId], references: [id])
+
   assignedExpeditorId String?
   assignedExpeditor   User?   @relation("CustomerAssignedExpeditor", fields: [assignedExpeditorId], references: [id])
+
+  isProblematic   Boolean   @default(false)
+  problemNote     String?
+  problemMarkedAt DateTime?
 
   orders   Order[]
   returns  Return[]
@@ -110,24 +132,58 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders            Order[]
+  orders            Order[]             @relation("OrderCreatedBy")
+  editedOrders      Order[]             @relation("OrderEditedBy")
   returns           Return[]
   purchases         Purchase[]
-  paymentsCreated   Payment[]  @relation("PaymentCreatedBy")
-  assignedCustomers Customer[] @relation("CustomerAssignedExpeditor")
+  paymentsCreated   Payment[]           @relation("PaymentCreatedBy")
+  assignedCustomers Customer[]          @relation("CustomerAssignedExpeditor")
+  liveSessions      DriverLiveSession[]
+  orderEditLogs     OrderEditLog[]
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  customerId  String
-  customer    Customer    @relation(fields: [customerId], references: [id])
+  id          String @id @default(cuid())
+  orderNumber Int    @unique @default(autoincrement())
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
   createdById String
-  createdBy   User        @relation(fields: [createdById], references: [id])
+  createdBy   User   @relation("OrderCreatedBy", fields: [createdById], references: [id])
+
   paymentType PaymentType
   note        String?
-  createdAt   DateTime    @default(now())
 
-  items OrderItem[]
+  areaId String?
+  area   Area?   @relation(fields: [areaId], references: [id])
+
+  deliveryStatus DeliveryStatus @default(IN_WAREHOUSE)
+  deliveredAt    DateTime?
+
+  isLocked Boolean @default(false)
+
+  lastEditedById String?
+  lastEditedBy   User?     @relation("OrderEditedBy", fields: [lastEditedById], references: [id])
+  lastEditedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  sellerSignature String?
+  sellerSignedAt  DateTime?
+  customerSignature String?
+  signedAt DateTime?
+
+  items    OrderItem[]
+  editLogs OrderEditLog[]
+
+  @@index([customerId])
+  @@index([createdById])
+  @@index([areaId])
+  @@index([deliveryStatus])
+  @@index([createdAt])
+  @@index([deliveredAt])
 }
 
 model OrderItem {
@@ -137,11 +193,14 @@ model OrderItem {
   quantity    Int
   unitPrice   Decimal @db.Decimal(10, 2)
   returnedQty Int     @default(0)
-  isGift      Boolean @default(false) // ✅ əlavə olundu
+  isGift      Boolean @default(false)
 
   order       Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product     Product      @relation(fields: [productId], references: [id])
   returnItems ReturnItem[]
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model Return {
@@ -168,6 +227,10 @@ model ReturnItem {
   returnDoc Return     @relation(fields: [returnId], references: [id], onDelete: Cascade)
   orderItem OrderItem? @relation(fields: [orderItemId], references: [id])
   product   Product    @relation(fields: [productId], references: [id])
+
+  @@index([returnId])
+  @@index([orderItemId])
+  @@index([productId])
 }
 
 model Payment {
@@ -175,9 +238,72 @@ model Payment {
   customerId  String
   createdById String?
   amount      Float
+  paymentType String?
+  paymentDate DateTime?
+  imageUrl    String?
   note        String?
   createdAt   DateTime @default(now())
 
   customer  Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   createdBy User?    @relation("PaymentCreatedBy", fields: [createdById], references: [id])
+
+  soldItems PaymentSoldItem[]
+
+  @@index([customerId])
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+model PaymentSoldItem {
+  id         String   @id @default(cuid())
+  paymentId  String
+  productId  String
+  quantity   Int
+  note       String?
+  createdAt  DateTime @default(now())
+
+  payment    Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id])
+
+  @@index([paymentId])
+  @@index([productId])
+}
+
+model OrderEditLog {
+  id             String   @id @default(cuid())
+  orderId        String
+  editedById     String
+  reason         String?
+  beforeSnapshot Json
+  afterSnapshot  Json
+  createdAt      DateTime @default(now())
+
+  order    Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  editedBy User  @relation(fields: [editedById], references: [id])
+
+  @@index([orderId])
+  @@index([editedById])
+  @@index([createdAt])
+}
+
+model DriverLiveSession {
+  id       String @id @default(cuid())
+  driverId String
+  driver   User   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  lat      Float
+  lng      Float
+  isActive Boolean @default(true)
+
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  updatedAt DateTime  @updatedAt
+
+  @@index([driverId, isActive])
+}
+
+enum DeliveryStatus {
+  IN_WAREHOUSE
+  ON_BOARD
+  DELIVERED
 }

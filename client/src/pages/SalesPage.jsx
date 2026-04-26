@@ -90,6 +90,17 @@ export default function SalesPage() {
   const [expanded, setExpanded] = useState({});
   const [productsByCat, setProductsByCat] = useState({});
 
+  const currentUser = useMemo(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const isAdmin = currentUser?.role === "ADMIN";
+
   const [customerMode, setCustomerMode] = useState("");
   const [customerOptions, setCustomerOptions] = useState([]);
   const [customerSearchLoading, setCustomerSearchLoading] = useState(false);
@@ -106,6 +117,10 @@ export default function SalesPage() {
     lat: null,
     lng: null,
   });
+
+  const [areas, setAreas] = useState([]);
+  const [areasLoading, setAreasLoading] = useState(false);
+  const [selectedArea, setSelectedArea] = useState(null);
 
   const [customer, setCustomer] = useState({
     name: "",
@@ -128,7 +143,25 @@ export default function SalesPage() {
     salon: "",
     address: "",
     location: "",
+    area: "",
   });
+
+  async function fetchAreas() {
+    try {
+      setAreasLoading(true);
+      const res = await api.get("/areas");
+      setAreas(res.data || []);
+    } catch (e) {
+      console.error(e);
+      setToast({
+        open: true,
+        type: "error",
+        msg: e?.response?.data?.message || "Ərazilər yüklənmədi",
+      });
+    } finally {
+      setAreasLoading(false);
+    }
+  }
 
   useEffect(() => {
     let alive = true;
@@ -136,6 +169,9 @@ export default function SalesPage() {
     (async () => {
       try {
         setLoadingCats(true);
+
+        await fetchAreas();
+
         const res = await api.get("/catalog/categories");
         if (!alive) return;
 
@@ -270,7 +306,32 @@ export default function SalesPage() {
       lat: c?.lat ?? null,
       lng: c?.lng ?? null,
     });
+
+    if (c?.areaId && areas.length) {
+      const foundArea = areas.find((a) => a.id === c.areaId) || null;
+      setSelectedArea(foundArea);
+    } else if (c?.area?.id && areas.length) {
+      const foundArea = areas.find((a) => a.id === c.area.id) || null;
+      setSelectedArea(foundArea);
+    } else {
+      setSelectedArea(null);
+    }
   }
+
+  useEffect(() => {
+    if (!selectedExistingCustomer || !areas.length) return;
+
+    const customerAreaId =
+      selectedExistingCustomer?.areaId || selectedExistingCustomer?.area?.id;
+
+    if (!customerAreaId) {
+      setSelectedArea(null);
+      return;
+    }
+
+    const foundArea = areas.find((a) => a.id === customerAreaId) || null;
+    setSelectedArea(foundArea);
+  }, [selectedExistingCustomer, areas]);
 
   function handleQtyInput(product, rawValue) {
     const value = String(rawValue).replace(/\D/g, "");
@@ -473,6 +534,7 @@ export default function SalesPage() {
   }
 
   function enableManualPrice(productId) {
+    if (!isAdmin) return;
     setManualPriceEnabled((prev) => ({ ...prev, [productId]: true }));
   }
 
@@ -488,6 +550,8 @@ export default function SalesPage() {
   }
 
   function handlePriceChange(productId, value) {
+    if (!isAdmin) return;
+
     if (value === "") {
       setPrices((prev) => ({ ...prev, [productId]: "" }));
       return;
@@ -505,6 +569,7 @@ export default function SalesPage() {
     setCustomerMode("");
     setCustomerOptions([]);
     setSelectedExistingCustomer(null);
+    setSelectedArea(null);
 
     setQty({});
     setGiftQty({});
@@ -655,6 +720,7 @@ export default function SalesPage() {
       salon: "",
       address: "",
       location: "",
+      area: "",
     };
 
     if (!customerMode) {
@@ -677,8 +743,8 @@ export default function SalesPage() {
       nextErrors.salon = "Salon adı mütləqdir";
     }
 
-    if (!trimmedCustomer.address) {
-      nextErrors.address = "Ünvan mütləqdir";
+    if (!selectedArea?.id) {
+      nextErrors.area = "Ərazi seçilməlidir";
     }
 
     if (!locationData.lat || !locationData.lng) {
@@ -726,9 +792,10 @@ export default function SalesPage() {
           name: trimmedCustomer.name,
           phone: normalizePhoneForBackend(customer.phone),
           salon: trimmedCustomer.salon,
-          address: trimmedCustomer.address,
+          address: selectedArea?.name || "",
           lat: locationData.lat,
           lng: locationData.lng,
+          areaId: selectedArea.id,
         });
 
         customerId = custRes.data?.customer?.id || null;
@@ -821,6 +888,7 @@ export default function SalesPage() {
                   setCustomerMode(value);
                   setSelectedExistingCustomer(null);
                   setCustomerOptions([]);
+                  setSelectedArea(null);
 
                   setCustomer({
                     name: "",
@@ -938,7 +1006,7 @@ export default function SalesPage() {
                     gridTemplateColumns: {
                       xs: "1fr",
                       md: "1fr 1fr",
-                      xl: "1fr 1fr 1fr 1fr",
+                      xl: "1fr 1fr 1fr 1fr 1fr",
                     },
                     gap: 1.5,
                   }}
@@ -1033,31 +1101,50 @@ export default function SalesPage() {
                     alignItems: "start",
                   }}
                 >
-                  <TextField
+                  <Autocomplete
                     fullWidth
-                    value={customer.address}
-                    onChange={(e) => {
-                      setCustomer((p) => ({ ...p, address: e.target.value }));
-                      if (errors.address) {
-                        setErrors((prev) => ({ ...prev, address: "" }));
+                    options={areas}
+                    loading={areasLoading}
+                    value={selectedArea}
+                    onChange={(_, value) => {
+                      setSelectedArea(value);
+                      if (errors.area) {
+                        setErrors((prev) => ({ ...prev, area: "" }));
                       }
                     }}
-                    label="Ünvan"
-                    error={!!errors.address || !!errors.location}
-                    helperText={
-                      errors.address ||
-                      errors.location ||
-                      (locationData.lat && locationData.lng
-                        ? `Koordinat seçildi: ${locationData.lat.toFixed(5)}, ${locationData.lng.toFixed(5)}`
-                        : "Ünvanı yaz və xəritədən koordinatı seç")
+                    getOptionLabel={(option) => option?.name || ""}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
                     }
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <PlaceOutlinedIcon sx={{ mr: 1, opacity: 0.7 }} />
-                        </InputAdornment>
-                      ),
-                    }}
+                    noOptionsText="Ərazi tapılmadı"
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Ərazi"
+                        placeholder="Ərazi axtar və seç"
+                        error={!!errors.area || !!errors.location}
+                        helperText={
+                          errors.area ||
+                          errors.location ||
+                          (locationData.lat && locationData.lng
+                            ? `Koordinat seçildi: ${locationData.lat.toFixed(5)}, ${locationData.lng.toFixed(5)}`
+                            : "Ərazini seç və xəritədən koordinatı qeyd et")
+                        }
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: (
+                            <>
+                              <InputAdornment position="start">
+                                <PlaceOutlinedIcon
+                                  sx={{ mr: 1, opacity: 0.7 }}
+                                />
+                              </InputAdornment>
+                              {params.InputProps.startAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
                   />
 
                   <Button
@@ -1569,38 +1656,39 @@ export default function SalesPage() {
                                     }}
                                   />
 
-                                  {!manualPriceEnabled[it.productId] ? (
-                                    <Button
-                                      variant="outlined"
-                                      startIcon={<EditOutlinedIcon />}
-                                      onClick={() =>
-                                        enableManualPrice(it.productId)
-                                      }
-                                      sx={{
-                                        textTransform: "none",
-                                        borderRadius: 3,
-                                        fontWeight: 900,
-                                      }}
-                                    >
-                                      Manual qiymət
-                                    </Button>
-                                  ) : (
-                                    <Button
-                                      variant="outlined"
-                                      color="warning"
-                                      startIcon={<LockResetOutlinedIcon />}
-                                      onClick={() =>
-                                        resetPriceToDefault(it.product)
-                                      }
-                                      sx={{
-                                        textTransform: "none",
-                                        borderRadius: 3,
-                                        fontWeight: 900,
-                                      }}
-                                    >
-                                      Default-a qaytar
-                                    </Button>
-                                  )}
+                                  {isAdmin &&
+                                    (!manualPriceEnabled[it.productId] ? (
+                                      <Button
+                                        variant="outlined"
+                                        startIcon={<EditOutlinedIcon />}
+                                        onClick={() =>
+                                          enableManualPrice(it.productId)
+                                        }
+                                        sx={{
+                                          textTransform: "none",
+                                          borderRadius: 3,
+                                          fontWeight: 900,
+                                        }}
+                                      >
+                                        Manual qiymət
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        variant="outlined"
+                                        color="warning"
+                                        startIcon={<LockResetOutlinedIcon />}
+                                        onClick={() =>
+                                          resetPriceToDefault(it.product)
+                                        }
+                                        sx={{
+                                          textTransform: "none",
+                                          borderRadius: 3,
+                                          fontWeight: 900,
+                                        }}
+                                      >
+                                        Default-a qaytar
+                                      </Button>
+                                    ))}
 
                                   <Box sx={{ flex: 1 }} />
 

@@ -18,6 +18,11 @@ import {
   TableRow,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -37,8 +42,8 @@ function getCustomerLabel(customer) {
 
 export default function ReturnsPage() {
   const navigate = useNavigate();
-  const [customers, setCustomers] = useState([]);
 
+  const [customers, setCustomers] = useState([]);
   const [customerId, setCustomerId] = useState("");
   const [note, setNote] = useState("");
   const [returnReason, setReturnReason] = useState("");
@@ -49,6 +54,18 @@ export default function ReturnsPage() {
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const [customerDetail, setCustomerDetail] = useState(null);
+  const [selectedMap, setSelectedMap] = useState({});
+
+  const [toast, setToast] = useState({
+    open: false,
+    type: "success",
+    msg: "",
+  });
+
+  const [warningModal, setWarningModal] = useState({
+    open: false,
+    message: "",
+  });
 
   const RETURN_REASONS = [
     "Məhsulla bağlı problem",
@@ -59,14 +76,6 @@ export default function ReturnsPage() {
 
   const noteRequired =
     returnReason === "Məhsulla bağlı problem" || returnReason === "Digər";
-
-  const [selectedMap, setSelectedMap] = useState({});
-
-  const [toast, setToast] = useState({
-    open: false,
-    type: "success",
-    msg: "",
-  });
 
   useEffect(() => {
     fetchCustomers();
@@ -122,10 +131,12 @@ export default function ReturnsPage() {
   const aggregatedProducts = useMemo(() => {
     if (!customerDetail) return [];
 
-    const soldMap = {};
+    const orderedMap = {};
+    const soldByPaymentMap = {};
     const returnedMap = {};
 
     const orders = customerDetail.orders || [];
+    const payments = customerDetail.payments || [];
     const returns = customerDetail.returns || [];
 
     for (const order of orders) {
@@ -133,21 +144,31 @@ export default function ReturnsPage() {
         const productId = item.productId;
         if (!productId || item.isGift) continue;
 
-        if (!soldMap[productId]) {
-          soldMap[productId] = {
+        if (!orderedMap[productId]) {
+          orderedMap[productId] = {
             productId,
             productName: item.product?.name || "-",
             categoryName: item.product?.category?.name || "-",
-            soldQty: 0,
+            totalQty: 0,
             lastUnitPrice: Number(item.unitPrice || 0),
           };
         }
 
-        soldMap[productId].soldQty += Number(item.quantity || 0);
+        orderedMap[productId].totalQty += Number(item.quantity || 0);
 
         if (Number(item.unitPrice || 0) > 0) {
-          soldMap[productId].lastUnitPrice = Number(item.unitPrice || 0);
+          orderedMap[productId].lastUnitPrice = Number(item.unitPrice || 0);
         }
+      }
+    }
+
+    for (const payment of payments) {
+      for (const soldItem of payment.soldItems || []) {
+        const productId = soldItem.productId;
+        if (!productId) continue;
+
+        soldByPaymentMap[productId] =
+          (soldByPaymentMap[productId] || 0) + Number(soldItem.quantity || 0);
       }
     }
 
@@ -156,28 +177,34 @@ export default function ReturnsPage() {
         const productId = item.productId;
         if (!productId) continue;
 
-        if (!returnedMap[productId]) {
-          returnedMap[productId] = 0;
-        }
-
-        returnedMap[productId] += Number(item.quantity || 0);
+        returnedMap[productId] =
+          (returnedMap[productId] || 0) + Number(item.quantity || 0);
       }
     }
 
-    const merged = Object.values(soldMap)
+    const merged = Object.values(orderedMap)
       .map((product) => {
+        const soldQty = soldByPaymentMap[product.productId] || 0;
         const returnedQty = returnedMap[product.productId] || 0;
-        const returnableQty = Math.max(product.soldQty - returnedQty, 0);
+
+        const returnableQty = Math.max(
+          Number(product.totalQty || 0) -
+            Number(soldQty || 0) -
+            Number(returnedQty || 0),
+          0,
+        );
+
         const selectedQty = selectedMap[product.productId] || 0;
 
         return {
           ...product,
+          soldQty,
           returnedQty,
           returnableQty,
           selectedQty: Math.min(selectedQty, returnableQty),
         };
       })
-      .filter((item) => item.returnableQty > 0);
+      .filter((item) => item.totalQty > 0);
 
     merged.sort((a, b) => a.productName.localeCompare(b.productName, "az"));
     return merged;
@@ -308,10 +335,13 @@ export default function ReturnsPage() {
       setNote("");
     } catch (error) {
       console.error("Create return error:", error);
-      setToast({
+
+      const errorMessage =
+        error?.response?.data?.message || "Qaytarma zamanı xəta baş verdi";
+
+      setWarningModal({
         open: true,
-        type: "error",
-        msg: error?.response?.data?.message || "Qaytarma zamanı xəta baş verdi",
+        message: errorMessage,
       });
     } finally {
       setSubmitLoading(false);
@@ -452,7 +482,7 @@ export default function ReturnsPage() {
               </Typography>
             ) : aggregatedProducts.length === 0 ? (
               <Typography color="text.secondary">
-                Bu müştərinin qaytarıla biləcək satış məhsulu tapılmadı.
+                Bu müştərinin məhsulu tapılmadı.
               </Typography>
             ) : (
               <>
@@ -462,8 +492,8 @@ export default function ReturnsPage() {
                   </Typography>
 
                   <Typography variant="body2" color="text.secondary">
-                    Müştərinin bütün sifarişlərindən ümumi say hesablandı.
-                    Qaytarma backend tərəfindən uyğun satışlara bölünəcək.
+                    Qaytara bilir = ümumi məhsul - mədaxildə satılan sayı -
+                    əvvəl qaytarılan sayı.
                   </Typography>
                 </Box>
 
@@ -474,9 +504,10 @@ export default function ReturnsPage() {
                         <TableCell>Məhsul</TableCell>
                         <TableCell>Kateqoriya</TableCell>
                         <TableCell align="center">Təxmini qiymət</TableCell>
-                        <TableCell align="center">Satılıb</TableCell>
+                        <TableCell align="center">Ümumi məhsul</TableCell>
+                        <TableCell align="center">Satılan sayı</TableCell>
                         <TableCell align="center">Qaytarılıb</TableCell>
-                        <TableCell align="center">Qaytara bilər</TableCell>
+                        <TableCell align="center">Qaytara bilir</TableCell>
                         <TableCell align="center">Bu dəfə qaytar</TableCell>
                       </TableRow>
                     </TableHead>
@@ -491,6 +522,9 @@ export default function ReturnsPage() {
                             <TableCell>{item.categoryName}</TableCell>
                             <TableCell align="center">
                               {formatMoney(item.lastUnitPrice)}
+                            </TableCell>
+                            <TableCell align="center">
+                              {item.totalQty}
                             </TableCell>
                             <TableCell align="center">{item.soldQty}</TableCell>
                             <TableCell align="center">
@@ -634,6 +668,38 @@ export default function ReturnsPage() {
           </Stack>
         )}
       </Paper>
+
+      <Dialog
+        open={warningModal.open}
+        onClose={() => setWarningModal({ open: false, message: "" })}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontWeight: 800, color: "warning.dark" }}>
+          Diqqət
+        </DialogTitle>
+
+        <DialogContent>
+          <Alert severity="warning" sx={{ fontSize: 16, fontWeight: 600 }}>
+            {warningModal.message}
+          </Alert>
+
+          <Typography mt={2} color="text.secondary">
+            Mədaxildə satılmış kimi qeyd olunan məhsullar geri qaytarıla bilməz.
+            Yalnız borcda qalan məhsul miqdarı qaytarıla bilər.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={() => setWarningModal({ open: false, message: "" })}
+          >
+            Başa düşdüm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

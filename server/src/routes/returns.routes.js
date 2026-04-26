@@ -61,6 +61,7 @@ router.get(
     }
   },
 );
+
 /**
  * GET /returns/:id
  */
@@ -187,6 +188,28 @@ router.post(
           throw new Error("Müştəri tapılmadı");
         }
 
+        /**
+         * MƏDAXİLDƏ SATILMIŞ KİMİ QEYD OLUNAN MƏHSULLAR
+         * Bu məhsullar artıq geri qaytarıla bilməz.
+         */
+        const paymentSoldItems = await tx.paymentSoldItem.findMany({
+          where: {
+            payment: {
+              customerId,
+            },
+          },
+          select: {
+            productId: true,
+            quantity: true,
+          },
+        });
+
+        const soldQtyByProduct = paymentSoldItems.reduce((acc, item) => {
+          acc[item.productId] =
+            (acc[item.productId] || 0) + Number(item.quantity || 0);
+          return acc;
+        }, {});
+
         const returnDoc = await tx.return.create({
           data: {
             note: note || null,
@@ -211,35 +234,57 @@ router.post(
               })),
             )
             .filter((item) => {
-              const soldQty = Number(item.quantity || 0);
+              const orderedQty = Number(item.quantity || 0);
               const returnedQty = Number(item.returnedQty || 0);
-              const availableQty = soldQty - returnedQty;
+              const availableQty = orderedQty - returnedQty;
 
               return (
                 item.productId === productId && !item.isGift && availableQty > 0
               );
             });
 
-          const totalAvailable = matchingOrderItems.reduce((sum, item) => {
-            const soldQty = Number(item.quantity || 0);
-            const returnedQty = Number(item.returnedQty || 0);
-            return sum + Math.max(soldQty - returnedQty, 0);
-          }, 0);
+          const totalOrderedAvailable = matchingOrderItems.reduce(
+            (sum, item) => {
+              const orderedQty = Number(item.quantity || 0);
+              const returnedQty = Number(item.returnedQty || 0);
+              return sum + Math.max(orderedQty - returnedQty, 0);
+            },
+            0,
+          );
+
+          const alreadySoldQty = Number(soldQtyByProduct[productId] || 0);
+          const totalAvailable = Math.max(
+            totalOrderedAvailable - alreadySoldQty,
+            0,
+          );
 
           if (remainingQty > totalAvailable) {
             const productName =
               matchingOrderItems[0]?.product?.name || "Məhsul";
+
             throw new Error(
-              `${productName} üçün maksimum ${totalAvailable} ədəd qaytarmaq olar`,
+              `${productName} üçün maksimum ${totalAvailable} ədəd qaytarmaq olar. Çünki ${alreadySoldQty} ədəd artıq mədaxildə satılmış kimi qeyd olunub.`,
             );
           }
+
+          /**
+           * Burada satılmış miqdarı əvvəlcə skip edirik.
+           * Yəni mədaxildə satılmış məhsullar qaytarma üçün əlçatan sayılmır.
+           */
+          let soldQtyToSkip = alreadySoldQty;
 
           for (const orderItem of matchingOrderItems) {
             if (remainingQty <= 0) break;
 
-            const soldQty = Number(orderItem.quantity || 0);
+            const orderedQty = Number(orderItem.quantity || 0);
             const returnedQty = Number(orderItem.returnedQty || 0);
-            const availableQty = Math.max(soldQty - returnedQty, 0);
+            let availableQty = Math.max(orderedQty - returnedQty, 0);
+
+            if (soldQtyToSkip > 0) {
+              const skippedQty = Math.min(soldQtyToSkip, availableQty);
+              availableQty -= skippedQty;
+              soldQtyToSkip -= skippedQty;
+            }
 
             if (availableQty <= 0) continue;
 
@@ -276,6 +321,15 @@ router.post(
             remainingQty -= allocateQty;
           }
         }
+
+        await tx.customer.update({
+          where: { id: customerId },
+          data: {
+            isProblematic: true,
+            problemNote: note ? String(note).trim() : customer.problemNote,
+            problemMarkedAt: new Date(),
+          },
+        });
 
         const fullReturnDoc = await tx.return.findUnique({
           where: { id: returnDoc.id },

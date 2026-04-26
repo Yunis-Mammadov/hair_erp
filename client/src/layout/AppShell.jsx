@@ -104,12 +104,12 @@ export default function AppShell({ children }) {
       {
         label: "Çatdırılma",
         to: "/driver/deliveries",
-        icon: <LocalShippingOutlinedIcon />,
+        icon: <LocalShippingOutlinedIcon />,  
         roles: ["ADMIN", "DRIVER"],
       },
       {
-        label: "Rutlar",
-        to: "/driver/routes",
+        label: "Canlı Location",
+        to: "/driver/live-location",
         icon: <RouteOutlinedIcon />,
         roles: ["ADMIN", "DRIVER"],
       },

@@ -22,6 +22,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import PersonIcon from "@mui/icons-material/Person";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { useNavigate } from "react-router-dom";
 import { getCustomers } from "../lib/customers";
 import { api } from "../lib/api";
@@ -280,13 +281,39 @@ export default function CustomersPage() {
                     onClick={() => navigate(`/exp/customers/${customer.id}`)}
                     sx={{
                       cursor: "pointer",
+                      backgroundColor: customer.isProblematic
+                        ? "rgba(244, 67, 54, 0.05)"
+                        : "inherit",
                       "&:hover": {
-                        backgroundColor: "action.hover",
+                        backgroundColor: customer.isProblematic
+                          ? "rgba(244, 67, 54, 0.10)"
+                          : "action.hover",
                       },
                     }}
                   >
-                    <TableCell sx={{ fontWeight: 600 }}>
-                      {customer.name || "-"}
+                    <TableCell>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                            color: customer.isProblematic
+                              ? "error.main"
+                              : "inherit",
+                          }}
+                        >
+                          {customer.name || "-"}
+                        </Typography>
+
+                        {customer.isProblematic && (
+                          <Chip
+                            icon={<WarningAmberIcon />}
+                            label="Problemli"
+                            color="error"
+                            size="small"
+                            sx={{ fontWeight: 700 }}
+                          />
+                        )}
+                      </Stack>
                     </TableCell>
 
                     <TableCell>{customer.phone || "-"}</TableCell>
