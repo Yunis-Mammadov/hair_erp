@@ -25,7 +25,7 @@ const areaRoutes = require("./routes/area.routes")
 
 app.use(
   cors({
-    origin: ["https://hair-erp.vercel.app", "https://hair-erp-3.onrender.com"],
+    origin: ["https://nanoplasticaaz.vercel.app", "https://hair-erp-3.onrender.com"],
     credentials: true,
   }),
 );
