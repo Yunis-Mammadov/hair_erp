@@ -21,11 +21,15 @@ const areasRoutes = require("./routes/areas.routes");
 const deliveryRoutes = require("./routes/delivery.routes");
 const liveLocationRoutes = require("./routes/liveLocation.routes");
 const uploadsRoutes = require("./routes/uploads.routes");
-const areaRoutes = require("./routes/area.routes")
+const areaRoutes = require("./routes/area.routes");
 
 app.use(
   cors({
-    origin: ["https://nanoplasticaaz.vercel.app", "https://hair-erp-3.onrender.com"],
+    origin: [
+      "http://localhost:5173",
+      "https://hair-erp.vercel.app",
+      "https://nanoplastica-k4p1l9hfk-yunismammadovs-projects.vercel.app",
+    ],
     credentials: true,
   }),
 );
