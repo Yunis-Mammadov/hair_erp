@@ -24,20 +24,13 @@ const liveLocationRoutes = require("./routes/liveLocation.routes");
 const uploadsRoutes = require("./routes/uploads.routes");
 const areaRoutes = require("./routes/area.routes");
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://nanoplasticaaz.vercel.app",
-  "https://nanoplastica-k4p1l9hfk-yunismammadovs-projects.vercel.app",
-];
+
+const allowedOrigins = ["http://localhost:5173"];
 
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error("CORS blocked: " + origin));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -47,7 +40,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions));
-app.options("*", cors());
 
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
