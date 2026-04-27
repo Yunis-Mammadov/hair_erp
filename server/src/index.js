@@ -24,13 +24,20 @@ const liveLocationRoutes = require("./routes/liveLocation.routes");
 const uploadsRoutes = require("./routes/uploads.routes");
 const areaRoutes = require("./routes/area.routes");
 
-
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://hair-erp.vercel.app",
+  "https://nanoplasticaaz.vercel.app",
+];
 
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
     return callback(new Error("CORS blocked: " + origin));
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
