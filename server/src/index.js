@@ -24,18 +24,29 @@ const liveLocationRoutes = require("./routes/liveLocation.routes");
 const uploadsRoutes = require("./routes/uploads.routes");
 const areaRoutes = require("./routes/area.routes");
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://nanoplasticaaz.vercel.app",
-      "https://nanoplastica-k4p1l9hfk-yunismammadovs-projects.vercel.app",
-    ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  }),
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://nanoplasticaaz.vercel.app",
+  "https://nanoplastica-k4p1l9hfk-yunismammadovs-projects.vercel.app",
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("CORS blocked: " + origin));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 app.options("*", cors());
 
