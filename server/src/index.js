@@ -27,7 +27,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://hair-erp.vercel.app",
+      "nanoplasticaaz.vercel.app",
       "https://nanoplastica-k4p1l9hfk-yunismammadovs-projects.vercel.app",
     ],
     credentials: true,
