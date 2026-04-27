@@ -212,8 +212,18 @@ export default function CustomersPage() {
                 onClick={handleRefresh}
                 startIcon={<RefreshIcon />}
                 sx={{
-                  minWidth: 140,
-                  height: 56,
+                  minHeight: 54,
+                  px: 2.6,
+                  borderRadius: 3,
+                  fontWeight: 950,
+                  bgcolor: "#b91c1c",
+                  boxShadow: "0 14px 28px rgba(185,28,28,0.22)",
+                  "&:hover": { bgcolor: "#991b1b" },
+                  "&:disabled": {
+                    bgcolor: "#e5e7eb",
+                    color: "#94a3b8",
+                    boxShadow: "none",
+                  },
                 }}
               >
                 Yenilə
@@ -223,12 +233,21 @@ export default function CustomersPage() {
                 variant="outlined"
                 onClick={handleReset}
                 sx={{
-                  minWidth: 120,
-                  height: 56,
-                }}
-              >
-                Sıfırla
-              </Button>
+                        border:"1px solid transparent",
+                        fontWeight: 950,
+                        color: "black",
+                        bgcolor: "white",
+                        boxShadow: "0 14px 28px rgba(185,28,28,0.22)",
+                        "&:hover": { bgcolor: "#991b1b" },
+                        "&:disabled": {
+                          bgcolor: "#e5e7eb",
+                          color: "white",
+                          boxShadow: "none",
+                        },
+                      }}
+                    >
+                      Sıfırla
+                    </Button>
             </Stack>
           </Stack>
         </Stack>

@@ -23,6 +23,7 @@ const deliveryRoutes = require("./routes/delivery.routes");
 const liveLocationRoutes = require("./routes/liveLocation.routes");
 const uploadsRoutes = require("./routes/uploads.routes");
 const areaRoutes = require("./routes/area.routes");
+const dashboardRoutes = require("./routes/dashboard.routes");
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -74,6 +75,7 @@ app.use("/api/delivery", deliveryRoutes);
 app.use("/api/live-location", liveLocationRoutes);
 app.use("/api/uploads", uploadsRoutes);
 app.use("/api/areas", areaRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 const PORT = process.env.PORT || 7079;
 

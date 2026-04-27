@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Paper,
+  Card,
+  CardContent,
+  Avatar,
   Typography,
   TextField,
   MenuItem,
@@ -30,12 +33,40 @@ import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import { useTheme, useMediaQuery } from "@mui/material";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
+import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
+import CalendarMonthRoundedIcon from "@mui/icons-material/CalendarMonthRounded";
+import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
+import RestartAltRoundedIcon from "@mui/icons-material/RestartAltRounded";
+import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import SignaturePad from "../components/SignaturePad";
 import { api } from "../lib/api";
 
 const PAYMENT_OPTIONS = ["", "REALİZASİYA", "NAĞD", "HİSSƏLİ", "DİGƏR"];
 const EDIT_PAYMENT_OPTIONS = ["REALİZASİYA", "NAĞD", "HİSSƏLİ", "DİGƏR"];
+
+const fieldSx = {
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 3,
+    bgcolor: "#f8fafc",
+    minHeight: 54,
+    "& fieldset": {
+      borderColor: "#e5e7eb",
+    },
+    "&:hover fieldset": {
+      borderColor: "#cbd5e1",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#b91c1c",
+      borderWidth: 2,
+    },
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: "#b91c1c",
+  },
+};
 
 function formatMoney(value) {
   return `${Number(value || 0).toFixed(2)} ₼`;
@@ -620,7 +651,13 @@ export default function SalesHistoryPage() {
   }
 
   return (
-    <Box p={3}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#f5f7fb",
+        p: { xs: 2, md: 3 },
+      }}
+    >
       <style>
         {`
           @media print {
@@ -656,246 +693,434 @@ export default function SalesHistoryPage() {
         `}
       </style>
 
-      <Typography variant="h5" fontWeight={700} mb={2}>
-        Satış tarixçəsi
-      </Typography>
-
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Stack
-          direction={{ xs: "column", md: "row" }}
-          spacing={2}
-          useFlexGap
-          flexWrap="wrap"
+      <Box sx={{ maxWidth: 1500, mx: "auto" }}>
+        <Card
+          elevation={0}
+          sx={{
+            mb: 2.5,
+            borderRadius: 5,
+            overflow: "hidden",
+            color: "white",
+            background:
+              "radial-gradient(circle at 82% 25%, rgba(185,28,28,0.35), transparent 30%), linear-gradient(135deg, #080b12 0%, #0f172a 58%, #111827 100%)",
+            boxShadow: "0 24px 70px rgba(15,23,42,0.22)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
         >
-          <TextField
-            label="Axtarış (ad, telefon, salon)"
-            value={filters.search}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, search: e.target.value }))
-            }
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleSearch();
-              }
-            }}
-            fullWidth
-          />
-
-          <TextField
-            select
-            label="Ödəniş növü"
-            value={filters.paymentType}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, paymentType: e.target.value }))
-            }
-            sx={{ minWidth: 180 }}
-          >
-            {PAYMENT_OPTIONS.map((option) => (
-              <MenuItem key={option || "ALL"} value={option}>
-                {option || "Hamısı"}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          {canFilterExpeditor && (
-            <TextField
-              select
-              label="Ekspeditor"
-              value={filters.expeditorId}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  expeditorId: e.target.value,
-                }))
-              }
-              sx={{ minWidth: 200 }}
-            >
-              <MenuItem value="">Hamısı</MenuItem>
-              {expeditors.map((expeditor) => (
-                <MenuItem key={expeditor.id} value={expeditor.id}>
-                  {expeditor.fullName || expeditor.email}
-                </MenuItem>
-              ))}
-            </TextField>
-          )}
-
-          <TextField
-            label="Başlanğıc tarix"
-            type="date"
-            value={filters.startDate}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, startDate: e.target.value }))
-            }
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <TextField
-            label="Son tarix"
-            type="date"
-            value={filters.endDate}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, endDate: e.target.value }))
-            }
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <Stack direction="row" spacing={1}>
-            <Button variant="contained" onClick={handleSearch}>
-              Axtar
-            </Button>
-            <Button variant="outlined" onClick={handleReset}>
-              Sıfırla
-            </Button>
-          </Stack>
-        </Stack>
-      </Paper>
-
-      <Paper>
-        {loading ? (
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            py={6}
-          >
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <TableContainer>
-              <Table
+          <Box sx={{ p: { xs: 3, md: 4 } }}>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Avatar
                 sx={{
-                  border: "1px solid rgba(224, 224, 224, 1)",
-                  "& th, & td": {
-                    border: "1px solid rgba(224, 224, 224, 1)",
-                    textAlign: "center",
-                    verticalAlign: "middle",
-                    padding: "10px",
-                  },
-                  "& th": {
-                    fontWeight: 700,
-                    backgroundColor: "#f5f5f5",
-                  },
+                  width: 58,
+                  height: 58,
+                  borderRadius: 4,
+                  bgcolor: "#b91c1c",
+                  boxShadow: "0 18px 40px rgba(185,28,28,0.35)",
                 }}
               >
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Qaimə №</TableCell>
-                    <TableCell>Ünvan</TableCell>
-                    <TableCell>Tarix</TableCell>
-                    <TableCell>Müştəri</TableCell>
-                    <TableCell>Telefon</TableCell>
-                    <TableCell>Salon</TableCell>
-                    <TableCell>Location</TableCell>
-                    <TableCell>Ödəniş</TableCell>
-                    <TableCell>Məhsul sayı</TableCell>
-                    <TableCell>Ekspeditor</TableCell>
-                    {canViewOrderDetail && <TableCell>Ətraflı</TableCell>}
-                  </TableRow>
-                </TableHead>
+                <ReceiptLongRoundedIcon />
+              </Avatar>
 
-                <TableBody>
-                  {orders.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={canViewOrderDetail ? 11 : 10}
-                        align="center"
-                      >
-                        Məlumat tapılmadı
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    orders.map((order) => (
-                      <TableRow
-                        key={order.id}
-                        hover
-                        sx={{
-                          backgroundColor: hasReturnedItems(order.items)
-                            ? "rgba(244, 67, 54, 0.12)"
-                            : "inherit",
-                          "&:hover": {
-                            backgroundColor: hasReturnedItems(order.items)
-                              ? "rgba(244, 67, 54, 0.18)"
-                              : "#fafafa",
-                          },
-                        }}
-                      >
-                        <TableCell sx={{ fontWeight: 700 }}>
-                          {formatInvoiceNumber(order.orderNumber)}
-                        </TableCell>
-                        <TableCell sx={{ maxWidth: 220 }}>
-                          {order.customer?.address || "-"}
-                        </TableCell>
-                        <TableCell>{formatDate(order.createdAt)}</TableCell>
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: { xs: 32, md: 46 },
+                    lineHeight: 1,
+                    fontWeight: 950,
+                    letterSpacing: -1.4,
+                  }}
+                >
+                  Satış Tarixçəsi
+                </Typography>
 
-                        <TableCell>
-                          <Stack spacing={0.5} alignItems="center">
-                            <Typography>
-                              {order.customer?.name || "-"}
-                            </Typography>
+                <Typography
+                  sx={{
+                    mt: 1,
+                    color: "rgba(255,255,255,0.68)",
+                    fontSize: 15,
+                  }}
+                >
+                  Bütün satışları, qaimələri, ödənişləri və ekspeditor
+                  məlumatlarını idarə edin.
+                </Typography>
+              </Box>
+            </Stack>
+          </Box>
+        </Card>
 
-                            {hasReturnedItems(order.items) && (
-                              <Chip
-                                label="Geri qaytarma"
-                                color="error"
-                                size="small"
-                                sx={{ fontWeight: 700 }}
-                              />
-                            )}
-                          </Stack>
-                        </TableCell>
+        <Card
+          elevation={0}
+          sx={{
+            mb: 2.5,
+            borderRadius: 4.5,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 18px 45px rgba(15,23,42,0.06)",
+          }}
+        >
+          <CardContent sx={{ p: { xs: 2, md: 2.6 } }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1.2}
+              sx={{ mb: 2 }}
+            >
+              <Avatar
+                sx={{
+                  width: 42,
+                  height: 42,
+                  bgcolor: "#fee2e2",
+                  color: "#b91c1c",
+                }}
+              >
+                <FilterAltRoundedIcon />
+              </Avatar>
 
-                        <TableCell>{order.customer?.phone || "-"}</TableCell>
-                        <TableCell>{order.customer?.salon || "-"}</TableCell>
-                        <TableCell>
-                          {renderLocationLinks(order.customer)}
-                        </TableCell>
-                        <TableCell>{order.paymentType || "-"}</TableCell>
-                        <TableCell>{getItemCount(order.items)}</TableCell>
-                        <TableCell>
-                          {order.createdBy?.fullName ||
-                            order.createdBy?.email ||
-                            "-"}
-                        </TableCell>
+              <Box>
+                <Typography sx={{ fontWeight: 950, fontSize: 20 }}>
+                  Filterlər
+                </Typography>
+                <Typography sx={{ color: "#64748b", fontSize: 13 }}>
+                  Axtarış və tarix aralığı ilə satışları süzün
+                </Typography>
+              </Box>
+            </Stack>
 
-                        {canViewOrderDetail && (
-                          <TableCell>
-                            <Button
-                              size="small"
-                              variant="outlined"
-                              onClick={() => fetchOrderDetail(order.id)}
-                            >
-                              Bax
-                            </Button>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Stack spacing={2}>
+              <TextField
+                label="Axtarış"
+                placeholder="Ad, telefon və ya salon adı yazın..."
+                value={filters.search}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, search: e.target.value }))
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSearch();
+                  }
+                }}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <SearchRoundedIcon sx={{ mr: 1, color: "#94a3b8" }} />
+                  ),
+                }}
+                sx={fieldSx}
+              />
+
+              <Stack
+                direction={{ xs: "column", md: "row" }}
+                spacing={1.5}
+                useFlexGap
+                flexWrap="wrap"
+              >
+                <TextField
+                  select
+                  label="Ödəniş növü"
+                  value={filters.paymentType}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      paymentType: e.target.value,
+                    }))
+                  }
+                  sx={{ ...fieldSx, minWidth: 210 }}
+                >
+                  {PAYMENT_OPTIONS.map((option) => (
+                    <MenuItem key={option || "ALL"} value={option}>
+                      {option || "Hamısı"}
+                    </MenuItem>
+                  ))}
+                </TextField>
+
+                {canFilterExpeditor && (
+                  <TextField
+                    select
+                    label="Ekspeditor"
+                    value={filters.expeditorId}
+                    onChange={(e) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        expeditorId: e.target.value,
+                      }))
+                    }
+                    sx={{ ...fieldSx, minWidth: 230 }}
+                  >
+                    <MenuItem value="">Hamısı</MenuItem>
+                    {expeditors.map((expeditor) => (
+                      <MenuItem key={expeditor.id} value={expeditor.id}>
+                        {expeditor.fullName || expeditor.email}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+
+                <TextField
+                  label="Başlanğıc tarix"
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(e) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      startDate: e.target.value,
+                    }))
+                  }
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ ...fieldSx, minWidth: 190 }}
+                />
+
+                <TextField
+                  label="Son tarix"
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, endDate: e.target.value }))
+                  }
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ ...fieldSx, minWidth: 190 }}
+                />
+
+                <Button
+                  variant="contained"
+                  onClick={handleSearch}
+                  startIcon={<SearchRoundedIcon />}
+                  sx={{
+                    minHeight: 54,
+                    px: 2.6,
+                    borderRadius: 3,
+                    fontWeight: 950,
+                    bgcolor: "#b91c1c",
+                    boxShadow: "0 14px 28px rgba(185,28,28,0.22)",
+                    "&:hover": { bgcolor: "#991b1b" },
+                  }}
+                >
+                  Axtar
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  onClick={handleReset}
+                  startIcon={<RestartAltRoundedIcon />}
+                  sx={{
+                    minHeight: 54,
+                    px: 2.3,
+                    borderRadius: 3,
+                    fontWeight: 900,
+                    borderColor: "#e5e7eb",
+                    color: "#0f172a",
+                  }}
+                >
+                  Sıfırla
+                </Button>
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+
+        <Card
+          elevation={0}
+          sx={{
+            borderRadius: 4.5,
+            border: "1px solid #e5e7eb",
+            boxShadow: "0 18px 45px rgba(15,23,42,0.06)",
+            overflow: "hidden",
+          }}
+        >
+          {loading ? (
             <Box
               display="flex"
-              justifyContent="space-between"
+              justifyContent="center"
               alignItems="center"
-              p={2}
-              flexDirection={{ xs: "column", sm: "row" }}
-              gap={2}
+              py={7}
             >
-              <Typography variant="body2">Ümumi: {pagination.total}</Typography>
-
-              <Pagination
-                page={pagination.page}
-                count={pagination.totalPages || 1}
-                onChange={handlePageChange}
-                color="primary"
-              />
+              <CircularProgress sx={{ color: "#b91c1c" }} />
             </Box>
-          </>
-        )}
-      </Paper>
+          ) : (
+            <>
+              <TableContainer>
+                <Table
+                  sx={{
+                    minWidth: 1180,
+                    "& th": {
+                      bgcolor: "#f8fafc",
+                      color: "#0f172a",
+                      fontWeight: 950,
+                      fontSize: 13.5,
+                      borderBottom: "1px solid #e5e7eb",
+                      py: 1.7,
+                      whiteSpace: "nowrap",
+                      textAlign: "center",
+                    },
+                    "& td": {
+                      borderBottom: "1px solid #eef2f7",
+                      py: 1.6,
+                      color: "#0f172a",
+                      fontWeight: 650,
+                      verticalAlign: "middle",
+                      textAlign: "center",
+                    },
+                  }}
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Qaimə №</TableCell>
+                      <TableCell>Ünvan</TableCell>
+                      <TableCell>Tarix</TableCell>
+                      <TableCell>Müştəri</TableCell>
+                      <TableCell>Telefon</TableCell>
+                      <TableCell>Salon</TableCell>
+                      <TableCell>Location</TableCell>
+                      <TableCell>Ödəniş</TableCell>
+                      <TableCell>Məhsul sayı</TableCell>
+                      <TableCell>Ekspeditor</TableCell>
+                      {canViewOrderDetail && <TableCell>Ətraflı</TableCell>}
+                    </TableRow>
+                  </TableHead>
+
+                  <TableBody>
+                    {orders.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={canViewOrderDetail ? 11 : 10}
+                          align="center"
+                          sx={{ py: 6 }}
+                        >
+                          <Typography
+                            sx={{ color: "#64748b", fontWeight: 800 }}
+                          >
+                            Məlumat tapılmadı
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      orders.map((order) => (
+                        <TableRow
+                          key={order.id}
+                          hover
+                          sx={{
+                            bgcolor: hasReturnedItems(order.items)
+                              ? "#fff1f2"
+                              : "white",
+                            transition: "0.18s ease",
+                            "&:hover": {
+                              bgcolor: hasReturnedItems(order.items)
+                                ? "#ffe4e6"
+                                : "#f8fafc",
+                            },
+                          }}
+                        >
+                          <TableCell sx={{ fontWeight: 950 }}>
+                            {formatInvoiceNumber(order.orderNumber)}
+                          </TableCell>
+
+                          <TableCell sx={{ maxWidth: 220 }}>
+                            {order.customer?.address || "-"}
+                          </TableCell>
+
+                          <TableCell>{formatDate(order.createdAt)}</TableCell>
+
+                          <TableCell>
+                            <Stack spacing={0.7} alignItems="center">
+                              <Typography sx={{ fontWeight: 900 }}>
+                                {order.customer?.name || "-"}
+                              </Typography>
+
+                              {hasReturnedItems(order.items) && (
+                                <Chip
+                                  label="Geri qaytarma"
+                                  size="small"
+                                  sx={{
+                                    bgcolor: "#dc2626",
+                                    color: "white",
+                                    fontWeight: 950,
+                                    borderRadius: 999,
+                                  }}
+                                />
+                              )}
+                            </Stack>
+                          </TableCell>
+
+                          <TableCell>{order.customer?.phone || "-"}</TableCell>
+                          <TableCell>{order.customer?.salon || "-"}</TableCell>
+
+                          <TableCell>
+                            {renderLocationLinks(order.customer)}
+                          </TableCell>
+
+                          <TableCell>
+                            <Chip
+                              label={order.paymentType || "-"}
+                              size="small"
+                              sx={{
+                                bgcolor: "#dcfce7",
+                                color: "#15803d",
+                                fontWeight: 950,
+                                borderRadius: 2,
+                              }}
+                            />
+                          </TableCell>
+
+                          <TableCell sx={{ fontWeight: 950 }}>
+                            {getItemCount(order.items)}
+                          </TableCell>
+
+                          <TableCell>
+                            {order.createdBy?.fullName ||
+                              order.createdBy?.email ||
+                              "-"}
+                          </TableCell>
+
+                          {canViewOrderDetail && (
+                            <TableCell>
+                              <Button
+                                size="small"
+                                variant="contained"
+                                startIcon={<VisibilityRoundedIcon />}
+                                onClick={() => fetchOrderDetail(order.id)}
+                                sx={{
+                                  borderRadius: 3,
+                                  textTransform: "none",
+                                  fontWeight: 900,
+                                  bgcolor: "#0f172a",
+                                  boxShadow: "none",
+                                  "&:hover": { bgcolor: "#1e293b" },
+                                }}
+                              >
+                                Bax
+                              </Button>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                p={2}
+                flexDirection={{ xs: "column", sm: "row" }}
+                gap={2}
+                sx={{ borderTop: "1px solid #eef2f7", bgcolor: "#fff" }}
+              >
+                <Typography sx={{ color: "#64748b", fontWeight: 800 }}>
+                  Ümumi: {pagination.total}
+                </Typography>
+
+                <Pagination
+                  page={pagination.page}
+                  count={pagination.totalPages || 1}
+                  onChange={handlePageChange}
+                  color="primary"
+                />
+              </Box>
+            </>
+          )}
+        </Card>
+      </Box>
 
       {canViewOrderDetail && (
         <Dialog

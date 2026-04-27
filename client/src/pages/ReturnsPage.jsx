@@ -641,6 +641,19 @@ export default function ReturnsPage() {
                       variant="outlined"
                       onClick={resetForm}
                       disabled={submitLoading}
+                      sx={{
+                        border:"1px solid transparent",
+                        fontWeight: 950,
+                        color: "black",
+                        bgcolor: "white",
+                        boxShadow: "0 14px 28px rgba(185,28,28,0.22)",
+                        "&:hover": { bgcolor: "#991b1b" },
+                        "&:disabled": {
+                          bgcolor: "#e5e7eb",
+                          color: "white",
+                          boxShadow: "none",
+                        },
+                      }}
                     >
                       Sıfırla
                     </Button>
@@ -649,6 +662,20 @@ export default function ReturnsPage() {
                       variant="contained"
                       onClick={handleSubmit}
                       disabled={submitLoading || selectedItems.length === 0}
+                      sx={{
+                        minHeight: 54,
+                        px: 2.6,
+                        borderRadius: 3,
+                        fontWeight: 950,
+                        bgcolor: "#b91c1c",
+                        boxShadow: "0 14px 28px rgba(185,28,28,0.22)",
+                        "&:hover": { bgcolor: "#991b1b" },
+                        "&:disabled": {
+                          bgcolor: "#e5e7eb",
+                          color: "#94a3b8",
+                          boxShadow: "none",
+                        },
+                      }}
                     >
                       {submitLoading ? "Yazılır..." : "Qaytarmanı yaz"}
                     </Button>
