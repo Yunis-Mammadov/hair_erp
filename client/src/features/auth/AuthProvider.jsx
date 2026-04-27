@@ -1,5 +1,5 @@
 import { createContext, useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { api } from "../../lib/api";
 
 export const AuthContext = createContext(null);
 
@@ -17,12 +17,7 @@ export default function AuthProvider({ children }) {
       }
 
       try {
-        const res = await axios.get("https://hair-erp-3.onrender.com/api/auth/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+        const res = await api.get("/auth/me");
         setUser(res.data);
       } catch (error) {
         console.error("AUTH_INIT_ERROR:", error);

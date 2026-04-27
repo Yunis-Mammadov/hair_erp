@@ -1,8 +1,6 @@
-import axios from "axios";
-
-const API_URL = "https://hair-erp-1-backend.onrender.com/api";
+import { api } from "../../lib/api";
 
 export async function pinLogin(pin) {
-  const res = await axios.post(`${API_URL}/api/auth/pin-login`, { pin });
+  const res = await api.post("/auth/pin-login", { pin });
   return res.data;
 }
