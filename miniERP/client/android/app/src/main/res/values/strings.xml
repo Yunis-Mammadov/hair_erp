@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hair ERP</string>
+    <string name="title_activity_main">Hair ERP</string>
+    <string name="package_name">com.yunis.hairerp</string>
+    <string name="custom_url_scheme">com.yunis.hairerp</string>
+</resources>
