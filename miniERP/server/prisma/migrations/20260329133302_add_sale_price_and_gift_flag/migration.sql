@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE "OrderItem" ADD COLUMN     "isGift" BOOLEAN NOT NULL DEFAULT false;
-
--- AlterTable
-ALTER TABLE "Product" ADD COLUMN     "salePrice" DOUBLE PRECISION NOT NULL DEFAULT 0;

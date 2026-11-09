@@ -1,8 +1,0 @@
-{
-  "appId": "com.yunis.hairerp",
-  "appName": "Hair ERP",
-  "webDir": "dist",
-  "server": {
-    "url": "https://hair-erp-hnm9.vercel.app"
-  }
-}
