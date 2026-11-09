@@ -6,7 +6,10 @@ const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
 const router = express.Router();
 
-const uploadsDir = path.join(__dirname, "..", "uploads");
+const {
+  uploadsRoot: uploadsDir,
+  signedUploadUrl,
+} = require("../upload-access");
 
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -14,11 +17,17 @@ if (!fs.existsSync(uploadsDir)) {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadsDir);
+    const directory = path.join(uploadsDir, req.company.id);
+    fs.mkdirSync(directory, { recursive: true });
+    cb(null, directory);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname || "").toLowerCase();
-    const safeExt = ext || ".jpg";
+    const safeExt = {
+      "image/jpeg": ".jpg",
+      "image/jpg": ".jpg",
+      "image/png": ".png",
+      "image/webp": ".webp",
+    }[file.mimetype];
     const uniqueName = `payment-${Date.now()}-${Math.round(
       Math.random() * 1e9,
     )}${safeExt}`;
@@ -60,8 +69,10 @@ router.post(
         return res.status(400).json({ message: "Şəkil seçilməyib" });
       }
 
-      const baseUrl = `${req.protocol}://${req.get("host")}`;
-      const url = `${baseUrl}/uploads/${req.file.filename}`;
+      const url = signedUploadUrl(
+        `/uploads/${req.company.id}/${req.file.filename}`,
+        req,
+      );
 
       return res.status(201).json({
         message: "Şəkil uğurla yükləndi",

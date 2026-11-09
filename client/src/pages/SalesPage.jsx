@@ -7,15 +7,11 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Divider,
   FormControl,
   FormControlLabel,
   IconButton,
   InputLabel,
-  List,
-  ListItem,
-  ListItemText,
   MenuItem,
   Radio,
   RadioGroup,
@@ -33,6 +29,8 @@ import {
 
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -44,7 +42,6 @@ import NotesOutlinedIcon from "@mui/icons-material/NotesOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import MyLocationOutlinedIcon from "@mui/icons-material/MyLocationOutlined";
-import CardGiftcardOutlinedIcon from "@mui/icons-material/CardGiftcardOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockResetOutlinedIcon from "@mui/icons-material/LockResetOutlined";
 
@@ -191,8 +188,7 @@ export default function SalesPage() {
           msg: e?.response?.data?.message || "Kateqoriyalar yüklənmədi",
         });
       } finally {
-        if (!alive) return;
-        setLoadingCats(false);
+        if (alive) setLoadingCats(false);
       }
     })();
 
@@ -565,43 +561,11 @@ export default function SalesPage() {
     setPrices((prev) => ({ ...prev, [productId]: normalized }));
   }
 
-  function resetAll() {
-    setCustomerMode("");
-    setCustomerOptions([]);
-    setSelectedExistingCustomer(null);
-    setSelectedArea(null);
-
+  function clearSelection() {
     setQty({});
     setGiftQty({});
     setPrices({});
     setManualPriceEnabled({});
-
-    setCustomer({
-      name: "",
-      phone: "",
-      salon: "",
-      address: "",
-    });
-
-    setLocationData({
-      lat: null,
-      lng: null,
-    });
-
-    setPaymentType("REALİZASİYA");
-    setNote("");
-
-    setErrors({
-      customerMode: "",
-      existingCustomer: "",
-      name: "",
-      phone: "",
-      salon: "",
-      address: "",
-      location: "",
-    });
-
-    setToast({ open: true, type: "info", msg: "Sıfırlandı" });
   }
 
   const allProductsMap = useMemo(() => {
@@ -1186,680 +1150,624 @@ export default function SalesPage() {
       </Card>
 
       {canShowProducts && (
-        <>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", xl: "520px 1fr" },
-              gap: 2,
-            }}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "minmax(0, 1fr)",
+              lg: "minmax(0, 1fr) 320px",
+              xl: "minmax(0, 1fr) 336px",
+            },
+            gap: 2.5,
+            alignItems: "start",
+          }}
+        >
+          <Card
+            component="section"
+            aria-labelledby="products-heading"
+            sx={orderCardSx}
           >
-            <Card sx={{ borderRadius: 4 }}>
-              <CardContent>
-                <Typography sx={{ fontWeight: 900, mb: 1 }}>
-                  Kateqoriyalar
+            <Box
+              sx={{
+                px: 2,
+                py: 2,
+                borderBottom: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                spacing={1}
+              >
+                <Typography
+                  component="h2"
+                  id="products-heading"
+                  sx={{ fontSize: 15, fontWeight: 600 }}
+                >
+                  Məhsullar
                 </Typography>
-
-                {loadingCats ? (
-                  <Stack spacing={1}>
-                    <Skeleton height={54} />
-                    <Skeleton height={54} />
-                    <Skeleton height={54} />
-                  </Stack>
-                ) : categories.length === 0 ? (
-                  <Typography sx={{ opacity: 0.75 }}>
-                    Kateqoriya yoxdur.
-                  </Typography>
-                ) : (
-                  <Stack spacing={1}>
-                    {categories.map((c) => {
-                      const open = !!expanded[c.id];
-                      const block = productsByCat[c.id];
-                      const loading = !!block?.loading;
-                      const items = block?.items || [];
-
-                      return (
-                        <Accordion
-                          key={c.id}
-                          expanded={open}
-                          onChange={() => toggleCategory(c.id)}
-                          disableGutters
-                          sx={{
-                            border: "1px solid",
-                            borderColor: "divider",
-                            borderRadius: 3,
-                            overflow: "hidden",
-                            "&:before": { display: "none" },
-                          }}
-                        >
-                          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Stack
-                              direction="row"
-                              spacing={1}
-                              alignItems="center"
-                              sx={{ width: "100%" }}
-                            >
-                              <Typography sx={{ fontWeight: 900 }}>
-                                {c.name}
-                              </Typography>
-                              <Box sx={{ flex: 1 }} />
-                              <Chip
-                                size="small"
-                                label={loading ? "..." : items.length}
-                                sx={{ fontWeight: 900, borderRadius: 999 }}
-                              />
-                            </Stack>
-                          </AccordionSummary>
-
-                          <AccordionDetails sx={{ pt: 0.5 }}>
-                            {loading ? (
-                              <Stack spacing={1}>
-                                <Skeleton height={44} />
-                                <Skeleton height={44} />
-                                <Skeleton height={44} />
-                              </Stack>
-                            ) : items.length === 0 ? (
-                              <Typography sx={{ opacity: 0.75, py: 1 }}>
-                                Məhsul yoxdur.
-                              </Typography>
-                            ) : (
-                              <List dense disablePadding>
-                                {items.map((p) => {
-                                  const dbStock = getDbStock(p);
-                                  const cur = getSelected(p);
-                                  const giftCur = getGiftSelected(p);
-                                  const rem = remainingStock(p);
-                                  const out = dbStock <= 0;
-
-                                  return (
-                                    <ListItem
-                                      key={p.id}
-                                      divider
-                                      sx={{
-                                        px: 0.5,
-                                        py: 1,
-                                        alignItems: "flex-start",
-                                        opacity: out ? 0.55 : 1,
-                                      }}
-                                    >
-                                      <Box sx={{ width: "100%" }}>
-                                        <Stack
-                                          direction={{
-                                            xs: "column",
-                                            sm: "row",
-                                          }}
-                                          justifyContent="space-between"
-                                          gap={1}
-                                        >
-                                          <Box sx={{ minWidth: 0, flex: 1 }}>
-                                            <Stack
-                                              direction="row"
-                                              spacing={1}
-                                              alignItems="center"
-                                              flexWrap="wrap"
-                                            >
-                                              <Typography
-                                                sx={{
-                                                  fontWeight: 900,
-                                                  whiteSpace: "normal",
-                                                  wordBreak: "break-word",
-                                                }}
-                                              >
-                                                {p.name}
-                                              </Typography>
-
-                                              <Chip
-                                                size="small"
-                                                label={`Qalan: ${rem}`}
-                                                color={
-                                                  rem <= 3
-                                                    ? "warning"
-                                                    : "default"
-                                                }
-                                                variant="outlined"
-                                                sx={{
-                                                  fontWeight: 900,
-                                                  borderRadius: 999,
-                                                }}
-                                              />
-
-                                              {/* <Chip
-                                                size="small"
-                                                // label={`DB: ${dbStock}`}
-                                                variant="outlined"
-                                                sx={{
-                                                  fontWeight: 900,
-                                                  borderRadius: 999,
-                                                  opacity: 0.7,
-                                                }}
-                                              /> */}
-
-                                              <Chip
-                                                size="small"
-                                                label={`Qiymət: ${formatMoney(
-                                                  getDefaultSalePrice(p),
-                                                )}`}
-                                                color="success"
-                                                variant="outlined"
-                                                sx={{
-                                                  marginTop: 20,
-                                                  fontWeight: 900,
-                                                  borderRadius: 999,
-                                                }}
-                                              />
-                                            </Stack>
-
-                                            {/* <Typography
-                                              sx={{
-                                                fontSize: 12,
-                                                opacity: 0.75,
-                                                mt: 0.5,
-                                              }}
-                                            >
-                                              {p.category?.name || c.name}
-                                            </Typography> */}
-                                          </Box>
-
-                                          <Stack
-                                            direction={{
-                                              xs: "column",
-                                              sm: "row",
-                                            }}
-                                            spacing={1}
-                                            alignItems={{
-                                              xs: "stretch",
-                                              sm: "center",
-                                            }}
-                                          >
-                                            <Box
-                                              sx={{
-                                                border: "1px solid",
-                                                borderColor: "divider",
-                                                borderRadius: 3,
-                                                px: 1,
-                                                py: 0.5,
-                                              }}
-                                            >
-                                              <Typography
-                                                sx={{
-                                                  fontSize: 11,
-                                                  opacity: 0.7,
-                                                  mb: 0.5,
-                                                }}
-                                              >
-                                                Satış
-                                              </Typography>
-
-                                              <Stack
-                                                direction="row"
-                                                spacing={0.5}
-                                                alignItems="center"
-                                              >
-                                                <Tooltip title="Azalt">
-                                                  <span>
-                                                    <IconButton
-                                                      size="small"
-                                                      onClick={() => dec(p)}
-                                                      disabled={cur <= 0}
-                                                    >
-                                                      <RemoveIcon fontSize="small" />
-                                                    </IconButton>
-                                                  </span>
-                                                </Tooltip>
-
-                                                <TextField
-                                                  size="small"
-                                                  value={cur}
-                                                  onChange={(e) =>
-                                                    handleQtyInput(
-                                                      p,
-                                                      e.target.value,
-                                                    )
-                                                  }
-                                                  inputProps={{
-                                                    inputMode: "numeric",
-                                                    pattern: "[0-9]*",
-                                                    min: 0,
-                                                    style: {
-                                                      textAlign: "center",
-                                                      padding: "8px 6px",
-                                                      width: 42,
-                                                      fontWeight: 900,
-                                                    },
-                                                  }}
-                                                  sx={{
-                                                    width: 58,
-                                                    "& .MuiOutlinedInput-root":
-                                                      {
-                                                        borderRadius: 999,
-                                                        height: 34,
-                                                      },
-                                                  }}
-                                                />
-
-                                                <Tooltip title="Artır">
-                                                  <span>
-                                                    <IconButton
-                                                      size="small"
-                                                      onClick={() => inc(p)}
-                                                      disabled={
-                                                        out ||
-                                                        getTotalSelected(p) >=
-                                                          dbStock
-                                                      }
-                                                    >
-                                                      <AddIcon fontSize="small" />
-                                                    </IconButton>
-                                                  </span>
-                                                </Tooltip>
-                                              </Stack>
-                                            </Box>
-
-                                            <Box
-                                              sx={{
-                                                border: "1px solid",
-                                                borderColor: "divider",
-                                                borderRadius: 3,
-                                                px: 1,
-                                                py: 0.5,
-                                              }}
-                                            >
-                                              <Typography
-                                                sx={{
-                                                  fontSize: 11,
-                                                  opacity: 0.7,
-                                                  mb: 0.5,
-                                                }}
-                                              >
-                                                Hədiyyə
-                                              </Typography>
-
-                                              <Stack
-                                                direction="row"
-                                                spacing={0.5}
-                                                alignItems="center"
-                                              >
-                                                <Tooltip title="Azalt">
-                                                  <span>
-                                                    <IconButton
-                                                      size="small"
-                                                      onClick={() => decGift(p)}
-                                                      disabled={giftCur <= 0}
-                                                    >
-                                                      <RemoveIcon fontSize="small" />
-                                                    </IconButton>
-                                                  </span>
-                                                </Tooltip>
-
-                                                <TextField
-                                                  size="small"
-                                                  value={giftCur}
-                                                  onChange={(e) =>
-                                                    handleGiftQtyInput(
-                                                      p,
-                                                      e.target.value,
-                                                    )
-                                                  }
-                                                  inputProps={{
-                                                    inputMode: "numeric",
-                                                    pattern: "[0-9]*",
-                                                    min: 0,
-                                                    style: {
-                                                      textAlign: "center",
-                                                      padding: "8px 6px",
-                                                      width: 42,
-                                                      fontWeight: 900,
-                                                    },
-                                                  }}
-                                                  sx={{
-                                                    width: 58,
-                                                    "& .MuiOutlinedInput-root":
-                                                      {
-                                                        borderRadius: 999,
-                                                        height: 34,
-                                                      },
-                                                  }}
-                                                />
-
-                                                <Tooltip title="Artır">
-                                                  <span>
-                                                    <IconButton
-                                                      size="small"
-                                                      onClick={() => incGift(p)}
-                                                      disabled={
-                                                        out ||
-                                                        getTotalSelected(p) >=
-                                                          dbStock
-                                                      }
-                                                    >
-                                                      <CardGiftcardOutlinedIcon fontSize="small" />
-                                                    </IconButton>
-                                                  </span>
-                                                </Tooltip>
-                                              </Stack>
-                                            </Box>
-                                          </Stack>
-                                        </Stack>
-                                      </Box>
-                                    </ListItem>
-                                  );
-                                })}
-                              </List>
-                            )}
-                          </AccordionDetails>
-                        </Accordion>
-                      );
-                    })}
-                  </Stack>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card sx={{ borderRadius: 4 }}>
-              <CardContent>
-                <Typography sx={{ fontWeight: 900, mb: 1 }}>
-                  Seçilənlər
+                <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+                  {categories.length} kateqoriya
                 </Typography>
+              </Stack>
+              <Typography
+                sx={{ fontSize: 12, color: "text.secondary", mt: 0.5 }}
+              >
+                Kateqoriyanı aç, satış və hədiyyə miqdarını yaz.
+              </Typography>
+            </Box>
 
-                <Divider sx={{ mb: 1.5 }} />
-
-                {selectedItems.items.length === 0 &&
-                selectedGiftItems.items.length === 0 ? (
-                  <Typography sx={{ opacity: 0.75 }}>
-                    Hələ heç nə seçilməyib. Sol paneldən məhsul əlavə et.
-                  </Typography>
-                ) : (
-                  <Stack spacing={2}>
-                    {selectedItems.items.length > 0 && (
-                      <Box>
-                        <Typography sx={{ fontWeight: 800, mb: 1 }}>
-                          Satılan məhsullar
-                        </Typography>
-
-                        <Stack spacing={1}>
-                          {selectedItems.items.map((it) => (
-                            <Box
-                              key={it.productId}
-                              sx={{
-                                border: "1px solid",
-                                borderColor: "divider",
-                                borderRadius: 3,
-                                p: 1.2,
-                              }}
-                            >
-                              <Stack spacing={1}>
-                                <Stack
-                                  direction={{ xs: "column", md: "row" }}
-                                  spacing={1}
-                                  alignItems={{ xs: "stretch", md: "center" }}
-                                >
-                                  <Box sx={{ minWidth: 0, flex: 1 }}>
-                                    <Typography
-                                      sx={{
-                                        fontWeight: 900,
-                                        whiteSpace: "normal",
-                                        wordBreak: "break-word",
-                                      }}
-                                    >
-                                      {it.name}
-                                    </Typography>
-
-                                    <Typography
-                                      sx={{ fontSize: 12, opacity: 0.75 }}
-                                    >
-                                      {it.category}
-                                    </Typography>
-                                  </Box>
-
-                                  <Chip
-                                    label={`x${it.quantity}`}
-                                    color="primary"
-                                    sx={{ fontWeight: 900, borderRadius: 999 }}
-                                  />
-
-                                  <Chip
-                                    label={`Default: ${formatMoney(it.defaultPrice)}`}
-                                    color="success"
-                                    variant="outlined"
-                                    sx={{ fontWeight: 900, borderRadius: 999 }}
-                                  />
-                                </Stack>
-
-                                <Stack
-                                  direction={{ xs: "column", md: "row" }}
-                                  spacing={1}
-                                  alignItems={{ xs: "stretch", md: "center" }}
-                                >
-                                  <TextField
-                                    size="small"
-                                    type="number"
-                                    label="Qiymət"
-                                    value={prices[it.productId] ?? ""}
-                                    onChange={(e) =>
-                                      handlePriceChange(
-                                        it.productId,
-                                        e.target.value,
-                                      )
-                                    }
-                                    disabled={!manualPriceEnabled[it.productId]}
-                                    sx={{ width: { xs: "100%", md: 150 } }}
-                                    inputProps={{
-                                      min: 0,
-                                      step: "0.01",
-                                    }}
-                                    InputProps={{
-                                      endAdornment: (
-                                        <InputAdornment position="end">
-                                          ₼
-                                        </InputAdornment>
-                                      ),
-                                    }}
-                                  />
-
-                                  {isAdmin &&
-                                    (!manualPriceEnabled[it.productId] ? (
-                                      <Button
-                                        variant="outlined"
-                                        startIcon={<EditOutlinedIcon />}
-                                        onClick={() =>
-                                          enableManualPrice(it.productId)
-                                        }
-                                        sx={{
-                                          textTransform: "none",
-                                          borderRadius: 3,
-                                          fontWeight: 900,
-                                        }}
-                                      >
-                                        Manual qiymət
-                                      </Button>
-                                    ) : (
-                                      <Button
-                                        variant="outlined"
-                                        color="warning"
-                                        startIcon={<LockResetOutlinedIcon />}
-                                        onClick={() =>
-                                          resetPriceToDefault(it.product)
-                                        }
-                                        sx={{
-                                          textTransform: "none",
-                                          borderRadius: 3,
-                                          fontWeight: 900,
-                                        }}
-                                      >
-                                        Default-a qaytar
-                                      </Button>
-                                    ))}
-
-                                  <Box sx={{ flex: 1 }} />
-
-                                  <Chip
-                                    label={formatMoney(it.lineTotal)}
-                                    color="success"
-                                    variant="outlined"
-                                    sx={{ fontWeight: 900, borderRadius: 999 }}
-                                  />
-                                </Stack>
-                              </Stack>
-                            </Box>
-                          ))}
-                        </Stack>
-                      </Box>
-                    )}
-
-                    {selectedGiftItems.items.length > 0 && (
-                      <Box>
-                        <Typography sx={{ fontWeight: 800, mb: 1 }}>
-                          Hədiyyə məhsullar
-                        </Typography>
-
-                        <Stack spacing={1}>
-                          {selectedGiftItems.items.map((it) => (
-                            <Box
-                              key={it.productId}
-                              sx={{
-                                border: "1px solid",
-                                borderColor: "divider",
-                                borderRadius: 3,
-                                p: 1.2,
-                                bgcolor: "action.hover",
-                              }}
-                            >
-                              <Stack
-                                direction={{ xs: "column", md: "row" }}
-                                spacing={1}
-                                alignItems={{ xs: "stretch", md: "center" }}
-                              >
-                                <Box sx={{ minWidth: 0, flex: 1 }}>
-                                  <Typography
-                                    sx={{
-                                      fontWeight: 900,
-                                      whiteSpace: "normal",
-                                      wordBreak: "break-word",
-                                    }}
-                                  >
-                                    {it.name}
-                                  </Typography>
-
-                                  <Typography
-                                    sx={{ fontSize: 12, opacity: 0.75 }}
-                                  >
-                                    {it.category}
-                                  </Typography>
-                                </Box>
-
-                                <Chip
-                                  label={`x${it.quantity}`}
-                                  color="secondary"
-                                  sx={{ fontWeight: 900, borderRadius: 999 }}
-                                />
-
-                                <Chip
-                                  label="Qiymət: 0.00 ₼"
-                                  variant="outlined"
-                                  sx={{ fontWeight: 900, borderRadius: 999 }}
-                                />
-                              </Stack>
-                            </Box>
-                          ))}
-                        </Stack>
-                      </Box>
-                    )}
-                  </Stack>
-                )}
-
-                <Divider sx={{ my: 1.8 }} />
-
-                <Stack spacing={1}>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<RestartAltIcon />}
-                    onClick={resetAll}
+            {loadingCats ? (
+              <Stack spacing={1} sx={{ p: 2 }}>
+                <Skeleton height={48} />
+                <Skeleton height={48} />
+                <Skeleton height={48} />
+              </Stack>
+            ) : categories.length === 0 ? (
+              <Typography sx={{ p: 3, fontSize: 13, color: "text.secondary" }}>
+                Hələ kateqoriya yoxdur.
+              </Typography>
+            ) : (
+              categories.map((category) => {
+                const block = productsByCat[category.id];
+                const loading = Boolean(block?.loading);
+                const items = block?.items || [];
+                return (
+                  <Accordion
+                    key={category.id}
+                    expanded={Boolean(expanded[category.id])}
+                    onChange={() => toggleCategory(category.id)}
+                    disableGutters
+                    elevation={0}
                     sx={{
-                      borderRadius: 3,
-                      textTransform: "none",
-                      fontWeight: 900,
+                      m: 0,
+                      borderRadius: "0 !important",
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                      "&:last-child": { borderBottom: 0 },
+                      "&:before": { display: "none" },
                     }}
                   >
-                    Sıfırla
-                  </Button>
-
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    startIcon={<DoneAllIcon />}
-                    disabled={
-                      busy ||
-                      !hasAnySelected ||
-                      (selectedItems.totalQty > 0 && hasInvalidPrice)
-                    }
-                    onClick={confirmOrder}
-                    sx={{
-                      borderRadius: 3,
-                      textTransform: "none",
-                      fontWeight: 900,
-                      py: 1.2,
-                    }}
-                  >
-                    {busy ? "Yazılır..." : "Confirm sale"}
-                  </Button>
-                </Stack>
-
-                <Stack spacing={1.2} sx={{ mt: 2 }}>
-                  <Box
-                    sx={{
-                      borderRadius: 999,
-                      px: 2,
-                      py: 1,
-                      bgcolor: "action.hover",
-                      textAlign: "center",
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: 900, fontSize: 14 }}>
-                      Satış: {selectedItems.totalQty} ədəd
-                    </Typography>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      borderRadius: 999,
-                      px: 2,
-                      py: 1,
-                      border: "1px solid",
-                      borderColor: "secondary.main",
-                      textAlign: "center",
-                    }}
-                  >
-                    <Typography
+                    <AccordionSummary
+                      id={"category-" + category.id}
+                      aria-controls={"category-products-" + category.id}
+                      expandIcon={
+                        <ExpandMoreIcon
+                          sx={{ fontSize: 19, color: "text.secondary" }}
+                        />
+                      }
                       sx={{
-                        fontWeight: 900,
-                        fontSize: 14,
-                        color: "secondary.main",
+                        px: 2,
+                        minHeight: "48px !important",
+                        bgcolor: "#fafbfc",
+                        "& .MuiAccordionSummary-content": {
+                          my: "12px !important",
+                          gap: 1,
+                          alignItems: "center",
+                        },
                       }}
                     >
-                      Hədiyyə: {selectedGiftItems.totalQty} ədəd
-                    </Typography>
-                  </Box>
+                      <Typography
+                        sx={{
+                          flex: 1,
+                          fontSize: 13,
+                          fontWeight: 500,
+                          overflowWrap: "anywhere",
+                        }}
+                      >
+                        {category.name}
+                      </Typography>
+                      {loading ? (
+                        <Typography
+                          sx={{ fontSize: 11, color: "text.secondary" }}
+                        >
+                          Yüklənir…
+                        </Typography>
+                      ) : (
+                        block && (
+                          <Typography
+                            sx={{
+                              fontSize: 11,
+                              color: "text.secondary",
+                              pr: 0.75,
+                            }}
+                          >
+                            {items.length} məhsul
+                          </Typography>
+                        )
+                      )}
+                    </AccordionSummary>
+                    <AccordionDetails
+                      id={"category-products-" + category.id}
+                      sx={{ p: 0 }}
+                    >
+                      {loading ? (
+                        <Stack sx={{ p: 2 }}>
+                          <Skeleton height={48} />
+                          <Skeleton height={48} />
+                        </Stack>
+                      ) : items.length === 0 ? (
+                        <Typography
+                          sx={{
+                            px: 2,
+                            py: 3,
+                            fontSize: 12,
+                            color: "text.secondary",
+                          }}
+                        >
+                          Bu kateqoriyada məhsul yoxdur.
+                        </Typography>
+                      ) : (
+                        <>
+                          <Box
+                            aria-hidden="true"
+                            sx={{
+                              display: { xs: "none", sm: "grid" },
+                              gridTemplateColumns: productColumns,
+                              columnGap: 1,
+                              px: 2,
+                              py: 1.1,
+                              color: "text.secondary",
+                              borderBottom: "1px solid",
+                              borderColor: "divider",
+                              "& > *": { fontSize: 10.5 },
+                            }}
+                          >
+                            <Typography>Məhsul</Typography>
+                            <Typography align="right">Qalıq</Typography>
+                            <Typography align="right">Qiymət</Typography>
+                            <Typography align="center">Satış</Typography>
+                            <Typography align="center">Hədiyyə</Typography>
+                          </Box>
+                          <Box
+                            component="ul"
+                            sx={{ listStyle: "none", p: 0, m: 0 }}
+                          >
+                            {items.map((product) => {
+                              const stock = getDbStock(product);
+                              const saleQuantity = getSelected(product);
+                              const giftQuantity = getGiftSelected(product);
+                              const remaining = remainingStock(product);
+                              const canAdd =
+                                !busy && getTotalSelected(product) < stock;
+                              const selected = saleQuantity + giftQuantity > 0;
+                              return (
+                                <Box
+                                  component="li"
+                                  key={product.id}
+                                  sx={{
+                                    display: "grid",
+                                    gridTemplateColumns: {
+                                      xs: "repeat(2, minmax(0, 1fr))",
+                                      sm: productColumns,
+                                    },
+                                    alignItems: "center",
+                                    gap: { xs: 1.5, sm: 1 },
+                                    px: 2,
+                                    py: { xs: 1.75, sm: 1.4 },
+                                    borderBottom: "1px solid",
+                                    borderColor: "divider",
+                                    bgcolor: selected ? "#f7f9ff" : "#fff",
+                                    "&:last-child": { borderBottom: 0 },
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      minWidth: 0,
+                                      gridColumn: { xs: "1 / -1", sm: "auto" },
+                                    }}
+                                  >
+                                    <Typography
+                                      sx={{
+                                        fontSize: 13,
+                                        fontWeight: 500,
+                                        overflowWrap: "anywhere",
+                                      }}
+                                    >
+                                      {product.name}
+                                    </Typography>
+                                    {stock <= 0 && (
+                                      <Typography
+                                        sx={{
+                                          mt: 0.3,
+                                          fontSize: 10.5,
+                                          color: "text.secondary",
+                                        }}
+                                      >
+                                        Stok bitib
+                                      </Typography>
+                                    )}
+                                    <Typography
+                                      sx={{
+                                        display: { xs: "block", sm: "none" },
+                                        fontSize: 11.5,
+                                        color: "text.secondary",
+                                        mt: 0.5,
+                                      }}
+                                    >
+                                      Qalıq: {remaining} ·{" "}
+                                      {formatMoney(
+                                        getDefaultSalePrice(product),
+                                      )}
+                                    </Typography>
+                                  </Box>
+                                  <Typography
+                                    sx={{
+                                      display: { xs: "none", sm: "block" },
+                                      textAlign: "right",
+                                      fontSize: 12,
+                                      color:
+                                        remaining <= 3
+                                          ? "warning.main"
+                                          : "text.secondary",
+                                      fontVariantNumeric: "tabular-nums",
+                                    }}
+                                  >
+                                    {remaining}
+                                  </Typography>
+                                  <Typography
+                                    sx={{
+                                      display: { xs: "none", sm: "block" },
+                                      textAlign: "right",
+                                      fontSize: 12,
+                                      whiteSpace: "nowrap",
+                                      fontVariantNumeric: "tabular-nums",
+                                    }}
+                                  >
+                                    {formatMoney(getDefaultSalePrice(product))}
+                                  </Typography>
+                                  <QuantityControl
+                                    label="Satış"
+                                    productName={product.name}
+                                    value={saleQuantity}
+                                    disabled={busy || stock <= 0}
+                                    canAdd={canAdd}
+                                    onDecrease={() => dec(product)}
+                                    onIncrease={() => inc(product)}
+                                    onChange={(value) =>
+                                      handleQtyInput(product, value)
+                                    }
+                                  />
+                                  <QuantityControl
+                                    label="Hədiyyə"
+                                    productName={product.name}
+                                    value={giftQuantity}
+                                    disabled={busy || stock <= 0}
+                                    canAdd={canAdd}
+                                    onDecrease={() => decGift(product)}
+                                    onIncrease={() => incGift(product)}
+                                    onChange={(value) =>
+                                      handleGiftQtyInput(product, value)
+                                    }
+                                  />
+                                </Box>
+                              );
+                            })}
+                          </Box>
+                        </>
+                      )}
+                    </AccordionDetails>
+                  </Accordion>
+                );
+              })
+            )}
+          </Card>
 
+          <Card
+            component="aside"
+            aria-labelledby="order-summary-heading"
+            sx={{
+              ...orderCardSx,
+              width: "100%",
+              maxWidth: { xs: "none", sm: 440, lg: "none" },
+              justifySelf: { sm: "end", lg: "stretch" },
+              position: { xs: "static", lg: "sticky" },
+              top: { lg: 84 },
+            }}
+          >
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={1}
+              sx={{ px: 2, py: 1.75 }}
+            >
+              <Typography
+                component="h2"
+                id="order-summary-heading"
+                sx={{ fontSize: 15, fontWeight: 600 }}
+              >
+                Sifariş xülasəsi
+              </Typography>
+              <Tooltip title="Məhsul seçimini təmizlə">
+                <span>
+                  <IconButton
+                    size="small"
+                    aria-label="Məhsul seçimini təmizlə"
+                    disabled={busy || !hasAnySelected}
+                    onClick={clearSelection}
+                    sx={{ color: "text.secondary" }}
+                  >
+                    <RestartAltIcon sx={{ fontSize: 19 }} />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Stack>
+            <Divider />
+
+            {!hasAnySelected ? (
+              <Box sx={{ px: 2.5, py: 3.5, textAlign: "center" }}>
+                <ShoppingCartOutlinedIcon
+                  sx={{ fontSize: 27, color: "#9aa5b5", mb: 0.75 }}
+                />
+                <Typography sx={{ fontSize: 13, fontWeight: 500 }}>
+                  Məhsul seçilməyib
+                </Typography>
+                <Typography
+                  sx={{ mt: 0.5, fontSize: 11.5, color: "text.secondary" }}
+                >
+                  Siyahıdan məhsul əlavə et.
+                </Typography>
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  px: 2,
+                  maxHeight: { xs: "none", lg: "min(420px, 45dvh)" },
+                  overflowY: { xs: "visible", lg: "auto" },
+                  scrollbarWidth: "thin",
+                }}
+              >
+                {selectedItems.items.map((item) => (
                   <Box
+                    key={item.productId}
                     sx={{
-                      borderRadius: 999,
-                      px: 2,
-                      py: 1,
-                      bgcolor: "success.dark",
-                      color: "common.white",
-                      textAlign: "center",
+                      py: 1.75,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
                     }}
                   >
-                    <Typography sx={{ fontWeight: 900, fontSize: 15 }}>
-                      {formatMoney(selectedItems.totalAmount)}
-                    </Typography>
+                    <Stack
+                      direction="row"
+                      spacing={0.5}
+                      alignItems="flex-start"
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: 12.5,
+                          fontWeight: 500,
+                          flex: 1,
+                          minWidth: 0,
+                          overflowWrap: "anywhere",
+                        }}
+                      >
+                        {item.name}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        aria-label={"Satışdan sil: " + item.name}
+                        disabled={busy}
+                        onClick={() => handleQtyInput(item.product, "0")}
+                        sx={{ p: 0.3, color: "text.secondary" }}
+                      >
+                        <CloseRoundedIcon sx={{ fontSize: 15 }} />
+                      </IconButton>
+                    </Stack>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      spacing={1}
+                      sx={{ mt: 0.65 }}
+                    >
+                      <Stack direction="row" alignItems="center" spacing={0.25}>
+                        <Typography
+                          sx={{ fontSize: 11.5, color: "text.secondary" }}
+                        >
+                          {item.quantity} × {formatMoney(item.unitPrice)}
+                        </Typography>
+                        {isAdmin && !manualPriceEnabled[item.productId] && (
+                          <Tooltip title="Qiyməti dəyiş">
+                            <IconButton
+                              size="small"
+                              aria-label={"Qiyməti dəyiş: " + item.name}
+                              disabled={busy}
+                              onClick={() => enableManualPrice(item.productId)}
+                              sx={{ p: 0.4, color: "text.secondary" }}
+                            >
+                              <EditOutlinedIcon sx={{ fontSize: 14 }} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Stack>
+                      <Typography
+                        sx={{
+                          fontSize: 12.5,
+                          fontWeight: 500,
+                          whiteSpace: "nowrap",
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {formatMoney(item.lineTotal)}
+                      </Typography>
+                    </Stack>
+                    {isAdmin && manualPriceEnabled[item.productId] && (
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={0.75}
+                        sx={{ mt: 1.75 }}
+                      >
+                        <TextField
+                          size="small"
+                          type="number"
+                          label="Vahid qiyməti"
+                          value={prices[item.productId] ?? ""}
+                          disabled={busy}
+                          onChange={(event) =>
+                            handlePriceChange(
+                              item.productId,
+                              event.target.value,
+                            )
+                          }
+                          inputProps={{
+                            min: 0.01,
+                            step: "0.01",
+                            "aria-label": "Vahid qiyməti: " + item.name,
+                          }}
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">₼</InputAdornment>
+                            ),
+                          }}
+                          sx={{
+                            flex: 1,
+                            minWidth: 0,
+                            "& input": { fontSize: 12, py: 1 },
+                            "& .MuiOutlinedInput-root": { borderRadius: "6px" },
+                            "& .MuiInputLabel-root": { fontSize: 12 },
+                          }}
+                        />
+                        <Tooltip title="Standart qiymətə qaytar">
+                          <IconButton
+                            size="small"
+                            aria-label={"Standart qiymətə qaytar: " + item.name}
+                            disabled={busy}
+                            onClick={() => resetPriceToDefault(item.product)}
+                          >
+                            <LockResetOutlinedIcon sx={{ fontSize: 19 }} />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    )}
                   </Box>
+                ))}
+                {selectedGiftItems.items.map((item) => (
+                  <Box
+                    key={"gift-" + item.productId}
+                    sx={{
+                      py: 1.75,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="flex-start"
+                      spacing={0.5}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: 12.5,
+                          fontWeight: 500,
+                          flex: 1,
+                          minWidth: 0,
+                          overflowWrap: "anywhere",
+                        }}
+                      >
+                        {item.name}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        aria-label={"Hədiyyədən sil: " + item.name}
+                        disabled={busy}
+                        onClick={() => handleGiftQtyInput(item.product, "0")}
+                        sx={{ p: 0.3, color: "text.secondary" }}
+                      >
+                        <CloseRoundedIcon sx={{ fontSize: 15 }} />
+                      </IconButton>
+                    </Stack>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ mt: 0.65 }}
+                    >
+                      <Typography
+                        sx={{ fontSize: 11.5, color: "text.secondary" }}
+                      >
+                        {item.quantity} ədəd · Hədiyyə
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: 12, color: "text.secondary" }}
+                      >
+                        {formatMoney(0)}
+                      </Typography>
+                    </Stack>
+                  </Box>
+                ))}
+              </Box>
+            )}
+
+            <Box sx={{ p: 2 }}>
+              {hasAnySelected && (
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  spacing={1}
+                  sx={{ mb: 1.5 }}
+                >
+                  <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+                    Satış: {selectedItems.totalQty} ədəd
+                  </Typography>
+                  <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+                    Hədiyyə: {selectedGiftItems.totalQty} ədəd
+                  </Typography>
                 </Stack>
-              </CardContent>
-            </Card>
-          </Box>
-        </>
+              )}
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                spacing={1}
+                aria-live="polite"
+                sx={{ mb: 2 }}
+              >
+                <Typography sx={{ fontSize: 13, fontWeight: 500 }}>
+                  Yekun məbləğ
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 21,
+                    fontWeight: 600,
+                    letterSpacing: "-0.5px",
+                    whiteSpace: "nowrap",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {formatMoney(selectedItems.totalAmount)}
+                </Typography>
+              </Stack>
+              {hasInvalidPrice && (
+                <Alert severity="warning" sx={{ mb: 1.5, fontSize: 11.5 }}>
+                  Satış qiymətləri sıfırdan böyük olmalıdır.
+                </Alert>
+              )}
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<DoneAllIcon sx={{ fontSize: 18 }} />}
+                disabled={
+                  busy ||
+                  !hasAnySelected ||
+                  (selectedItems.totalQty > 0 && hasInvalidPrice)
+                }
+                onClick={confirmOrder}
+                sx={{
+                  minHeight: 42,
+                  borderRadius: "8px",
+                  fontSize: 12.5,
+                  fontWeight: 500,
+                  textTransform: "none",
+                }}
+              >
+                {busy ? "Sifariş yazılır…" : "Satışı təsdiqlə"}
+              </Button>
+            </Box>
+          </Card>
+        </Box>
       )}
 
       <Snackbar
@@ -1893,6 +1801,97 @@ export default function SalesPage() {
           setMapOpen(false);
         }}
       />
+    </Box>
+  );
+}
+
+const productColumns = "minmax(100px, 1fr) 48px 76px 104px 104px";
+const orderCardSx = {
+  minWidth: 0,
+  borderRadius: "12px",
+  border: "1px solid",
+  borderColor: "divider",
+  boxShadow: "none",
+};
+
+function QuantityControl({
+  label,
+  productName,
+  value,
+  disabled,
+  canAdd,
+  onDecrease,
+  onIncrease,
+  onChange,
+}) {
+  return (
+    <Box>
+      <Typography
+        sx={{
+          display: { xs: "block", sm: "none" },
+          fontSize: 11,
+          color: "text.secondary",
+          mb: 0.5,
+        }}
+      >
+        {label}
+      </Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: "7px",
+          bgcolor: "#fff",
+          px: 0.25,
+          height: { xs: 38, sm: 34 },
+        }}
+      >
+        <IconButton
+          size="small"
+          aria-label={label + " miqdarını azalt: " + productName}
+          onClick={onDecrease}
+          disabled={disabled || value <= 0}
+          sx={{ p: 0.4 }}
+        >
+          <RemoveIcon sx={{ fontSize: 15 }} />
+        </IconButton>
+        <TextField
+          variant="standard"
+          size="small"
+          value={value}
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+          inputProps={{
+            inputMode: "numeric",
+            pattern: "[0-9]*",
+            "aria-label": label + " miqdarı: " + productName,
+            style: {
+              textAlign: "center",
+              fontSize: 12,
+              padding: "6px 0",
+              fontVariantNumeric: "tabular-nums",
+            },
+          }}
+          InputProps={{ disableUnderline: true }}
+          sx={{
+            minWidth: 0,
+            width: 42,
+            "& .MuiInputBase-root": { bgcolor: "transparent" },
+          }}
+        />
+        <IconButton
+          size="small"
+          aria-label={label + " miqdarını artır: " + productName}
+          onClick={onIncrease}
+          disabled={disabled || !canAdd}
+          sx={{ p: 0.4 }}
+        >
+          <AddIcon sx={{ fontSize: 15 }} />
+        </IconButton>
+      </Stack>
     </Box>
   );
 }

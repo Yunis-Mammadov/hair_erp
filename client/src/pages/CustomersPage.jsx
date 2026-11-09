@@ -1,367 +1,324 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
   InputAdornment,
+  Link,
   MenuItem,
-  Paper,
   Stack,
-  Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   TextField,
   Typography,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import PersonIcon from "@mui/icons-material/Person";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
-import { useNavigate } from "react-router-dom";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
+import { canUseFeature } from "../features/plans/access";
+import { useAuth } from "../features/auth/useAuth";
 import { getCustomers } from "../lib/customers";
 import { api } from "../lib/api";
-
-function formatDate(dateString) {
-  if (!dateString) return "-";
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleString("az-AZ");
-}
-
-function getStoredUser() {
-  try {
-    const rawUser = localStorage.getItem("user");
-    if (!rawUser) return null;
-    return JSON.parse(rawUser);
-  } catch (error) {
-    console.error("User parse error:", error);
-    return null;
-  }
-}
+import {
+  PageLayout,
+  PageHeader,
+  PageCard,
+  DataTable,
+  EmptyState,
+  StatusBadge,
+  RecordDate,
+} from "../components/WorkspaceUI";
 
 export default function CustomersPage() {
-  const navigate = useNavigate();
-  const currentUser = useMemo(() => getStoredUser(), []);
-
+  const { user: currentUser } = useAuth();
   const canFilterExpeditor =
-    currentUser?.role === "ADMIN" ||
-    currentUser?.role === "DRIVER" ||
-    currentUser?.role === "WAREHOUSE";
-
+    canUseFeature(currentUser, "teamManagement") &&
+    ["ADMIN", "DRIVER", "WAREHOUSE"].includes(currentUser?.role);
+  const showAssignments = canUseFeature(currentUser, "customerAssignments");
   const [customers, setCustomers] = useState([]);
   const [expeditors, setExpeditors] = useState([]);
   const [search, setSearch] = useState("");
   const [expeditorId, setExpeditorId] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function fetchCustomers(searchValue = "", selectedExpeditorId = "") {
-    try {
-      setLoading(true);
-      setError("");
-
-      const data = await getCustomers(searchValue, selectedExpeditorId);
-      setCustomers(data.customers || []);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Müştərilər yüklənə bilmədi");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchExpeditors() {
+  useEffect(() => {
     if (!canFilterExpeditor) return;
-
-    try {
-      const { data } = await api.get("/users", {
-        params: { role: "EXPEDITOR" },
-      });
-
-      setExpeditors(data.users || []);
-    } catch (err) {
-      console.error("Fetch expeditors error:", err);
-      setExpeditors([]);
+    let active = true;
+    async function loadExpeditors() {
+      try {
+        const { data } = await api.get("/users", {
+          params: { role: "EXPEDITOR" },
+        });
+        if (active) setExpeditors(data.users || []);
+      } catch {
+        if (active) setExpeditors([]);
+      }
     }
-  }
+    loadExpeditors();
+    return () => {
+      active = false;
+    };
+  }, [canFilterExpeditor]);
 
   useEffect(() => {
-    fetchExpeditors();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    let active = true;
+    const timer = window.setTimeout(
+      async () => {
+        setLoading(true);
+        setError("");
+        try {
+          const data = await getCustomers(
+            search,
+            canFilterExpeditor ? expeditorId : "",
+          );
+          if (active) setCustomers(data.customers || []);
+        } catch (err) {
+          if (active)
+            setError(
+              err?.response?.data?.message ||
+                "Müştərilər yüklənmədi. Yenidən cəhd et.",
+            );
+        } finally {
+          if (active) setLoading(false);
+        }
+      },
+      search.trim() ? 350 : 0,
+    );
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [search, expeditorId, reloadKey, canFilterExpeditor]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchCustomers(search, expeditorId);
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [search, expeditorId]);
-
-  useEffect(() => {
-    fetchCustomers("", "");
-  }, []);
-
-  const handleRefresh = () => {
-    fetchCustomers(search, expeditorId);
-  };
-
-  const handleReset = () => {
+  function resetFilters() {
     setSearch("");
     setExpeditorId("");
-    fetchCustomers("", "");
-  };
+    setReloadKey((key) => key + 1);
+  }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Stack
-        direction={{ xs: "column", lg: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "stretch", lg: "center" }}
-        spacing={2}
-        sx={{ mb: 3 }}
-      >
-        <Box>
-          <Typography variant="h4" fontWeight={700}>
-            Müştərilər
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Bütün müştərilərin siyahısı
-          </Typography>
-        </Box>
-
-        <Chip
-          icon={<PeopleAltIcon />}
-          label={`Toplam: ${customers.length}`}
-          color="primary"
-          variant="outlined"
-          sx={{ width: "fit-content", fontWeight: 600 }}
-        />
-      </Stack>
-
-      <Paper
-        sx={{
-          p: 2.5,
-          mb: 3,
-          borderRadius: 3,
-        }}
-      >
-        <Stack spacing={2}>
-          <Typography variant="subtitle1" fontWeight={700}>
-            Filterlər
-          </Typography>
-
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={2}
-            alignItems={{ xs: "stretch", md: "center" }}
-            useFlexGap
-            flexWrap="wrap"
+    <PageLayout>
+      <PageHeader
+        title="Müştərilər"
+        description="Müştəri məlumatları, satışlar və borclar."
+        actions={
+          <Button
+            variant="outlined"
+            disabled={loading}
+            onClick={() => setReloadKey((key) => key + 1)}
+            startIcon={<RefreshRoundedIcon sx={{ fontSize: 18 }} />}
           >
+            Yenilə
+          </Button>
+        }
+      />
+      <PageCard sx={{ p: 2, mb: 2.5 }}>
+        <Stack
+          direction={{ xs: "column", md: "row" }}
+          spacing={1.5}
+          alignItems={{ md: "center" }}
+        >
+          <TextField
+            label="Müştəri axtar"
+            placeholder="Ad, telefon və ya salon"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchRoundedIcon
+                    sx={{ fontSize: 18, color: "text.secondary" }}
+                  />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ flex: 1, minWidth: 0 }}
+          />
+          {canFilterExpeditor && (
             <TextField
-              label="Müştəri axtar"
-              placeholder="Ad, telefon və ya salon..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              sx={{
-                flex: 1,
-                minWidth: { xs: "100%", md: 320 },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            {canFilterExpeditor && (
-              <TextField
-                select
-                label="Ekspeditor"
-                value={expeditorId}
-                onChange={(e) => setExpeditorId(e.target.value)}
-                sx={{
-                  minWidth: { xs: "100%", md: 250 },
-                }}
-              >
-                <MenuItem value="">Hamısı</MenuItem>
-                {expeditors.map((expeditor) => (
-                  <MenuItem key={expeditor.id} value={expeditor.id}>
-                    {expeditor.fullName || expeditor.email || "-"}
-                  </MenuItem>
-                ))}
-              </TextField>
-            )}
-
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={1.5}
-              sx={{
-                width: { xs: "100%", md: "auto" },
-              }}
+              select
+              label="Ekspeditor"
+              value={expeditorId}
+              onChange={(event) => setExpeditorId(event.target.value)}
+              sx={{ minWidth: { md: 200 } }}
             >
-              <Button
-                variant="contained"
-                onClick={handleRefresh}
-                startIcon={<RefreshIcon />}
-                sx={{
-                  minHeight: 54,
-                  px: 2.6,
-                  borderRadius: 3,
-                  fontWeight: 950,
-                  bgcolor: "#b91c1c",
-                  boxShadow: "0 14px 28px rgba(185,28,28,0.22)",
-                  "&:hover": { bgcolor: "#991b1b" },
-                  "&:disabled": {
-                    bgcolor: "#e5e7eb",
-                    color: "#94a3b8",
-                    boxShadow: "none",
-                  },
-                }}
-              >
-                Yenilə
-              </Button>
-
-              <Button
-                variant="outlined"
-                onClick={handleReset}
-                sx={{
-                        border:"1px solid transparent",
-                        fontWeight: 950,
-                        color: "black",
-                        bgcolor: "white",
-                        boxShadow: "0 14px 28px rgba(185,28,28,0.22)",
-                        "&:hover": { bgcolor: "#991b1b" },
-                        "&:disabled": {
-                          bgcolor: "#e5e7eb",
-                          color: "white",
-                          boxShadow: "none",
-                        },
-                      }}
-                    >
-                      Sıfırla
-                    </Button>
-            </Stack>
-          </Stack>
+              <MenuItem value="">Hamısı</MenuItem>
+              {expeditors.map((person) => (
+                <MenuItem key={person.id} value={person.id}>
+                  {person.fullName || person.email || "—"}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+          <Button
+            color="inherit"
+            onClick={resetFilters}
+            sx={{
+              color: "text.secondary",
+              alignSelf: { xs: "flex-start", md: "center" },
+            }}
+          >
+            Sıfırla
+          </Button>
         </Stack>
-      </Paper>
-
-      {error ? (
+      </PageCard>
+      {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-      ) : null}
-
-      <Paper sx={{ borderRadius: 3, overflow: "hidden" }}>
+      )}
+      <PageCard>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={1}
+          sx={{
+            px: 2,
+            py: 1.75,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Typography component="h2" sx={{ fontSize: 14, fontWeight: 500 }}>
+            Müştəri siyahısı
+          </Typography>
+          <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+            {loading
+              ? "Yüklənir…"
+              : error
+                ? "Yüklənmə alınmadı"
+                : customers.length + " nəticə"}
+          </Typography>
+        </Stack>
         {loading ? (
-          <Box sx={{ py: 8, display: "flex", justifyContent: "center" }}>
-            <CircularProgress />
+          <Box
+            role="status"
+            aria-label="Müştərilər yüklənir"
+            sx={{ py: 7, textAlign: "center" }}
+          >
+            <CircularProgress size={24} />
           </Box>
+        ) : error ? (
+          <EmptyState
+            title="Siyahı yenilənmədi"
+            description="Yenilə düyməsi ilə təkrar yoxla."
+          />
         ) : customers.length === 0 ? (
-          <Box sx={{ p: 4 }}>
-            <Alert severity="info">Heç bir müştəri tapılmadı.</Alert>
-          </Box>
+          <EmptyState
+            title="Müştəri tapılmadı"
+            description="Axtarış sözünü və filtrləri dəyişərək yenidən yoxla."
+          />
         ) : (
-          <TableContainer>
-            <Table
-              sx={{
-                "& th": {
-                  fontWeight: 700,
-                  whiteSpace: "nowrap",
-                },
-                "& td": {
-                  verticalAlign: "middle",
-                },
-              }}
-            >
-              <TableHead>
-                <TableRow>
-                  <TableCell>Ad</TableCell>
-                  <TableCell>Telefon</TableCell>
-                  <TableCell>Salon</TableCell>
-                  <TableCell>Ünvan</TableCell>
-                  <TableCell>Ekspeditor</TableCell>
-                  <TableCell>Yenilənib</TableCell>
-                </TableRow>
-              </TableHead>
-
-              <TableBody>
-                {customers.map((customer) => (
-                  <TableRow
-                    key={customer.id}
-                    hover
-                    onClick={() => navigate(`/exp/customers/${customer.id}`)}
+          <DataTable
+            minWidth={showAssignments ? 850 : 690}
+            label="Müştərilər siyahısı"
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell>Müştəri / salon</TableCell>
+                <TableCell>Telefon</TableCell>
+                <TableCell>Ünvan</TableCell>
+                {showAssignments && <TableCell>Ekspeditor</TableCell>}
+                <TableCell>Son yenilənmə</TableCell>
+                <TableCell align="right">Ətraflı</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {customers.map((customer) => (
+                <TableRow key={customer.id} hover>
+                  <TableCell sx={{ maxWidth: 310 }}>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      useFlexGap
+                      flexWrap="wrap"
+                    >
+                      <Link
+                        component={RouterLink}
+                        to={"/exp/customers/" + customer.id}
+                        underline="hover"
+                        color="text.primary"
+                        sx={{ fontWeight: 500, overflowWrap: "anywhere" }}
+                      >
+                        {customer.name || "Adsız müştəri"}
+                      </Link>
+                      {customer.isProblematic && (
+                        <StatusBadge label="Problemli" tone="error" />
+                      )}
+                    </Stack>
+                    <Typography
+                      sx={{
+                        fontSize: 11.5,
+                        color: "text.secondary",
+                        mt: 0.35,
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      {customer.salon || "—"}
+                    </Typography>
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>
+                    {customer.phone ? (
+                      <Link
+                        href={"tel:" + customer.phone}
+                        color="inherit"
+                        underline="hover"
+                      >
+                        {customer.phone}
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
+                  <TableCell
                     sx={{
-                      cursor: "pointer",
-                      backgroundColor: customer.isProblematic
-                        ? "rgba(244, 67, 54, 0.05)"
-                        : "inherit",
-                      "&:hover": {
-                        backgroundColor: customer.isProblematic
-                          ? "rgba(244, 67, 54, 0.10)"
-                          : "action.hover",
-                      },
+                      maxWidth: 240,
+                      overflowWrap: "anywhere",
+                      color: "text.secondary",
                     }}
                   >
+                    {customer.address || "—"}
+                  </TableCell>
+                  {showAssignments && (
                     <TableCell>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Typography
-                          sx={{
-                            fontWeight: 700,
-                            color: customer.isProblematic
-                              ? "error.main"
-                              : "inherit",
-                          }}
-                        >
-                          {customer.name || "-"}
-                        </Typography>
-
-                        {customer.isProblematic && (
-                          <Chip
-                            icon={<WarningAmberIcon />}
-                            label="Problemli"
-                            color="error"
-                            size="small"
-                            sx={{ fontWeight: 700 }}
-                          />
-                        )}
-                      </Stack>
+                      {customer.assignedExpeditor?.fullName ||
+                        customer.assignedExpeditor?.email ||
+                        "—"}
                     </TableCell>
-
-                    <TableCell>{customer.phone || "-"}</TableCell>
-
-                    <TableCell>{customer.salon || "-"}</TableCell>
-
-                    <TableCell sx={{ maxWidth: 260 }}>
-                      {customer.address || "-"}
-                    </TableCell>
-
-                    <TableCell>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <PersonIcon fontSize="small" />
-                        <Typography variant="body2">
-                          {customer.assignedExpeditor?.fullName ||
-                            customer.assignedExpeditor?.email ||
-                            "-"}
-                        </Typography>
-                      </Stack>
-                    </TableCell>
-
-                    <TableCell>{formatDate(customer.updatedAt)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                  )}
+                  <TableCell>
+                    <RecordDate value={customer.updatedAt} />
+                  </TableCell>
+                  <TableCell align="right">
+                    <Button
+                      component={RouterLink}
+                      to={"/exp/customers/" + customer.id}
+                      size="small"
+                      endIcon={
+                        <ArrowForwardRoundedIcon
+                          sx={{ fontSize: "15px !important" }}
+                        />
+                      }
+                      sx={{ minWidth: 0, fontSize: 12 }}
+                    >
+                      Bax
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </DataTable>
         )}
-      </Paper>
-    </Box>
+      </PageCard>
+    </PageLayout>
   );
 }

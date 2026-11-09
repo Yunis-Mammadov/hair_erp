@@ -2,6 +2,8 @@ const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
+const { hasFeature } = require("../config/plans");
+
 const router = express.Router();
 
 /**
@@ -15,7 +17,10 @@ router.get(
     try {
       const where = {};
 
-      if (req.user.role === "EXPEDITOR") {
+      if (
+        hasFeature(req.company, "customerAssignments") &&
+        req.user.role === "EXPEDITOR"
+      ) {
         where.customer = {
           assignedExpeditorId: req.user.userId,
         };
@@ -75,7 +80,10 @@ router.get(
 
       const where = { id };
 
-      if (req.user.role === "EXPEDITOR") {
+      if (
+        hasFeature(req.company, "customerAssignments") &&
+        req.user.role === "EXPEDITOR"
+      ) {
         where.createdById = req.user.userId;
       }
 
@@ -154,7 +162,9 @@ router.post(
           throw new Error("Aktiv istifadəçi tapılmadı");
         }
 
-        const isExpeditor = req.user.role === "EXPEDITOR";
+        const isExpeditor =
+          hasFeature(req.company, "customerAssignments") &&
+          req.user.role === "EXPEDITOR";
 
         const customer = await tx.customer.findFirst({
           where: isExpeditor
@@ -213,12 +223,8 @@ router.post(
         const returnDoc = await tx.return.create({
           data: {
             note: note || null,
-            customer: {
-              connect: { id: customerId },
-            },
-            createdBy: {
-              connect: { id: authUserId },
-            },
+            customerId,
+            createdById: authUserId,
           },
         });
 

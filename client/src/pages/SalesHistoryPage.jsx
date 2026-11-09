@@ -1,4 +1,16 @@
+import { canUseFeature } from "../features/plans/access";
+import { useAuth } from "../features/auth/useAuth";
 import { useEffect, useMemo, useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
+import {
+  PageHeader,
+  PageCard,
+  DataTable,
+  EmptyState,
+  StatusBadge,
+  RecordDate,
+} from "../components/WorkspaceUI";
 import {
   Box,
   Paper,
@@ -32,7 +44,6 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import { useTheme, useMediaQuery } from "@mui/material";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import FilterAltRoundedIcon from "@mui/icons-material/FilterAltRounded";
 import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
@@ -48,25 +59,21 @@ const PAYMENT_OPTIONS = ["", "REALİZASİYA", "NAĞD", "HİSSƏLİ", "DİGƏR"];
 const EDIT_PAYMENT_OPTIONS = ["REALİZASİYA", "NAĞD", "HİSSƏLİ", "DİGƏR"];
 
 const fieldSx = {
-  "& .MuiOutlinedInput-root": {
-    borderRadius: 3,
-    bgcolor: "#f8fafc",
-    minHeight: 54,
-    "& fieldset": {
-      borderColor: "#e5e7eb",
-    },
-    "&:hover fieldset": {
-      borderColor: "#cbd5e1",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#b91c1c",
-      borderWidth: 2,
-    },
-  },
-  "& .MuiInputLabel-root.Mui-focused": {
-    color: "#b91c1c",
-  },
+  "& .MuiOutlinedInput-root": { borderRadius: "8px", bgcolor: "#fff" },
 };
+
+function paymentLabel(value) {
+  return (
+    {
+      REALİZASİYA: "Realizasiya",
+      NAĞD: "Nağd",
+      HİSSƏLİ: "Hissəli",
+      DİGƏR: "Digər",
+    }[value] ||
+    value ||
+    "—"
+  );
+}
 
 function formatMoney(value) {
   return `${Number(value || 0).toFixed(2)} ₼`;
@@ -76,17 +83,6 @@ function formatInvoiceNumber(value) {
   const num = Number(value || 0);
   if (!Number.isFinite(num) || num <= 0) return "00000";
   return String(num).padStart(5, "0");
-}
-
-function getStoredUser() {
-  try {
-    const rawUser = localStorage.getItem("user");
-    if (!rawUser) return null;
-    return JSON.parse(rawUser);
-  } catch (error) {
-    console.error("User parse error:", error);
-    return null;
-  }
 }
 
 function normalizeProductListResponse(data) {
@@ -121,14 +117,11 @@ function buildEditItemsFromOrder(order) {
 }
 
 export default function SalesHistoryPage() {
-  const currentUser = useMemo(() => getStoredUser(), []);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { user: currentUser } = useAuth();
 
   const canFilterExpeditor =
-    currentUser?.role === "ADMIN" ||
-    currentUser?.role === "DRIVER" ||
-    currentUser?.role === "WAREHOUSE";
+    canUseFeature(currentUser, "teamManagement") &&
+    ["ADMIN", "DRIVER", "WAREHOUSE"].includes(currentUser?.role);
 
   const canViewOrderDetail =
     currentUser?.role === "ADMIN" ||
@@ -165,6 +158,7 @@ export default function SalesHistoryPage() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [listError, setListError] = useState("");
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -193,6 +187,7 @@ export default function SalesHistoryPage() {
   const fetchOrders = async (page = 1, customFilters = appliedFilters) => {
     try {
       setLoading(true);
+      setListError("");
 
       const params = {
         page,
@@ -222,6 +217,10 @@ export default function SalesHistoryPage() {
       }));
     } catch (error) {
       console.error("Fetch orders error:", error);
+      setListError(
+        error?.response?.data?.message ||
+          "Satışlar yüklənmədi. Yenidən cəhd et.",
+      );
     } finally {
       setLoading(false);
     }
@@ -384,36 +383,6 @@ export default function SalesHistoryPage() {
   const getWazeLink = (lat, lng) => {
     if (typeof lat !== "number" || typeof lng !== "number") return null;
     return `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
-  };
-
-  const renderLocationLinks = (customer) => {
-    const lat = customer?.lat;
-    const lng = customer?.lng;
-
-    if (typeof lat !== "number" || typeof lng !== "number") {
-      return "-";
-    }
-
-    return (
-      <Stack spacing={0.5} alignItems="center">
-        <Link
-          href={getGoogleMapsLink(lat, lng)}
-          target="_blank"
-          rel="noreferrer"
-          underline="hover"
-        >
-          Google Maps
-        </Link>
-        <Link
-          href={getWazeLink(lat, lng)}
-          target="_blank"
-          rel="noreferrer"
-          underline="hover"
-        >
-          Waze
-        </Link>
-      </Stack>
-    );
   };
 
   const normalItems = useMemo(() => {
@@ -653,9 +622,12 @@ export default function SalesHistoryPage() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        bgcolor: "#f5f7fb",
-        p: { xs: 2, md: 3 },
+        minHeight: "calc(100dvh - 64px)",
+        bgcolor: "background.default",
+        px: { xs: 2, sm: 3, lg: 3.5 },
+        py: { xs: 3, md: 3.5 },
+        maxWidth: 1600,
+        mx: "auto",
       }}
     >
       <style>
@@ -693,438 +665,347 @@ export default function SalesHistoryPage() {
         `}
       </style>
 
-      <Box sx={{ maxWidth: 1500, mx: "auto" }}>
-        <Card
-          elevation={0}
-          sx={{
-            mb: 2.5,
-            borderRadius: 5,
-            overflow: "hidden",
-            color: "white",
-            background:
-              "radial-gradient(circle at 82% 25%, rgba(185,28,28,0.35), transparent 30%), linear-gradient(135deg, #080b12 0%, #0f172a 58%, #111827 100%)",
-            boxShadow: "0 24px 70px rgba(15,23,42,0.22)",
-            border: "1px solid rgba(255,255,255,0.08)",
-          }}
-        >
-          <Box sx={{ p: { xs: 3, md: 4 } }}>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Avatar
-                sx={{
-                  width: 58,
-                  height: 58,
-                  borderRadius: 4,
-                  bgcolor: "#b91c1c",
-                  boxShadow: "0 18px 40px rgba(185,28,28,0.35)",
-                }}
+      <Box>
+        <PageHeader
+          title="Satış tarixçəsi"
+          description="Qaimələr, məhsullar və satış məlumatları."
+          actions={
+            <>
+              <Button
+                variant="outlined"
+                disabled={loading}
+                onClick={() => fetchOrders(pagination.page, appliedFilters)}
+                startIcon={<RefreshRoundedIcon sx={{ fontSize: 18 }} />}
               >
-                <ReceiptLongRoundedIcon />
-              </Avatar>
-
-              <Box>
-                <Typography
-                  sx={{
-                    fontSize: { xs: 32, md: 46 },
-                    lineHeight: 1,
-                    fontWeight: 950,
-                    letterSpacing: -1.4,
-                  }}
-                >
-                  Satış Tarixçəsi
-                </Typography>
-
-                <Typography
-                  sx={{
-                    mt: 1,
-                    color: "rgba(255,255,255,0.68)",
-                    fontSize: 15,
-                  }}
-                >
-                  Bütün satışları, qaimələri, ödənişləri və ekspeditor
-                  məlumatlarını idarə edin.
-                </Typography>
-              </Box>
-            </Stack>
-          </Box>
-        </Card>
-
-        <Card
-          elevation={0}
-          sx={{
-            mb: 2.5,
-            borderRadius: 4.5,
-            border: "1px solid #e5e7eb",
-            boxShadow: "0 18px 45px rgba(15,23,42,0.06)",
-          }}
-        >
-          <CardContent sx={{ p: { xs: 2, md: 2.6 } }}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={1.2}
-              sx={{ mb: 2 }}
-            >
-              <Avatar
-                sx={{
-                  width: 42,
-                  height: 42,
-                  bgcolor: "#fee2e2",
-                  color: "#b91c1c",
-                }}
-              >
-                <FilterAltRoundedIcon />
-              </Avatar>
-
-              <Box>
-                <Typography sx={{ fontWeight: 950, fontSize: 20 }}>
-                  Filterlər
-                </Typography>
-                <Typography sx={{ color: "#64748b", fontSize: 13 }}>
-                  Axtarış və tarix aralığı ilə satışları süzün
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Stack spacing={2}>
-              <TextField
-                label="Axtarış"
-                placeholder="Ad, telefon və ya salon adı yazın..."
-                value={filters.search}
-                onChange={(e) =>
-                  setFilters((prev) => ({ ...prev, search: e.target.value }))
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSearch();
-                  }
-                }}
-                fullWidth
-                InputProps={{
-                  startAdornment: (
-                    <SearchRoundedIcon sx={{ mr: 1, color: "#94a3b8" }} />
-                  ),
-                }}
-                sx={fieldSx}
-              />
-
-              <Stack
-                direction={{ xs: "column", md: "row" }}
-                spacing={1.5}
-                useFlexGap
-                flexWrap="wrap"
-              >
-                <TextField
-                  select
-                  label="Ödəniş növü"
-                  value={filters.paymentType}
-                  onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      paymentType: e.target.value,
-                    }))
-                  }
-                  sx={{ ...fieldSx, minWidth: 210 }}
-                >
-                  {PAYMENT_OPTIONS.map((option) => (
-                    <MenuItem key={option || "ALL"} value={option}>
-                      {option || "Hamısı"}
-                    </MenuItem>
-                  ))}
-                </TextField>
-
-                {canFilterExpeditor && (
-                  <TextField
-                    select
-                    label="Ekspeditor"
-                    value={filters.expeditorId}
-                    onChange={(e) =>
-                      setFilters((prev) => ({
-                        ...prev,
-                        expeditorId: e.target.value,
-                      }))
-                    }
-                    sx={{ ...fieldSx, minWidth: 230 }}
-                  >
-                    <MenuItem value="">Hamısı</MenuItem>
-                    {expeditors.map((expeditor) => (
-                      <MenuItem key={expeditor.id} value={expeditor.id}>
-                        {expeditor.fullName || expeditor.email}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-
-                <TextField
-                  label="Başlanğıc tarix"
-                  type="date"
-                  value={filters.startDate}
-                  onChange={(e) =>
-                    setFilters((prev) => ({
-                      ...prev,
-                      startDate: e.target.value,
-                    }))
-                  }
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ ...fieldSx, minWidth: 190 }}
-                />
-
-                <TextField
-                  label="Son tarix"
-                  type="date"
-                  value={filters.endDate}
-                  onChange={(e) =>
-                    setFilters((prev) => ({ ...prev, endDate: e.target.value }))
-                  }
-                  InputLabelProps={{ shrink: true }}
-                  sx={{ ...fieldSx, minWidth: 190 }}
-                />
-
+                Yenilə
+              </Button>
+              {["ADMIN", "EXPEDITOR"].includes(currentUser?.role) && (
                 <Button
+                  component={RouterLink}
+                  to="/exp/sales"
                   variant="contained"
-                  onClick={handleSearch}
-                  startIcon={<SearchRoundedIcon />}
-                  sx={{
-                    minHeight: 54,
-                    px: 2.6,
-                    borderRadius: 3,
-                    fontWeight: 950,
-                    bgcolor: "#b91c1c",
-                    boxShadow: "0 14px 28px rgba(185,28,28,0.22)",
-                    "&:hover": { bgcolor: "#991b1b" },
-                  }}
+                  startIcon={<AddOutlinedIcon sx={{ fontSize: 18 }} />}
                 >
-                  Axtar
+                  Yeni satış
                 </Button>
-
-                <Button
-                  variant="outlined"
-                  onClick={handleReset}
-                  startIcon={<RestartAltRoundedIcon />}
-                  sx={{
-                    minHeight: 54,
-                    px: 2.3,
-                    borderRadius: 3,
-                    fontWeight: 900,
-                    borderColor: "#e5e7eb",
-                    color: "#0f172a",
-                  }}
-                >
-                  Sıfırla
-                </Button>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-
-        <Card
-          elevation={0}
-          sx={{
-            borderRadius: 4.5,
-            border: "1px solid #e5e7eb",
-            boxShadow: "0 18px 45px rgba(15,23,42,0.06)",
-            overflow: "hidden",
+              )}
+            </>
+          }
+        />
+        <PageCard
+          component="form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleSearch();
           }}
+          sx={{ p: 2, mb: 2.5 }}
         >
+          <Stack
+            direction="row"
+            useFlexGap
+            flexWrap="wrap"
+            spacing={1.5}
+            alignItems="center"
+          >
+            <TextField
+              label="Axtarış"
+              placeholder="Ad, telefon və ya salon"
+              value={filters.search}
+              onChange={(event) =>
+                setFilters((prev) => ({ ...prev, search: event.target.value }))
+              }
+              InputProps={{
+                startAdornment: (
+                  <SearchRoundedIcon
+                    sx={{ mr: 1, fontSize: 18, color: "text.secondary" }}
+                  />
+                ),
+              }}
+              sx={{ ...fieldSx, flex: "1 1 220px", minWidth: 0 }}
+            />
+            <TextField
+              select
+              label="Ödəniş növü"
+              value={filters.paymentType}
+              onChange={(event) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  paymentType: event.target.value,
+                }))
+              }
+              sx={{ ...fieldSx, width: { xs: "100%", sm: 150 } }}
+            >
+              {PAYMENT_OPTIONS.map((value) => (
+                <MenuItem key={value || "all"} value={value}>
+                  {value ? paymentLabel(value) : "Hamısı"}
+                </MenuItem>
+              ))}
+            </TextField>
+            {canFilterExpeditor && (
+              <TextField
+                select
+                label="Ekspeditor"
+                value={filters.expeditorId}
+                onChange={(event) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    expeditorId: event.target.value,
+                  }))
+                }
+                sx={{ ...fieldSx, width: { xs: "100%", sm: 175 } }}
+              >
+                <MenuItem value="">Hamısı</MenuItem>
+                {expeditors.map((person) => (
+                  <MenuItem key={person.id} value={person.id}>
+                    {person.fullName || person.email}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+            <TextField
+              label="Başlanğıc tarix"
+              type="date"
+              value={filters.startDate}
+              onChange={(event) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  startDate: event.target.value,
+                }))
+              }
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...fieldSx, width: { xs: "100%", sm: 155 } }}
+            />
+            <TextField
+              label="Son tarix"
+              type="date"
+              value={filters.endDate}
+              onChange={(event) =>
+                setFilters((prev) => ({ ...prev, endDate: event.target.value }))
+              }
+              InputLabelProps={{ shrink: true }}
+              sx={{ ...fieldSx, width: { xs: "100%", sm: 155 } }}
+            />
+            <Stack direction="row" spacing={0.5}>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={loading}
+                startIcon={<SearchRoundedIcon sx={{ fontSize: 17 }} />}
+              >
+                Axtar
+              </Button>
+              <Button
+                type="button"
+                color="inherit"
+                onClick={handleReset}
+                sx={{ color: "text.secondary" }}
+              >
+                Sıfırla
+              </Button>
+            </Stack>
+          </Stack>
+        </PageCard>
+
+        {listError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {listError}
+          </Alert>
+        )}
+        <PageCard>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            spacing={1}
+            sx={{
+              px: 2,
+              py: 1.75,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Typography component="h2" sx={{ fontSize: 14, fontWeight: 500 }}>
+              Satış siyahısı
+            </Typography>
+            <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+              {loading
+                ? "Yüklənir…"
+                : listError
+                  ? "Yüklənmə alınmadı"
+                  : pagination.total + " nəticə"}
+            </Typography>
+          </Stack>
           {loading ? (
             <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              py={7}
+              role="status"
+              aria-label="Satışlar yüklənir"
+              sx={{ py: 7, textAlign: "center" }}
             >
-              <CircularProgress sx={{ color: "#b91c1c" }} />
+              <CircularProgress size={24} />
             </Box>
+          ) : listError ? (
+            <EmptyState
+              title="Satışlar yüklənmədi"
+              description="Yenilə düyməsi ilə təkrar yoxla."
+            />
+          ) : orders.length === 0 ? (
+            <EmptyState
+              title="Satış tapılmadı"
+              description="Axtarış sözünü və tarix aralığını dəyişərək yoxla."
+            />
           ) : (
-            <>
-              <TableContainer>
-                <Table
-                  sx={{
-                    minWidth: 1180,
-                    "& th": {
-                      bgcolor: "#f8fafc",
-                      color: "#0f172a",
-                      fontWeight: 950,
-                      fontSize: 13.5,
-                      borderBottom: "1px solid #e5e7eb",
-                      py: 1.7,
-                      whiteSpace: "nowrap",
-                      textAlign: "center",
-                    },
-                    "& td": {
-                      borderBottom: "1px solid #eef2f7",
-                      py: 1.6,
-                      color: "#0f172a",
-                      fontWeight: 650,
-                      verticalAlign: "middle",
-                      textAlign: "center",
-                    },
-                  }}
-                >
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Qaimə №</TableCell>
-                      <TableCell>Ünvan</TableCell>
-                      <TableCell>Tarix</TableCell>
-                      <TableCell>Müştəri</TableCell>
-                      <TableCell>Telefon</TableCell>
-                      <TableCell>Salon</TableCell>
-                      <TableCell>Location</TableCell>
-                      <TableCell>Ödəniş</TableCell>
-                      <TableCell>Məhsul sayı</TableCell>
-                      <TableCell>Ekspeditor</TableCell>
-                      {canViewOrderDetail && <TableCell>Ətraflı</TableCell>}
-                    </TableRow>
-                  </TableHead>
-
-                  <TableBody>
-                    {orders.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={canViewOrderDetail ? 11 : 10}
-                          align="center"
-                          sx={{ py: 6 }}
+            <DataTable
+              minWidth={canFilterExpeditor ? 1000 : 850}
+              label="Satış tarixçəsi"
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell>Qaimə / tarix</TableCell>
+                  <TableCell>Müştəri / salon</TableCell>
+                  <TableCell>Əlaqə / ünvan</TableCell>
+                  <TableCell>Ödəniş növü</TableCell>
+                  <TableCell align="right">Say</TableCell>
+                  <TableCell align="right">Məbləğ</TableCell>
+                  {canFilterExpeditor && <TableCell>Əməkdaş</TableCell>}
+                  {canViewOrderDetail && (
+                    <TableCell align="right">Ətraflı</TableCell>
+                  )}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {orders.map((order) => (
+                  <TableRow key={order.id} hover>
+                    <TableCell sx={{ whiteSpace: "nowrap" }}>
+                      <Typography
+                        sx={{ fontSize: 12.5, fontWeight: 500, mb: 0.45 }}
+                      >
+                        #{formatInvoiceNumber(order.orderNumber)}
+                      </Typography>
+                      <RecordDate value={order.createdAt} />
+                      {hasReturnedItems(order.items) && (
+                        <Box sx={{ mt: 0.65 }}>
+                          <StatusBadge tone="warning" label="Qaytarma var" />
+                        </Box>
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ maxWidth: 240 }}>
+                      {["ADMIN", "EXPEDITOR"].includes(currentUser?.role) &&
+                      order.customer?.id ? (
+                        <Link
+                          component={RouterLink}
+                          to={"/exp/customers/" + order.customer.id}
+                          color="text.primary"
+                          underline="hover"
+                          sx={{ fontWeight: 500, overflowWrap: "anywhere" }}
                         >
-                          <Typography
-                            sx={{ color: "#64748b", fontWeight: 800 }}
-                          >
-                            Məlumat tapılmadı
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      orders.map((order) => (
-                        <TableRow
-                          key={order.id}
-                          hover
+                          {order.customer.name || "Adsız müştəri"}
+                        </Link>
+                      ) : (
+                        <Typography
                           sx={{
-                            bgcolor: hasReturnedItems(order.items)
-                              ? "#fff1f2"
-                              : "white",
-                            transition: "0.18s ease",
-                            "&:hover": {
-                              bgcolor: hasReturnedItems(order.items)
-                                ? "#ffe4e6"
-                                : "#f8fafc",
-                            },
+                            fontSize: 12.5,
+                            fontWeight: 500,
+                            overflowWrap: "anywhere",
                           }}
                         >
-                          <TableCell sx={{ fontWeight: 950 }}>
-                            {formatInvoiceNumber(order.orderNumber)}
-                          </TableCell>
-
-                          <TableCell sx={{ maxWidth: 220 }}>
-                            {order.customer?.address || "-"}
-                          </TableCell>
-
-                          <TableCell>{formatDate(order.createdAt)}</TableCell>
-
-                          <TableCell>
-                            <Stack spacing={0.7} alignItems="center">
-                              <Typography sx={{ fontWeight: 900 }}>
-                                {order.customer?.name || "-"}
-                              </Typography>
-
-                              {hasReturnedItems(order.items) && (
-                                <Chip
-                                  label="Geri qaytarma"
-                                  size="small"
-                                  sx={{
-                                    bgcolor: "#dc2626",
-                                    color: "white",
-                                    fontWeight: 950,
-                                    borderRadius: 999,
-                                  }}
-                                />
-                              )}
-                            </Stack>
-                          </TableCell>
-
-                          <TableCell>{order.customer?.phone || "-"}</TableCell>
-                          <TableCell>{order.customer?.salon || "-"}</TableCell>
-
-                          <TableCell>
-                            {renderLocationLinks(order.customer)}
-                          </TableCell>
-
-                          <TableCell>
-                            <Chip
-                              label={order.paymentType || "-"}
-                              size="small"
-                              sx={{
-                                bgcolor: "#dcfce7",
-                                color: "#15803d",
-                                fontWeight: 950,
-                                borderRadius: 2,
-                              }}
-                            />
-                          </TableCell>
-
-                          <TableCell sx={{ fontWeight: 950 }}>
-                            {getItemCount(order.items)}
-                          </TableCell>
-
-                          <TableCell>
-                            {order.createdBy?.fullName ||
-                              order.createdBy?.email ||
-                              "-"}
-                          </TableCell>
-
-                          {canViewOrderDetail && (
-                            <TableCell>
-                              <Button
-                                size="small"
-                                variant="contained"
-                                startIcon={<VisibilityRoundedIcon />}
-                                onClick={() => fetchOrderDetail(order.id)}
-                                sx={{
-                                  borderRadius: 3,
-                                  textTransform: "none",
-                                  fontWeight: 900,
-                                  bgcolor: "#0f172a",
-                                  boxShadow: "none",
-                                  "&:hover": { bgcolor: "#1e293b" },
-                                }}
-                              >
-                                Bax
-                              </Button>
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))
+                          {order.customer?.name || "—"}
+                        </Typography>
+                      )}
+                      <Typography
+                        sx={{
+                          fontSize: 11.5,
+                          color: "text.secondary",
+                          mt: 0.35,
+                          overflowWrap: "anywhere",
+                        }}
+                      >
+                        {order.customer?.salon || "—"}
+                      </Typography>
+                    </TableCell>
+                    <TableCell sx={{ maxWidth: 230 }}>
+                      <Typography sx={{ fontSize: 12, whiteSpace: "nowrap" }}>
+                        {order.customer?.phone || "—"}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "text.secondary",
+                          mt: 0.35,
+                          overflowWrap: "anywhere",
+                        }}
+                      >
+                        {order.customer?.address || "—"}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge label={paymentLabel(order.paymentType)} />
+                    </TableCell>
+                    <TableCell align="right">
+                      {getItemCount(order.items)}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        whiteSpace: "nowrap",
+                        fontWeight: 500,
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {formatMoney(getOrderTotal(order.items))}
+                    </TableCell>
+                    {canFilterExpeditor && (
+                      <TableCell>
+                        {order.createdBy?.fullName ||
+                          order.createdBy?.email ||
+                          "—"}
+                      </TableCell>
                     )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                p={2}
-                flexDirection={{ xs: "column", sm: "row" }}
-                gap={2}
-                sx={{ borderTop: "1px solid #eef2f7", bgcolor: "#fff" }}
-              >
-                <Typography sx={{ color: "#64748b", fontWeight: 800 }}>
-                  Ümumi: {pagination.total}
-                </Typography>
-
-                <Pagination
-                  page={pagination.page}
-                  count={pagination.totalPages || 1}
-                  onChange={handlePageChange}
-                  color="primary"
-                />
-              </Box>
-            </>
+                    {canViewOrderDetail && (
+                      <TableCell align="right">
+                        <Button
+                          size="small"
+                          onClick={() => fetchOrderDetail(order.id)}
+                          aria-label={
+                            "Qaiməyə bax: " +
+                            formatInvoiceNumber(order.orderNumber)
+                          }
+                          sx={{ minWidth: 0, fontSize: 12 }}
+                        >
+                          Bax
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </DataTable>
           )}
-        </Card>
+          {!loading && !listError && orders.length > 0 && (
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1.5}
+              alignItems="center"
+              justifyContent="space-between"
+              sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}
+            >
+              <Typography sx={{ fontSize: 11.5, color: "text.secondary" }}>
+                Səhifə {pagination.page} / {pagination.totalPages || 1}
+              </Typography>
+              <Pagination
+                size="small"
+                page={pagination.page}
+                count={pagination.totalPages || 1}
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </Stack>
+          )}
+        </PageCard>
       </Box>
 
       {canViewOrderDetail && (
         <Dialog
           open={detailOpen}
+          PaperProps={{ sx: { borderRadius: "12px" } }}
           onClose={handleCloseDetail}
           fullWidth
           maxWidth="lg"
@@ -1136,7 +1017,7 @@ export default function SalesHistoryPage() {
               alignItems={{ xs: "stretch", sm: "center" }}
               spacing={1}
             >
-              <Typography variant="h6" fontWeight={700}>
+              <Typography component="span" variant="h6" fontWeight={600}>
                 {isEditMode ? "Sifariş redaktəsi" : "Sifariş detalları"}
               </Typography>
 
@@ -1150,7 +1031,7 @@ export default function SalesHistoryPage() {
                         onClick={enterEditMode}
                         sx={{ textTransform: "none", fontWeight: 700 }}
                       >
-                        Edit et
+                        Düzəliş et
                       </Button>
                     )}
 
@@ -1189,6 +1070,14 @@ export default function SalesHistoryPage() {
                     </Button>
                   </>
                 )}
+                <IconButton
+                  size="small"
+                  aria-label="Sifariş detallarını bağla"
+                  onClick={handleCloseDetail}
+                  disabled={editSaving}
+                >
+                  <CloseOutlinedIcon sx={{ fontSize: 20 }} />
+                </IconButton>
               </Stack>
             </Stack>
           </DialogTitle>
@@ -1810,7 +1699,7 @@ export default function SalesHistoryPage() {
                   startIcon={<PrintOutlinedIcon />}
                   onClick={handlePrintCurrentPage}
                 >
-                  Print
+                  Qaiməni çap et
                 </Button>
               </Stack>
             </Stack>
@@ -2210,79 +2099,89 @@ export default function SalesHistoryPage() {
                       spacing={3}
                       mt={8}
                     >
-                      <Box sx={{ minWidth: { md: 280 } }}>
-                        <Typography variant="subtitle1" fontWeight={700} mb={1}>
-                          Təhvil verən imzası
-                        </Typography>
+                      {canUseFeature(currentUser, "deliverySignatures") && (
+                        <Box sx={{ minWidth: { md: 280 } }}>
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight={700}
+                            mb={1}
+                          >
+                            Təhvil verən imzası
+                          </Typography>
 
-                        {printOrder.sellerSignature ? (
-                          <Box>
-                            <img
-                              src={printOrder.sellerSignature}
-                              alt="seller-signature"
-                              style={{ width: 300, border: "1px solid #ccc" }}
+                          {printOrder.sellerSignature ? (
+                            <Box>
+                              <img
+                                src={printOrder.sellerSignature}
+                                alt="seller-signature"
+                                style={{ width: 300, border: "1px solid #ccc" }}
+                              />
+                              <Typography fontSize={12}>
+                                {formatDate(printOrder.sellerSignedAt)}
+                              </Typography>
+                            </Box>
+                          ) : (
+                            <SignaturePad
+                              onSave={async (signature) => {
+                                try {
+                                  const { data } = await api.post(
+                                    `/orders/${printOrder.id}/seller-signature`,
+                                    { signature },
+                                  );
+
+                                  setPrintOrder((prev) => ({
+                                    ...prev,
+                                    sellerSignature: data.order.sellerSignature,
+                                    sellerSignedAt: data.order.sellerSignedAt,
+                                  }));
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }}
                             />
-                            <Typography fontSize={12}>
-                              {formatDate(printOrder.sellerSignedAt)}
-                            </Typography>
-                          </Box>
-                        ) : (
-                          <SignaturePad
-                            onSave={async (signature) => {
-                              try {
-                                const { data } = await api.post(
-                                  `/orders/${printOrder.id}/seller-signature`,
-                                  { signature },
-                                );
+                          )}
 
-                                setPrintOrder((prev) => ({
-                                  ...prev,
-                                  sellerSignature: data.order.sellerSignature,
-                                  sellerSignedAt: data.order.sellerSignedAt,
-                                }));
-                              } catch (err) {
-                                console.error(err);
-                              }
-                            }}
-                          />
-                        )}
+                          <Divider sx={{ my: 2 }} />
 
-                        <Divider sx={{ my: 2 }} />
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight={700}
+                            mb={1}
+                          >
+                            Təhvil alan imzası
+                          </Typography>
 
-                        <Typography variant="subtitle1" fontWeight={700} mb={1}>
-                          Təhvil alan imzası
-                        </Typography>
+                          {selectedOrder.customerSignature ? (
+                            <Box>
+                              <img
+                                src={selectedOrder.customerSignature}
+                                alt="signature"
+                                style={{ width: 300, border: "1px solid #ccc" }}
+                              />
+                              <Typography fontSize={12}>
+                                {formatDate(selectedOrder.signedAt)}
+                              </Typography>
+                            </Box>
+                          ) : (
+                            <SignaturePad
+                              onSave={async (signature) => {
+                                try {
+                                  await api.post(
+                                    `/orders/${selectedOrder.id}/signature`,
+                                    {
+                                      signature,
+                                    },
+                                  );
 
-                        {selectedOrder.customerSignature ? (
-                          <Box>
-                            <img
-                              src={selectedOrder.customerSignature}
-                              alt="signature"
-                              style={{ width: 300, border: "1px solid #ccc" }}
+                                  fetchOrderDetail(selectedOrder.id);
+                                } catch (err) {
+                                  console.error(err);
+                                }
+                              }}
                             />
-                            <Typography fontSize={12}>
-                              {formatDate(selectedOrder.signedAt)}
-                            </Typography>
-                          </Box>
-                        ) : (
-                          <SignaturePad
-                            onSave={async (signature) => {
-                              try {
-                                await api.post(
-                                  `/orders/${selectedOrder.id}/signature`,
-                                  {
-                                    signature,
-                                  },
-                                );
-
-                                fetchOrderDetail(selectedOrder.id);
-                              } catch (err) {
-                                console.error(err);
-                              }
-                            }}
-                          />
-                        )}
-                      </Box>
+                          )}
+                        </Box>
+                      )}
 
                       <Box
                         sx={{

@@ -2,6 +2,8 @@ const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
+const { hasFeature } = require("../config/plans");
+
 const router = express.Router();
 
 function calcOrderTotal(orders = []) {
@@ -118,14 +120,20 @@ router.get(
   requireRole("ADMIN", "EXPEDITOR", "WAREHOUSE", "DRIVER"),
   async (req, res) => {
     try {
-      const isExpeditor = req.user.role === "EXPEDITOR";
+      const isExpeditor =
+        hasFeature(req.company, "customerAssignments") &&
+        req.user.role === "EXPEDITOR";
       const { search = "", expeditorId = "" } = req.query;
 
       const where = {};
 
       if (isExpeditor) {
         where.assignedExpeditorId = req.user.userId;
-      } else if (expeditorId && String(expeditorId).trim()) {
+      } else if (
+        hasFeature(req.company, "customerAssignments") &&
+        expeditorId &&
+        String(expeditorId).trim()
+      ) {
         where.assignedExpeditorId = String(expeditorId).trim();
       }
 
@@ -243,7 +251,9 @@ router.get(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const isExpeditor = req.user.role === "EXPEDITOR";
+      const isExpeditor =
+        hasFeature(req.company, "customerAssignments") &&
+        req.user.role === "EXPEDITOR";
 
       const customerWhere = { id };
 
@@ -418,7 +428,10 @@ router.post(
           lng: Number(lng),
           areaId: area.id,
           assignedExpeditorId:
-            req.user.role === "EXPEDITOR" ? req.user.userId : null,
+            hasFeature(req.company, "customerAssignments") &&
+            req.user.role === "EXPEDITOR"
+              ? req.user.userId
+              : null,
         },
         include: {
           area: true,
@@ -449,7 +462,9 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const isExpeditor = req.user.role === "EXPEDITOR";
+      const isExpeditor =
+        hasFeature(req.company, "customerAssignments") &&
+        req.user.role === "EXPEDITOR";
 
       const {
         name,
@@ -500,6 +515,29 @@ router.put(
       const updateData = {
         areaId: finalAreaId,
       };
+      if (assignedExpeditorId !== undefined) {
+        if (!hasFeature(req.company, "customerAssignments"))
+          return res
+            .status(403)
+            .json({ message: "Müştəri təyinatı Business paketindədir." });
+        if (req.user.role !== "ADMIN")
+          return res
+            .status(403)
+            .json({ message: "Müştəri təyinatını yalnız admin dəyişə bilər." });
+        if (assignedExpeditorId !== null && assignedExpeditorId !== "") {
+          const worker = await prisma.user.findFirst({
+            where: {
+              id: assignedExpeditorId,
+              role: "EXPEDITOR",
+              isActive: true,
+            },
+            select: { id: true },
+          });
+          if (!worker)
+            return res.status(400).json({ message: "Ekspeditor tapılmadı." });
+          updateData.assignedExpeditorId = worker.id;
+        } else updateData.assignedExpeditorId = null;
+      }
 
       if (isProblematic !== undefined) {
         updateData.isProblematic = Boolean(isProblematic);

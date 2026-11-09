@@ -1,3 +1,5 @@
+import { canUseFeature } from "../features/plans/access";
+import { useAuth } from "../features/auth/useAuth";
 import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -44,17 +46,6 @@ const PAYMENT_METHODS = ["NAĞD", "KART", "DİGƏR"];
 
 function formatMoney(value) {
   return `${Number(value || 0).toFixed(2)} ₼`;
-}
-
-function getStoredUser() {
-  try {
-    const rawUser = localStorage.getItem("user");
-    if (!rawUser) return null;
-    return JSON.parse(rawUser);
-  } catch (error) {
-    console.error("User parse error:", error);
-    return null;
-  }
 }
 
 function calcOrdersTotal(customer) {
@@ -196,12 +187,11 @@ function getCustomerAggregatedProducts(customer) {
 }
 
 export default function ReceiptsPage() {
-  const currentUser = useMemo(() => getStoredUser(), []);
+  const { user: currentUser } = useAuth();
 
   const canFilterExpeditor =
-    currentUser?.role === "ADMIN" ||
-    currentUser?.role === "DRIVER" ||
-    currentUser?.role === "WAREHOUSE";
+    canUseFeature(currentUser, "teamManagement") &&
+    ["ADMIN", "DRIVER", "WAREHOUSE"].includes(currentUser?.role);
 
   const canCreateReceipt =
     currentUser?.role === "ADMIN" || currentUser?.role === "EXPEDITOR";
@@ -427,23 +417,10 @@ export default function ReceiptsPage() {
 
   async function uploadImageAndGetUrl(file) {
     if (!file) return "";
-
-    // Əgər ayrıca upload endpoint-in varsa bunu onunla əvəz et
-    // const fd = new FormData();
-    // fd.append("file", file);
-    // const { data } = await api.post("/uploads", fd, {
-    //   headers: { "Content-Type": "multipart/form-data" },
-    // });
-    // return data.url;
-
-    // Müvəqqəti variant: base64 çevirib göndərmək
-    return await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => resolve(String(reader.result || ""));
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+    const formData = new FormData();
+    formData.append("file", file);
+    const { data } = await api.post("/uploads", formData);
+    return data.file.url;
   }
 
   async function handleSaveReceipt() {

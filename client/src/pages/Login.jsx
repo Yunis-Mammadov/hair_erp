@@ -1,354 +1,516 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Alert,
   Box,
   Button,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
   Paper,
+  Stack,
   TextField,
   Typography,
-  Stack,
-  InputAdornment,
-  CircularProgress,
 } from "@mui/material";
-import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import AlternateEmailRoundedIcon from "@mui/icons-material/AlternateEmailRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
-import VerifiedUserOutlinedIcon from "@mui/icons-material/VerifiedUserOutlined";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
-import { pinLogin } from "../features/auth/authApi";
+import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import BusinessOutlinedIcon from "@mui/icons-material/BusinessOutlined";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import { companyLogin, pinLogin } from "../features/auth/authApi";
 import { useAuth } from "../features/auth/useAuth";
-
-function getDefaultRouteByRole(role) {
-  switch (role) {
-    case "ADMIN":
-      return "/";
-    case "EXPEDITOR":
-      return "/exp/sales";
-    case "WAREHOUSE":
-      return "/warehouse/stock";
-    case "DRIVER":
-      return "/driver/deliveries";
-    default:
-      return "/";
-  }
-}
+import { defaultRoute } from "../features/plans/access";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [pin, setPin] = useState("");
+  const [challenge, setChallenge] = useState(null);
+  const [showSecret, setShowSecret] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  useEffect(() => {
+    document.title = "Giriş · z-Index";
+  }, []);
 
-    if (!pin.trim()) {
-      alert("PIN daxil edin");
+  function changeCompany() {
+    setChallenge(null);
+    setPassword("");
+    setPin("");
+    setShowSecret(false);
+    setError("");
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    if (loading) return;
+    setError("");
+    if (!challenge && (!email.trim() || !password)) {
+      setError("Şirkətin e-poçtunu və şifrəsini daxil et.");
       return;
     }
-
+    if (challenge && !/^\d{4,8}$/.test(pin)) {
+      setError("Şəxsi PIN 4–8 rəqəmdən ibarət olmalıdır.");
+      return;
+    }
     setLoading(true);
-
     try {
-      const data = await pinLogin(pin);
-
-      if (!data?.token) {
-        alert("Token gəlmədi");
-        return;
+      if (!challenge) {
+        const data = await companyLogin(email.trim(), password);
+        if (!data?.loginToken || !data?.company?.name) {
+          throw new Error("Şirkət məlumatı alınmadı. Yenidən cəhd et.");
+        }
+        setChallenge(data);
+        setPassword("");
+        setPin("");
+        setShowSecret(false);
+      } else {
+        const data = await pinLogin(pin, challenge.loginToken);
+        if (!data?.token || !data?.user?.company) {
+          throw new Error("Giriş məlumatı alınmadı. Yenidən cəhd et.");
+        }
+        login(data.token, data.user);
+        navigate(defaultRoute(data.user), { replace: true });
       }
-
-      if (!data?.user) {
-        alert("User məlumatı gəlmədi");
-        return;
-      }
-
-      login(data.token, data.user);
-
-      const nextRoute = getDefaultRouteByRole(data.user.role);
-      navigate(nextRoute, { replace: true });
     } catch (err) {
-      console.error("LOGIN_ERROR:", err);
-      alert(err?.response?.data?.message || "PIN səhvdir");
+      if (err?.response?.data?.code === "COMPANY_LOGIN_REQUIRED") {
+        setChallenge(null);
+        setPin("");
+        setShowSecret(false);
+      }
+      setError(
+        err?.response?.data?.message ||
+          (err?.request
+            ? "Serverlə əlaqə qurulmadı. Yenidən cəhd et."
+            : err.message) ||
+          "Giriş zamanı xəta baş verdi.",
+      );
     } finally {
       setLoading(false);
     }
   }
 
+  const secretLabel = challenge ? "PIN kodunu" : "Şifrəni";
+  const secretAdornment = (
+    <InputAdornment position="end">
+      <IconButton
+        type="button"
+        size="small"
+        aria-label={secretLabel + (showSecret ? " gizlət" : " göstər")}
+        aria-pressed={showSecret}
+        onClick={() => setShowSecret((visible) => !visible)}
+        onMouseDown={(event) => event.preventDefault()}
+        disabled={loading}
+        edge="end"
+        sx={{ color: "text.secondary" }}
+      >
+        {showSecret ? (
+          <VisibilityOffOutlinedIcon sx={{ fontSize: 19 }} />
+        ) : (
+          <VisibilityOutlinedIcon sx={{ fontSize: 19 }} />
+        )}
+      </IconButton>
+    </InputAdornment>
+  );
+  const fieldSx = {
+    "& .MuiOutlinedInput-root": {
+      minHeight: 46,
+      borderRadius: "8px",
+      bgcolor: "#fff",
+    },
+    "& .MuiInputBase-input": { fontSize: 14, py: 1.4 },
+    "& .MuiInputAdornment-root": { color: "#8993a6" },
+  };
+
   return (
     <Box
+      component="main"
       sx={{
-        position: "fixed",
-        inset: 0,
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-        display: "grid",
-        placeItems: "center",
-        p: { xs: 2, md: 4 },
-        background:
-          "radial-gradient(circle at 15% 20%, rgba(255,255,255,0.16) 0, transparent 28%), radial-gradient(circle at 90% 10%, rgba(185,28,28,0.34) 0, transparent 30%), linear-gradient(135deg, #030303 0%, #0f0f10 42%, #1a0505 100%)",
+        minHeight: "100dvh",
+        px: 2,
+        py: { xs: 4, sm: 6 },
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "background.default",
       }}
     >
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
-          backgroundSize: "42px 42px",
-          maskImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.15))",
-        }}
-      />
-
-      <Box
-        sx={{
-          position: "absolute",
-          width: 420,
-          height: 420,
-          borderRadius: "50%",
-          bgcolor: "rgba(220,38,38,0.18)",
-          filter: "blur(70px)",
-          right: -120,
-          bottom: -120,
-        }}
-      />
-
-      <Box
-        sx={{
-          width: "100%",
-          maxWidth: 1100,
-          position: "relative",
-          zIndex: 2,
-          display: "grid",
-          gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
-          gap: { xs: 3, md: 4 },
-          alignItems: "center",
-        }}
-      >
-        <Box sx={{ color: "white", display: { xs: "none", md: "block" } }}>
+      <Box sx={{ width: "100%", maxWidth: 440 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          spacing={1.1}
+          sx={{ mb: 3.5 }}
+        >
           <Box
-            component="img"
-            src="/logo.png"
-            alt="Nanoplastica.az"
+            aria-hidden="true"
             sx={{
-              width: 280,
-              mb: 4,
-              filter: "drop-shadow(0 14px 32px rgba(0,0,0,0.55))",
-            }}
-          />
-
-          <Typography
-            sx={{
-              fontSize: 15,
-              color: "rgba(255,255,255,0.62)",
-              fontWeight: 700,
-              letterSpacing: 2,
-              textTransform: "uppercase",
-              mb: 1.2,
+              width: 35,
+              height: 35,
+              borderRadius: "9px",
+              bgcolor: "primary.main",
+              display: "grid",
+              placeItems: "center",
+              fontSize: 23,
+              fontWeight: 600,
+              color: "#fff",
             }}
           >
-            Internal Management System
-          </Typography>
-
+            z
+          </Box>
           <Typography
             sx={{
-              fontSize: { md: 54, lg: 64 },
-              lineHeight: 0.95,
-              letterSpacing: -2.4,
-              fontWeight: 950,
-              maxWidth: 620,
+              fontSize: 23,
+              fontWeight: 600,
+              letterSpacing: "-0.9px",
+              color: "text.primary",
             }}
           >
-            Satış, anbar və çatdırılma bir paneldə.
+            z-Index
           </Typography>
-
-          <Typography
-            sx={{
-              mt: 2.2,
-              maxWidth: 520,
-              color: "rgba(255,255,255,0.68)",
-              fontSize: 16,
-              lineHeight: 1.7,
-            }}
-          >
-            Nanoplastica.az komandası üçün hazırlanmış sürətli PIN girişli ERP
-            sistemi.
-          </Typography>
-
-          <Stack direction="row" spacing={1.2} sx={{ mt: 4 }}>
-            <FeatureChip icon={<VerifiedUserOutlinedIcon />} text="PIN giriş" />
-            <FeatureChip icon={<Inventory2OutlinedIcon />} text="Anbar" />
-            <FeatureChip icon={<LocalShippingOutlinedIcon />} text="Rutlar" />
-          </Stack>
-        </Box>
+        </Stack>
 
         <Paper
+          component="section"
+          aria-labelledby="login-heading"
           elevation={0}
           sx={{
-            width: "100%",
-            maxWidth: 460,
-            mx: "auto",
-            p: { xs: 3, sm: 4 },
-            borderRadius: 6,
-            background: "rgba(255,255,255,0.92)",
-            backdropFilter: "blur(22px)",
-            border: "1px solid rgba(255,255,255,0.55)",
-            boxShadow:
-              "0 30px 90px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.7)",
+            p: { xs: 2.5, sm: 4 },
+            borderRadius: "14px",
+            border: "1px solid",
+            borderColor: "divider",
+            boxShadow: "0 4px 24px rgba(28,37,54,0.035)",
           }}
         >
-          <Stack alignItems="center" sx={{ mb: 3 }}>
+          <Stack
+            component="ol"
+            direction="row"
+            aria-label="Giriş mərhələləri"
+            alignItems="center"
+            spacing={1.5}
+            sx={{ listStyle: "none", p: 0, m: 0, mb: 4 }}
+          >
+            <LoginStep
+              number={1}
+              label="Şirkət hesabı"
+              active={!challenge}
+              complete={Boolean(challenge)}
+            />
             <Box
-              component="img"
-              src="/logo.png"
-              alt="Nanoplastica.az"
+              component="li"
+              aria-hidden="true"
               sx={{
-                display: { xs: "block", md: "none" },
-                width: 230,
-                mb: 3,
-                bgcolor: "#050505",
-                borderRadius: 3,
-                p: 1.5,
+                width: 24,
+                height: "1px",
+                bgcolor: "divider",
+                flexShrink: 0,
               }}
             />
-
-            <Box
-              sx={{
-                width: 62,
-                height: 62,
-                borderRadius: "22px",
-                display: "grid",
-                placeItems: "center",
-                background: "linear-gradient(135deg, #111827 0%, #7f1d1d 100%)",
-                color: "white",
-                boxShadow: "0 18px 40px rgba(127,29,29,0.35)",
-                mb: 2,
-              }}
-            >
-              <LockRoundedIcon />
-            </Box>
-
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 950,
-                letterSpacing: -1,
-                color: "#111827",
-                textAlign: "center",
-              }}
-            >
-              Sistemə giriş
-            </Typography>
-
-            <Typography
-              sx={{
-                mt: 0.8,
-                color: "text.secondary",
-                textAlign: "center",
-                fontSize: 14,
-              }}
-            >
-              Davam etmək üçün şəxsi PIN kodunuzu daxil edin.
-            </Typography>
+            <LoginStep
+              number={2}
+              label="Şəxsi PIN"
+              active={Boolean(challenge)}
+            />
           </Stack>
 
-          <Box component="form" onSubmit={handleSubmit}>
-            <TextField
-              label="PIN kod"
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-              fullWidth
-              autoFocus
-              type="password"
-              inputProps={{
-                inputMode: "numeric",
-                maxLength: 8,
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <LockRoundedIcon fontSize="small" />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{
-                mb: 2,
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 4,
-                  bgcolor: "#F8FAFC",
-                  fontWeight: 800,
-                  letterSpacing: 2,
-                },
-              }}
-            />
-
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              disabled={loading}
-              endIcon={
-                loading ? (
-                  <CircularProgress size={18} color="inherit" />
-                ) : (
-                  <ArrowForwardRoundedIcon />
-                )
-              }
-              sx={{
-                py: 1.35,
-                borderRadius: 4,
-                textTransform: "none",
-                fontWeight: 950,
-                fontSize: 16,
-                background: "linear-gradient(135deg, #111827 0%, #7f1d1d 100%)",
-                boxShadow: "0 18px 36px rgba(127,29,29,0.28)",
-                "&:hover": {
-                  background:
-                    "linear-gradient(135deg, #030712 0%, #991b1b 100%)",
-                },
-              }}
-            >
-              {loading ? "Yoxlanır..." : "Daxil ol"}
-            </Button>
-          </Box>
-
           <Typography
+            component="h1"
+            id="login-heading"
             sx={{
-              mt: 3,
-              textAlign: "center",
-              fontSize: 12.5,
-              color: "text.secondary",
+              fontSize: 24,
+              fontWeight: 600,
+              letterSpacing: "-0.6px",
+              lineHeight: 1.3,
             }}
           >
-            Nanoplastica.az · Revive Hair Professional
+            {challenge ? "Şəxsi PIN ilə davam et" : "İş panelinə giriş"}
           </Typography>
+          <Typography
+            color="text.secondary"
+            sx={{ fontSize: 13, mt: 1, mb: 3, lineHeight: 1.7 }}
+          >
+            {challenge
+              ? "Hesabına daxil olmaq üçün öz PIN kodunu yaz."
+              : "Şirkətinə verilən e-poçt və şifrəni daxil et."}
+          </Typography>
+
+          {challenge && (
+            <Stack
+              direction="row"
+              spacing={1.25}
+              alignItems="center"
+              sx={{
+                bgcolor: "#f7f9fc",
+                border: "1px solid",
+                borderColor: "divider",
+                p: 1.5,
+                borderRadius: "8px",
+                mb: 2.5,
+              }}
+            >
+              <BusinessOutlinedIcon
+                sx={{ color: "text.secondary", fontSize: 21, flexShrink: 0 }}
+              />
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  sx={{
+                    fontSize: 12.5,
+                    fontWeight: 500,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {challenge.company.name}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: 11.5,
+                    color: "text.secondary",
+                    mt: 0.25,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {email.trim()}
+                </Typography>
+              </Box>
+            </Stack>
+          )}
+
+          {error && (
+            <Alert
+              severity="error"
+              role="alert"
+              sx={{ mb: 2.5, fontSize: 12.5, borderRadius: "8px" }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit} aria-busy={loading}>
+            <Stack spacing={2.5} key={challenge ? "pin-form" : "company-form"}>
+              {!challenge ? (
+                <>
+                  <Box>
+                    <Typography
+                      component="label"
+                      htmlFor="company-email"
+                      sx={labelSx}
+                    >
+                      Şirkətin e-poçtu
+                    </Typography>
+                    <TextField
+                      id="company-email"
+                      name="username"
+                      type="email"
+                      value={email}
+                      onChange={(event) => setEmail(event.target.value)}
+                      placeholder="sirket@zindex.invalid"
+                      autoComplete="username"
+                      autoFocus
+                      required
+                      fullWidth
+                      disabled={loading}
+                      sx={fieldSx}
+                      inputProps={{ autoCapitalize: "none", spellCheck: false }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <AlternateEmailRoundedIcon sx={{ fontSize: 18 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography
+                      component="label"
+                      htmlFor="company-password"
+                      sx={labelSx}
+                    >
+                      Şifrə
+                    </Typography>
+                    <TextField
+                      id="company-password"
+                      name="password"
+                      type={showSecret ? "text" : "password"}
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      placeholder="Şirkətin şifrəsi"
+                      autoComplete="current-password"
+                      required
+                      fullWidth
+                      disabled={loading}
+                      sx={fieldSx}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <LockOutlinedIcon sx={{ fontSize: 18 }} />
+                          </InputAdornment>
+                        ),
+                        endAdornment: secretAdornment,
+                      }}
+                    />
+                  </Box>
+                </>
+              ) : (
+                <Box>
+                  <Typography
+                    component="label"
+                    htmlFor="personal-pin"
+                    sx={labelSx}
+                  >
+                    Şəxsi PIN kod
+                  </Typography>
+                  <TextField
+                    id="personal-pin"
+                    name="pin"
+                    type={showSecret ? "text" : "password"}
+                    value={pin}
+                    onChange={(event) =>
+                      setPin(event.target.value.replace(/\D/g, "").slice(0, 8))
+                    }
+                    placeholder="PIN kodunu daxil et"
+                    autoComplete="off"
+                    autoFocus
+                    required
+                    fullWidth
+                    disabled={loading}
+                    sx={fieldSx}
+                    helperText="PIN kodun 4–8 rəqəmdən ibarətdir."
+                    inputProps={{
+                      inputMode: "numeric",
+                      pattern: "[0-9]{4,8}",
+                      minLength: 4,
+                      maxLength: 8,
+                    }}
+                    FormHelperTextProps={{
+                      sx: { mx: 0, mt: 1, fontSize: 11.5 },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <LockOutlinedIcon sx={{ fontSize: 18 }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: secretAdornment,
+                    }}
+                  />
+                </Box>
+              )}
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                disabled={loading}
+                endIcon={
+                  loading ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : (
+                    <ArrowForwardRoundedIcon sx={{ fontSize: 18 }} />
+                  )
+                }
+                sx={{
+                  minHeight: 44,
+                  fontSize: 13,
+                  borderRadius: "8px",
+                  fontWeight: 500,
+                }}
+              >
+                {loading ? "Yoxlanır…" : challenge ? "Daxil ol" : "Davam et"}
+              </Button>
+              {challenge && (
+                <Button
+                  type="button"
+                  onClick={changeCompany}
+                  disabled={loading}
+                  color="inherit"
+                  startIcon={<ArrowBackRoundedIcon sx={{ fontSize: 16 }} />}
+                  sx={{ fontSize: 12, color: "text.secondary", minHeight: 32 }}
+                >
+                  Başqa şirkətlə daxil ol
+                </Button>
+              )}
+            </Stack>
+          </Box>
         </Paper>
+
+        <Typography
+          sx={{
+            mt: 2.75,
+            textAlign: "center",
+            fontSize: 11.5,
+            lineHeight: 1.8,
+            color: "text.secondary",
+          }}
+        >
+          Şirkət hesabı və şəxsi PIN ilə giriş
+        </Typography>
+        <Typography
+          sx={{
+            mt: 0.4,
+            textAlign: "center",
+            fontSize: 11,
+            color: "text.secondary",
+          }}
+        >
+          z-Index · Biznes idarəetməsi
+        </Typography>
       </Box>
     </Box>
   );
 }
 
-function FeatureChip({ icon, text }) {
+function LoginStep({ number, label, active, complete }) {
   return (
     <Stack
+      component="li"
       direction="row"
-      spacing={0.8}
       alignItems="center"
-      sx={{
-        px: 1.4,
-        py: 1,
-        borderRadius: 999,
-        color: "white",
-        border: "1px solid rgba(255,255,255,0.18)",
-        bgcolor: "rgba(255,255,255,0.08)",
-        backdropFilter: "blur(16px)",
-        fontWeight: 800,
-        fontSize: 13,
-      }}
+      spacing={0.75}
+      aria-current={active ? "step" : undefined}
+      sx={{ minWidth: 0 }}
     >
-      {icon}
-      <Box component="span">{text}</Box>
+      <Box
+        aria-hidden="true"
+        sx={{
+          width: 24,
+          height: 24,
+          borderRadius: "50%",
+          display: "grid",
+          placeItems: "center",
+          flexShrink: 0,
+          fontSize: 11,
+          fontWeight: 500,
+          bgcolor: active || complete ? "#edf2ff" : "#f1f3f7",
+          color: active || complete ? "primary.main" : "text.secondary",
+        }}
+      >
+        {complete ? <CheckRoundedIcon sx={{ fontSize: 15 }} /> : number}
+      </Box>
+      <Typography
+        sx={{
+          fontSize: 11.5,
+          fontWeight: active ? 500 : 400,
+          color: active ? "text.primary" : "text.secondary",
+        }}
+      >
+        {label}
+      </Typography>
     </Stack>
   );
 }
+
+const labelSx = {
+  display: "block",
+  fontSize: 12.5,
+  fontWeight: 500,
+  mb: 0.85,
+  color: "text.primary",
+};

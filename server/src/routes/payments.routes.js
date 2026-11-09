@@ -2,6 +2,9 @@ const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
+const { normalizeUploadUrl } = require("../upload-access");
+const { hasFeature } = require("../config/plans");
+
 const router = express.Router();
 
 // GET /payments
@@ -20,11 +23,18 @@ router.get(
 
       const where = {};
 
-      if (req.user.role === "EXPEDITOR") {
+      if (
+        hasFeature(req.company, "customerAssignments") &&
+        req.user.role === "EXPEDITOR"
+      ) {
         where.customer = {
           assignedExpeditorId: req.user.userId,
         };
-      } else if (expeditorId && String(expeditorId).trim()) {
+      } else if (
+        hasFeature(req.company, "customerAssignments") &&
+        expeditorId &&
+        String(expeditorId).trim()
+      ) {
         where.customer = {
           assignedExpeditorId: String(expeditorId).trim(),
         };
@@ -157,6 +167,7 @@ router.post(
       }
 
       if (
+        hasFeature(req.company, "customerAssignments") &&
         req.user.role === "EXPEDITOR" &&
         customer.assignedExpeditorId !== req.user.userId
       ) {
@@ -179,7 +190,7 @@ router.post(
           amount: numericAmount,
           paymentType: paymentType ? String(paymentType).trim() : null,
           paymentDate: date ? new Date(date) : new Date(),
-          imageUrl: imageUrl ? String(imageUrl).trim() : null,
+          imageUrl: imageUrl ? normalizeUploadUrl(imageUrl, req.company) : null,
           note: note ? String(note).trim() : null,
           createdById: req.user.userId,
           soldItems: {
@@ -221,7 +232,7 @@ router.post(
     } catch (error) {
       console.error("CREATE_PAYMENT_ERROR:", error);
       return res
-        .status(500)
+        .status(error.statusCode || 500)
         .json({ message: error.message || "Mədaxil əlavə edilə bilmədi" });
     }
   },

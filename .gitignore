@@ -1,40 +1,38 @@
-# ======================
-# Node
-# ======================
+# Dependencies
 node_modules/
-client/node_modules/
-server/node_modules/
 
 # Build outputs
 dist/
+dist-ssr/
 build/
-client/dist/
-server/dist/
+coverage/
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Development caches
+.vite/
+.vite-temp/
+.cache/
 
 # Environment files
 .env
 .env.*
-client/.env
-server/.env
 
-# OS files
-.DS_Store
-Thumbs.db
+# Uploaded files
+uploads/
 
-# IDE
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor and operating system
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
+*.local
 
-# Prisma (əgər sqlite istifadə etsəydin lazım idi)
+# Local database
 prisma/dev.db
-
-# Coverage
-coverage/
-
-# Temporary files
-*.log

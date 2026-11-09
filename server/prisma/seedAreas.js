@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
@@ -73,19 +74,24 @@ const areas = [
 ];
 
 async function main() {
+  const companyId = process.env.COMPANY_ID || "legacy-company";
+  const company = await prisma.company.findUnique({ where: { id: companyId } });
+  if (!company) throw new Error("Şirkət tapılmadı.");
   for (const area of areas) {
     await prisma.area.upsert({
-      where: { name: area.name },
+      where: { companyId_name: { companyId, name: area.name } },
       update: {
-        routeZone: area.routeZone,
-        routeDay: area.routeDay,
+        ...(company.plan === "PREMIUM"
+          ? { routeZone: area.routeZone, routeDay: area.routeDay }
+          : {}),
         sortOrder: area.sortOrder,
         isActive: true,
       },
       create: {
+        companyId,
         name: area.name,
-        routeZone: area.routeZone,
-        routeDay: area.routeDay,
+        routeZone: company.plan === "PREMIUM" ? area.routeZone : null,
+        routeDay: company.plan === "PREMIUM" ? area.routeDay : null,
         sortOrder: area.sortOrder,
         isActive: true,
       },

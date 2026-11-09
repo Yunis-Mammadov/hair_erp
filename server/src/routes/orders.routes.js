@@ -2,6 +2,8 @@ const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
+const { hasFeature } = require("../config/plans");
+
 const router = express.Router();
 
 const ALLOWED_PAYMENTS = ["REALİZASİYA", "NAĞD", "HİSSƏLİ", "DİGƏR"];
@@ -157,7 +159,11 @@ router.get(
       if (req.user.role === "EXPEDITOR") {
         where.createdById = req.user.userId;
       } else {
-        if (expeditorId && String(expeditorId).trim()) {
+        if (
+          hasFeature(req.company, "teamManagement") &&
+          expeditorId &&
+          String(expeditorId).trim()
+        ) {
           where.createdById = String(expeditorId).trim();
         }
       }

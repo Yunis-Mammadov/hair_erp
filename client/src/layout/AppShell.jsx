@@ -3,293 +3,362 @@ import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import {
   AppBar,
   Avatar,
-  Badge,
   Box,
   Chip,
-  CssBaseline,
   Drawer,
   IconButton,
-  InputAdornment,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Stack,
-  TextField,
   Toolbar,
+  Tooltip,
   Typography,
   useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
-import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
-import AssignmentReturnRoundedIcon from "@mui/icons-material/AssignmentReturnRounded";
-import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import AssignmentReturnOutlinedIcon from "@mui/icons-material/AssignmentReturnOutlined";
+import PeopleOutlineRoundedIcon from "@mui/icons-material/PeopleOutlineRounded";
 import HistoryRoundedIcon from "@mui/icons-material/HistoryRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
-import Inventory2RoundedIcon from "@mui/icons-material/Inventory2Rounded";
-import WarehouseRoundedIcon from "@mui/icons-material/WarehouseRounded";
-import AttachMoneyRoundedIcon from "@mui/icons-material/AttachMoneyRounded";
-import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
-import RouteRoundedIcon from "@mui/icons-material/RouteRounded";
-import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
-import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneRounded";
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import ReceiptLongRoundedIcon from "@mui/icons-material/ReceiptLongRounded";
-
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import WarehouseOutlinedIcon from "@mui/icons-material/WarehouseOutlined";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import RouteOutlinedIcon from "@mui/icons-material/RouteOutlined";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
+import { canOpenPage } from "../features/plans/access";
 import { useAuth } from "../features/auth/useAuth";
 
-const drawerWidth = 292;
-
+const drawerWidth = 248;
+const headerHeight = 64;
+const sidebarStorageKey = "hair-erp-sidebar-open";
+const roles = {
+  ADMIN: "Administrator",
+  EXPEDITOR: "Ekspeditor",
+  WAREHOUSE: "Anbar əməkdaşı",
+  DRIVER: "Sürücü",
+};
 const groups = [
   { key: "main", label: "" },
-  { key: "sales", label: "Satış" },
-  { key: "customer", label: "Müştəri" },
-  { key: "warehouse", label: "Məhsullar / Anbar" },
+  { key: "sales", label: "Satışlar" },
+  { key: "customer", label: "Müştərilər" },
+  { key: "warehouse", label: "Məhsullar və anbar" },
   { key: "delivery", label: "Çatdırılma" },
-  { key: "finance", label: "Finans" },
+  { key: "finance", label: "Maliyyə" },
+];
+const navItems = [
+  {
+    label: "Ana səhifə",
+    to: "/",
+    icon: HomeOutlinedIcon,
+    roles: ["ADMIN"],
+    group: "main",
+  },
+  {
+    label: "Yeni satış",
+    to: "/exp/sales",
+    icon: ShoppingCartOutlinedIcon,
+    roles: ["ADMIN", "EXPEDITOR"],
+    group: "sales",
+  },
+  {
+    label: "Satış tarixçəsi",
+    to: "/exp/sales-history",
+    icon: HistoryRoundedIcon,
+    roles: ["ADMIN", "EXPEDITOR", "WAREHOUSE", "DRIVER"],
+    group: "sales",
+  },
+  {
+    label: "Geri qaytarma",
+    to: "/exp/returns",
+    icon: AssignmentReturnOutlinedIcon,
+    roles: ["ADMIN", "EXPEDITOR", "WAREHOUSE"],
+    group: "sales",
+  },
+  {
+    label: "Qaytarma tarixçəsi",
+    to: "/exp/returns-history",
+    icon: HistoryRoundedIcon,
+    roles: ["ADMIN", "EXPEDITOR", "WAREHOUSE"],
+    group: "sales",
+  },
+  {
+    label: "Müştərilər",
+    to: "/exp/customers",
+    icon: PeopleOutlineRoundedIcon,
+    roles: ["ADMIN", "EXPEDITOR"],
+    group: "customer",
+  },
+  {
+    label: "Yeni alış",
+    to: "/warehouse/purchases",
+    icon: Inventory2OutlinedIcon,
+    roles: ["ADMIN", "WAREHOUSE"],
+    group: "warehouse",
+  },
+  {
+    label: "Alış tarixçəsi",
+    to: "/warehouse/purchases-history",
+    icon: ReceiptLongOutlinedIcon,
+    roles: ["ADMIN", "WAREHOUSE"],
+    group: "warehouse",
+  },
+  {
+    label: "Anbar qalığı",
+    to: "/warehouse/stock",
+    icon: WarehouseOutlinedIcon,
+    roles: ["ADMIN", "WAREHOUSE", "EXPEDITOR"],
+    group: "warehouse",
+  },
+  {
+    label: "Çatdırılma",
+    to: "/driver/deliveries",
+    icon: LocalShippingOutlinedIcon,
+    roles: ["ADMIN", "DRIVER"],
+    group: "delivery",
+  },
+  {
+    label: "Canlı məkan",
+    to: "/driver/live-location",
+    icon: RouteOutlinedIcon,
+    roles: ["ADMIN", "DRIVER"],
+    group: "delivery",
+  },
+  {
+    label: "Mədaxil",
+    to: "/exp/receipts",
+    icon: AccountBalanceWalletOutlinedIcon,
+    roles: ["ADMIN", "EXPEDITOR"],
+    group: "finance",
+  },
 ];
 
+function matchesRoute(pathname, to) {
+  return to === "/"
+    ? pathname === "/"
+    : pathname === to || pathname.startsWith(to + "/");
+}
+
 export default function AppShell({ children }) {
-  const location = useLocation();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("lg"));
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const role = user?.role;
-
-  const allNavItems = useMemo(
-    () => [
-      {
-        label: "Ana Səhifə",
-        to: "/",
-        icon: <HomeRoundedIcon />,
-        roles: ["ADMIN"],
-        group: "main",
-      },
-      {
-        label: "Satış",
-        to: "/exp/sales",
-        icon: <ShoppingCartRoundedIcon />,
-        roles: ["ADMIN", "EXPEDITOR"],
-        group: "sales",
-      },
-      {
-        label: "Satış Tarixçəsi",
-        to: "/exp/sales-history",
-        icon: <HistoryRoundedIcon />,
-        roles: ["ADMIN", "EXPEDITOR", "WAREHOUSE", "DRIVER"],
-        group: "sales",
-      },
-      {
-        label: "Geri Qaytarma",
-        to: "/exp/returns",
-        icon: <AssignmentReturnRoundedIcon />,
-        roles: ["ADMIN", "EXPEDITOR", "WAREHOUSE"],
-        group: "sales",
-      },
-      {
-        label: "Müştərilər",
-        to: "/exp/customers",
-        icon: <PeopleAltRoundedIcon />,
-        roles: ["ADMIN", "EXPEDITOR"],
-        group: "customer",
-      },
-      {
-        label: "Alış",
-        to: "/warehouse/purchases",
-        icon: <Inventory2RoundedIcon />,
-        roles: ["ADMIN", "WAREHOUSE"],
-        group: "warehouse",
-      },
-      {
-        label: "Alış Tarixçəsi",
-        to: "/warehouse/purchases-history",
-        icon: <ReceiptLongRoundedIcon />,
-        roles: ["ADMIN", "WAREHOUSE"],
-        group: "warehouse",
-      },
-      {
-        label: "Anbar qalığı",
-        to: "/warehouse/stock",
-        icon: <WarehouseRoundedIcon />,
-        roles: ["ADMIN", "WAREHOUSE", "EXPEDITOR"],
-        group: "warehouse",
-      },
-      {
-        label: "Çatdırılma",
-        to: "/driver/deliveries",
-        icon: <LocalShippingRoundedIcon />,
-        roles: ["ADMIN", "DRIVER"],
-        group: "delivery",
-      },
-      {
-        label: "Canlı Location",
-        to: "/driver/live-location",
-        icon: <RouteRoundedIcon />,
-        roles: ["ADMIN", "DRIVER"],
-        group: "delivery",
-        badge: "Yeni",
-      },
-      {
-        label: "Mədaxil",
-        to: "/exp/receipts",
-        icon: <AttachMoneyRoundedIcon />,
-        roles: ["ADMIN", "EXPEDITOR"],
-        group: "finance",
-      },
-    ],
-    [],
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+  // The path is stored with the mobile state so a new page always starts closed.
+  const [mobileState, setMobileState] = useState({ pathname, open: false });
+  const [desktopOpen, setDesktopOpen] = useState(() => {
+    try {
+      return localStorage.getItem(sidebarStorageKey) !== "false";
+    } catch {
+      return true;
+    }
+  });
+  const mobileOpen = mobileState.pathname === pathname && mobileState.open;
+  const menuOpen = isDesktop ? desktopOpen : mobileOpen;
+  const sidebarOffset = isDesktop && desktopOpen ? drawerWidth : 0;
+  const duration = reducedMotion ? 0 : 200;
+  const transition = theme.transitions.create(["width", "margin-left"], {
+    duration,
+  });
+  const allowedItems = useMemo(
+    () =>
+      navItems.filter(
+        (item) => item.roles.includes(user?.role) && canOpenPage(user, item.to),
+      ),
+    [user],
   );
-
-  const navItems = useMemo(() => {
-    if (!role) return [];
-    return allNavItems.filter((item) => item.roles.includes(role));
-  }, [allNavItems, role]);
+  const activeItem = allowedItems.find((item) =>
+    matchesRoute(pathname, item.to),
+  );
+  const pageTitle = activeItem?.label || "İş paneli";
+  const companyName = user?.company?.name || "z-Index";
+  const initials = (user?.fullName || "İstifadəçi")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toLocaleUpperCase("az-AZ");
 
   useEffect(() => {
-    if (!isDesktop) setMobileOpen(false);
-  }, [location.pathname, isDesktop]);
+    document.title = pageTitle + " · z-Index";
+  }, [pageTitle]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(sidebarStorageKey, String(desktopOpen));
+    } catch {
+      /* The menu still works when browser storage is unavailable. */
+    }
+  }, [desktopOpen]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => window.dispatchEvent(new Event("resize")),
+      duration,
+    );
+    return () => window.clearTimeout(timer);
+  }, [desktopOpen, isDesktop, duration]);
+
+  function closeMenu() {
+    if (isDesktop) setDesktopOpen(false);
+    else setMobileState({ pathname, open: false });
+  }
+  function toggleMenu() {
+    if (isDesktop) setDesktopOpen((open) => !open);
+    else setMobileState({ pathname, open: !mobileOpen });
+  }
   function handleLogout() {
     logout();
     navigate("/login", { replace: true });
   }
 
-  const drawerContent = (
+  const navigation = (
     <Box
+      component="nav"
+      id="app-sidebar-navigation"
+      aria-label="Əsas menyu"
       sx={{
         height: "100%",
-        color: "white",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
-        background:
-          "radial-gradient(circle at 55% 0%, rgba(185,28,28,0.24), transparent 31%), linear-gradient(180deg, #070a12 0%, #090d18 50%, #070910 100%)",
+        bgcolor: "#151c2c",
+        color: "#d5dbea",
       }}
     >
-      <Box sx={{ px: 2.5, pt: 2.4, pb: 2.2 }}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1.2}
+        sx={{
+          minHeight: headerHeight,
+          px: 2.25,
+          borderBottom: "1px solid #ffffff0d",
+          flexShrink: 0,
+        }}
+      >
         <Box
-          component="img"
-          src="/logo.png"
-          alt="Nanoplastica.az"
+          aria-hidden="true"
           sx={{
-            width: 205,
-            height: 58,
-            objectFit: "contain",
-            display: "block",
-            filter: "drop-shadow(0 12px 26px rgba(0,0,0,0.4))",
+            width: 30,
+            height: 30,
+            bgcolor: "#315be8",
+            borderRadius: "8px",
+            display: "grid",
+            placeItems: "center",
+            color: "#fff",
+            fontSize: 19,
+            fontWeight: 600,
           }}
-        />
-      </Box>
+        >
+          z
+        </Box>
+        <Typography
+          sx={{
+            color: "#fff",
+            fontSize: 18,
+            fontWeight: 600,
+            letterSpacing: "-0.6px",
+            flex: 1,
+          }}
+        >
+          z-Index
+        </Typography>
+        <Tooltip title="Menyunu gizlət">
+          <IconButton
+            onClick={closeMenu}
+            size="small"
+            aria-label="Menyunu bağla"
+            sx={{ color: "#a1abc0" }}
+          >
+            <ChevronLeftRoundedIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Stack>
 
       <Box
         sx={{
-          px: 1.4,
           flex: 1,
+          minHeight: 0,
           overflowY: "auto",
-          overflowX: "hidden",
-          "&::-webkit-scrollbar": { width: 5 },
-          "&::-webkit-scrollbar-thumb": {
-            bgcolor: "rgba(255,255,255,0.18)",
-            borderRadius: 999,
-          },
+          py: 1.75,
+          px: 1.25,
+          scrollbarWidth: "thin",
+          scrollbarColor: "#3a4355 transparent",
         }}
       >
         {groups.map((group) => {
-          const items = navItems.filter((item) => item.group === group.key);
+          const items = allowedItems.filter((item) => item.group === group.key);
           if (!items.length) return null;
-
           return (
-            <Box key={group.key} sx={{ mb: 1.9 }}>
+            <Box key={group.key} sx={{ mb: 1.25 }}>
               {group.label && (
                 <Typography
                   sx={{
-                    px: 1.4,
-                    mb: 0.8,
-                    color: "rgba(255,255,255,0.43)",
-                    fontSize: 11.5,
-                    fontWeight: 950,
-                    letterSpacing: 0.9,
+                    px: 1.35,
+                    pt: 1,
+                    pb: 0.65,
+                    fontSize: 10.5,
+                    fontWeight: 500,
+                    letterSpacing: "0.07em",
                     textTransform: "uppercase",
+                    color: "#919cb3",
                   }}
                 >
                   {group.label}
                 </Typography>
               )}
-
               <List disablePadding>
                 {items.map((item) => {
-                  const active =
-                    item.to === "/"
-                      ? location.pathname === "/"
-                      : location.pathname === item.to ||
-                        location.pathname.startsWith(`${item.to}/`);
-
+                  const active = matchesRoute(pathname, item.to);
+                  const Icon = item.icon;
                   return (
                     <ListItemButton
                       key={item.to}
                       component={RouterLink}
                       to={item.to}
                       selected={active}
+                      aria-current={active ? "page" : undefined}
+                      onClick={() => setMobileState({ pathname, open: false })}
                       sx={{
-                        mx: 0.7,
-                        my: 0.45,
-                        minHeight: 48,
-                        borderRadius: 3,
-                        color: active ? "#fff" : "rgba(255,255,255,0.77)",
-                        transition: "0.2s ease",
-                        "&:hover": {
-                          bgcolor: "rgba(255,255,255,0.07)",
-                          color: "#fff",
-                          transform: "translateX(2px)",
-                        },
-                        "&.Mui-selected": {
-                          bgcolor: "#b91622",
-                          color: "#fff",
-                          boxShadow: "0 14px 35px rgba(185,22,34,0.42)",
-                        },
-                        "&.Mui-selected:hover": {
-                          bgcolor: "#cf1d2b",
+                        minHeight: 39,
+                        px: 1.35,
+                        py: 0.65,
+                        mb: 0.25,
+                        borderRadius: "7px",
+                        color: active ? "#fff" : "#bbc4d6",
+                        "&:hover": { bgcolor: "#ffffff09", color: "#fff" },
+                        "&.Mui-selected": { bgcolor: "#315be8", color: "#fff" },
+                        "&.Mui-selected:hover": { bgcolor: "#2b51d4" },
+                        "&.Mui-focusVisible": {
+                          outline: "2px solid #9bb5ff",
+                          outlineOffset: -2,
                         },
                       }}
                     >
                       <ListItemIcon
                         sx={{
-                          minWidth: 40,
-                          color: "inherit",
-                          "& svg": { fontSize: 23 },
+                          minWidth: 33,
+                          color: active ? "#fff" : "#939fb7",
                         }}
                       >
-                        {item.icon}
+                        <Icon sx={{ fontSize: 19 }} />
                       </ListItemIcon>
-
                       <ListItemText
                         primary={item.label}
                         primaryTypographyProps={{
-                          fontWeight: 900,
-                          fontSize: 14.5,
+                          fontSize: 12.5,
+                          fontWeight: active ? 500 : 400,
                         }}
                       />
-
-                      {item.badge && (
-                        <Chip
-                          label={item.badge}
-                          size="small"
-                          sx={{
-                            height: 22,
-                            fontSize: 10.5,
-                            fontWeight: 950,
-                            color: "white",
-                            bgcolor: "#b91622",
-                          }}
-                        />
-                      )}
                     </ListItemButton>
                   );
                 })}
@@ -299,61 +368,57 @@ export default function AppShell({ children }) {
         })}
       </Box>
 
-      <Box sx={{ p: 2 }}>
-        <Box
-          sx={{
-            p: 1.7,
-            mb: 1.2,
-            borderRadius: 4,
-            bgcolor: "rgba(255,255,255,0.045)",
-            border: "1px solid rgba(255,255,255,0.11)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
-          }}
+      <Box
+        sx={{
+          flexShrink: 0,
+          px: 1.5,
+          pt: 1.5,
+          pb: 1.25,
+          borderTop: "1px solid #ffffff0d",
+        }}
+      >
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ px: 1, mb: 1.15, gap: 1 }}
         >
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                bgcolor: "#22c55e",
-                boxShadow: "0 0 0 5px rgba(34,197,94,0.13)",
-              }}
-            />
-            <Typography sx={{ fontWeight: 950, fontSize: 13 }}>
-              Sistem Statusu
-            </Typography>
-          </Stack>
-
           <Typography
-            sx={{
-              mt: 0.8,
-              color: "rgba(255,255,255,0.6)",
-              fontSize: 12,
-              fontWeight: 650,
-            }}
+            variant="caption"
+            title={companyName}
+            noWrap
+            sx={{ color: "#b7c1d3", minWidth: 0 }}
           >
-            Bütün modullar aktivdir
+            {companyName}
           </Typography>
-        </Box>
-
+          <Chip
+            label={user?.company?.plan || "BASIC"}
+            size="small"
+            sx={{
+              color: "#c2cfff",
+              bgcolor: "#263451",
+              height: 21,
+              fontSize: 9.5,
+              borderRadius: "5px",
+            }}
+          />
+        </Stack>
         <ListItemButton
           onClick={handleLogout}
           sx={{
-            borderRadius: 3,
-            color: "rgba(255,255,255,0.78)",
-            "&:hover": {
-              bgcolor: "rgba(255,255,255,0.08)",
-              color: "white",
-            },
+            borderRadius: "7px",
+            py: 0.6,
+            minHeight: 36,
+            color: "#adb8cd",
+            "&:hover": { bgcolor: "#ffffff09", color: "#fff" },
           }}
         >
-          <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
-            <LogoutRoundedIcon />
+          <ListItemIcon sx={{ minWidth: 33, color: "inherit" }}>
+            <LogoutRoundedIcon sx={{ fontSize: 18 }} />
           </ListItemIcon>
           <ListItemText
-            primary="Çıxış"
-            primaryTypographyProps={{ fontWeight: 900 }}
+            primary="Hesabdan çıx"
+            primaryTypographyProps={{ fontSize: 12.5 }}
           />
         </ListItemButton>
       </Box>
@@ -361,105 +426,129 @@ export default function AppShell({ children }) {
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f5f7fb" }}>
-      <CssBaseline />
-
-      {isDesktop ? (
-        <Drawer
-          variant="permanent"
-          open
-          sx={{
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
+      <a className="app-skip-link" href="#app-main-content">
+        Məzmuna keç
+      </a>
+      <Drawer
+        variant={isDesktop ? "persistent" : "temporary"}
+        anchor="left"
+        open={menuOpen}
+        onClose={closeMenu}
+        transitionDuration={duration}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          width: sidebarOffset,
+          flexShrink: 0,
+          transition,
+          "& .MuiDrawer-paper": {
             width: drawerWidth,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
-              width: drawerWidth,
-              boxSizing: "border-box",
-              borderRight: 0,
-              bgcolor: "transparent",
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-      ) : (
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", lg: "none" },
-            [`& .MuiDrawer-paper`]: {
-              width: drawerWidth,
-              boxSizing: "border-box",
-              borderRight: 0,
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-      )}
+            maxWidth: "calc(100vw - 32px)",
+            border: 0,
+            bgcolor: "#151c2c",
+          },
+        }}
+      >
+        {navigation}
+      </Drawer>
 
       <AppBar
         position="fixed"
         elevation={0}
+        color="inherit"
         sx={{
-          ml: { lg: `${drawerWidth}px` },
-          width: { lg: `calc(100% - ${drawerWidth}px)` },
-          bgcolor: "#0b0f19",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          boxShadow: "0 14px 36px rgba(15,23,42,0.18)",
+          ml: sidebarOffset + "px",
+          width: "calc(100% - " + sidebarOffset + "px)",
+          transition,
+          bgcolor: "#fff",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
         <Toolbar
           sx={{
-            minHeight: "78px !important",
-            gap: 1.5,
-            px: { xs: 2, md: 3 },
+            minHeight: headerHeight + "px !important",
+            gap: { xs: 1, sm: 1.75 },
+            px: { xs: 2, md: 3.5 },
           }}
         >
-          {!isDesktop && (
-            <IconButton color="inherit" onClick={() => setMobileOpen(true)}>
-              <MenuRoundedIcon />
-            </IconButton>
-          )}
-
-          <Box sx={{ flex: 1 }} />
-
-        
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1.2}
-            sx={{ ml: 1 }}
-          >
-            <Box
-              sx={{ textAlign: "right", display: { xs: "none", sm: "block" } }}
+          <Tooltip title={menuOpen ? "Menyunu gizlət" : "Menyunu aç"}>
+            <IconButton
+              edge="start"
+              onClick={toggleMenu}
+              aria-label={menuOpen ? "Menyunu gizlət" : "Menyunu aç"}
+              aria-expanded={menuOpen}
+              aria-controls="app-sidebar-navigation"
+              sx={{ color: "text.secondary" }}
             >
-              <Typography
-                sx={{ color: "white", fontWeight: 950, lineHeight: 1.1 }}
-              >
-                {user?.fullName || "Admin"}
-              </Typography>
-              <Typography
-                sx={{ fontSize: 12, color: "rgba(255,255,255,0.55)" }}
-              >
-                {user?.role || "Administrator"}
-              </Typography>
-            </Box>
-
-          </Stack>
+              <MenuRoundedIcon sx={{ fontSize: 21 }} />
+            </IconButton>
+          </Tooltip>
+          <Typography
+            noWrap
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: 13,
+              fontWeight: 500,
+              color: "text.secondary",
+            }}
+          >
+            {pageTitle}
+          </Typography>
+          <Box
+            sx={{
+              textAlign: "right",
+              display: { xs: "none", sm: "block" },
+              minWidth: 0,
+              maxWidth: 220,
+            }}
+          >
+            <Typography noWrap sx={{ fontSize: 12.5, fontWeight: 500 }}>
+              {user?.fullName || "İstifadəçi"}
+            </Typography>
+            <Typography
+              noWrap
+              variant="caption"
+              color="text.secondary"
+              sx={{ fontSize: 10.5 }}
+            >
+              {roles[user?.role] || user?.role} · {companyName}
+            </Typography>
+          </Box>
+          <Avatar
+            title={user?.fullName}
+            sx={{
+              width: 32,
+              height: 32,
+              fontSize: 11,
+              fontWeight: 600,
+              bgcolor: "#edf2ff",
+              color: "#315be8",
+            }}
+          >
+            {initials}
+          </Avatar>
         </Toolbar>
       </AppBar>
 
       <Box
         component="main"
+        id="app-main-content"
+        tabIndex={-1}
         sx={{
           flexGrow: 1,
-          width: { xs: "100%", lg: `calc(100% - ${drawerWidth}px)` },
           minWidth: 0,
-          pt: "78px",
-          bgcolor: "#f5f7fb",
+          width: "calc(100% - " + sidebarOffset + "px)",
+          pt: headerHeight + "px",
+          outline: "none",
+          transition,
         }}
       >
         {children}
