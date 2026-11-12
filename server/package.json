@@ -4,31 +4,44 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "dev": "node --watch src/index.js",
     "company:setup": "node scripts/company.cjs setup",
     "company:create": "node scripts/company.cjs create",
     "company:plan": "node scripts/company.cjs plan",
     "company:list": "node scripts/company.cjs list",
-    "test": "node --test tests/*.test.cjs",
-    "seed": "node scripts/company.cjs setup"
+    "test": "node --test --test-concurrency=1 tests/*.test.cjs",
+    "seed": "node scripts/company.cjs setup",
+    "test:native": "node --test --test-concurrency=1 tests/group1-native.cjs tests/group6-backup-native.cjs",
+    "backup": "node scripts/backup.cjs backup",
+    "backup:verify": "node scripts/backup.cjs verify",
+    "backup:restore": "node scripts/backup.cjs restore",
+    "test:ops": "node --test tests/group6-operations.test.cjs",
+    "billing:events": "node scripts/billing-events.cjs",
+    "user:reset-pin": "node scripts/reset-pin.cjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.19.2",
+    "@prisma/client": "6.19.3",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
-    "express": "^5.2.1",
+    "express": "5.3.0",
     "jsonwebtoken": "^9.0.3",
-    "multer": "^2.1.1"
+    "multer": "2.5.0",
+    "sharp": "0.35.5",
+    "helmet": "8.3.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
-    "prisma": "^6.19.2",
     "@electric-sql/pglite": "0.5.14",
-    "@electric-sql/pglite-socket": "0.2.17"
+    "@electric-sql/pglite-socket": "0.2.17",
+    "pg": "^8.16.3",
+    "prisma": "6.19.3"
+  },
+  "overrides": {
+    "deepmerge-ts": "8.0.2",
+    "path-to-regexp": "8.4.0"
   }
 }

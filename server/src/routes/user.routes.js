@@ -39,6 +39,7 @@ function replyError(error, res, next) {
       });
   next(error);
 }
+router.get('/manage',requireAuth,requireRole('ADMIN'),async(req,res,next)=>{try{const users=await prisma.user.findMany({select:userSelect,orderBy:{createdAt:'asc'}});res.json({users,activeCount:users.filter(u=>u.isActive).length,maxUsers:PLANS[req.company.plan].maxUsers,roles:hasFeature(req.company,'delivery')?roles:roles.filter(r=>r!=='DRIVER')});}catch(error){next(error);}});
 router.get(
   "/",
   requireAuth,
@@ -163,6 +164,7 @@ router.patch(
             where: { id: req.params.id },
           });
           if (!existing) throw problem(404, "İstifadəçi tapılmadı.");
+          if(existing.role==='ADMIN'&&existing.isActive&&(body.isActive===false||(body.role&&body.role!=='ADMIN'))&&(await tx.user.count({where:{role:'ADMIN',isActive:true}}))<=1)throw problem(409,'The last active administrator must remain active.');
           const active = body.isActive ?? existing.isActive;
           if (
             active &&

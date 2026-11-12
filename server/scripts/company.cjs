@@ -45,7 +45,8 @@ function offerInput() {
     endsAt,
     isActive: true,
     currency: market === "GLOBAL" ? "USD" : "AZN",
-    locale: market === "GLOBAL" ? "en" : "az",
+    locale: "en",
+    timezone: market === "GLOBAL" ? "UTC" : "Asia/Baku",
   };
 }
 async function applyActiveUsers(tx, companyId, plan, adminId) {
@@ -152,7 +153,7 @@ async function main() {
         await applyActiveUsers(tx, companyId, offer.plan, admin.id);
         return tx.company.update({
           where: { id: companyId },
-          data: { ...offer, authVersion: { increment: 1 } },
+          data: { ...offer, currency: (await tx.company.findUniqueOrThrow({where:{id:companyId}})).currency, timezone: (await tx.company.findUniqueOrThrow({where:{id:companyId}})).timezone, authVersion: { increment: 1 } },
         });
       },
       {
@@ -232,6 +233,8 @@ async function main() {
           loginEmail,
           passwordHash,
           ...offer,
+          currency: (await tx.company.findUniqueOrThrow({where:{id:companyId}})).currency,
+          timezone: (await tx.company.findUniqueOrThrow({where:{id:companyId}})).timezone,
           authVersion: { increment: 1 },
         },
       });

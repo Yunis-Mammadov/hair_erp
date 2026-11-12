@@ -36,7 +36,7 @@ const PRICES = Object.freeze({
     BUSINESS: { currency: "AZN", MONTHLY: 15000, YEARLY: 150000 },
     PREMIUM: { currency: "AZN", MONTHLY: 29900, YEARLY: 250000 },
   },
-  GLOBAL: { BASIC: { currency: "USD", MONTHLY: 999, YEARLY: 9999 } },
+  GLOBAL: { BASIC: { currency: "USD", MONTHLY: 1499, YEARLY: 14999 } },
 });
 function hasFeature(company, feature) {
   return Boolean(PLANS[company?.plan]?.features.includes(feature));
@@ -61,6 +61,14 @@ function publicCompany(company) {
     billingCycle: company.billingCycle,
     currency: company.currency,
     locale: company.locale,
+    timezone: company.timezone,
+    address: company.address,
+    phone: company.phone,
+    taxId: company.taxId,
+    invoicePrefix: company.invoicePrefix,
+    supportEmail: company.supportEmail,
+    logoUrl: company.logoUrl,
+    currencyConfigured: company.currencyConfigured,
     startsAt: company.startsAt,
     endsAt: company.endsAt,
     features: [...plan.features],

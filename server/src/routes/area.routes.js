@@ -1,3 +1,4 @@
+const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
@@ -25,7 +26,7 @@ router.get(
 
       return res.json({ areas });
     } catch (error) {
-      console.error("GET_AREAS_ERROR:", error);
+      log("GET_AREAS_ERROR:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       return res.status(500).json({ message: "Area-lar alınmadı" });
     }
   },
@@ -58,7 +59,7 @@ router.post("/", requireAuth, requireRole("ADMIN"), async (req, res) => {
       area,
     });
   } catch (error) {
-    console.error("CREATE_AREA_ERROR:", error);
+    log("CREATE_AREA_ERROR:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
 
     if (error.code === "P2002") {
       return res.status(400).json({
@@ -117,7 +118,7 @@ router.post("/bulk", requireAuth, requireRole("ADMIN"), async (req, res) => {
       areas: results,
     });
   } catch (error) {
-    console.error("AREA_BULK_ERROR:", error);
+    log("AREA_BULK_ERROR:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
     return res.status(500).json({
       message: error.message || "Area bulk əməliyyatı alınmadı",
     });

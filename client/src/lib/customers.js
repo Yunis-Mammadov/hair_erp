@@ -1,7 +1,11 @@
 import { api } from "./api";
 
-export async function getCustomers(search = "", expeditorId = "") {
-  const params = {};
+export async function getCustomers(
+  search = "",
+  expeditorId = "",
+  options = {},
+) {
+  const params = { ...options };
 
   if (search && search.trim()) {
     params.search = search.trim();

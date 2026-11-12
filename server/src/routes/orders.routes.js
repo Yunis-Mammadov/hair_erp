@@ -1,70 +1,53 @@
+const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
 const { hasFeature } = require("../config/plans");
 
+const F = require("../financial-core");
+const W = require("../workspace-core");
+const { normalizeUploadUrl } = require("../upload-access");
+const R = require("../records-core");
+
 const router = express.Router();
 
 const ALLOWED_PAYMENTS = ["REALİZASİYA", "NAĞD", "HİSSƏLİ", "DİGƏR"];
 
-function normalizeOrderItems(items = []) {
-  if (!Array.isArray(items) || items.length === 0) {
-    const err = new Error("items must be a non-empty array");
-    err.statusCode = 400;
-    throw err;
-  }
-
-  const normalized = items.map((i) => ({
-    productId: String(i?.productId || "").trim(),
-    quantity: parseInt(i?.quantity, 10),
-    unitPrice: Number(i?.unitPrice),
-    isGift: Boolean(i?.isGift),
-  }));
-
-  for (const it of normalized) {
-    if (!it.productId) {
-      const err = new Error("Each item must have productId");
-      err.statusCode = 400;
-      throw err;
-    }
-
-    if (!Number.isInteger(it.quantity) || it.quantity <= 0) {
-      const err = new Error("Each item must have quantity > 0");
-      err.statusCode = 400;
-      throw err;
-    }
-
-    if (!Number.isFinite(it.unitPrice) || it.unitPrice < 0) {
-      const err = new Error("Each item must have valid unitPrice");
-      err.statusCode = 400;
-      throw err;
-    }
-
-    if (it.isGift && Number(it.unitPrice) !== 0) {
-      const err = new Error("Gift item unitPrice must be 0");
-      err.statusCode = 400;
-      throw err;
-    }
-
-    if (!it.isGift && Number(it.unitPrice) <= 0) {
-      const err = new Error("Normal sale item unitPrice must be > 0");
-      err.statusCode = 400;
-      throw err;
-    }
-  }
-
-  return normalized;
+function normalizeOrderItems(items) {
+  const result = F.lines(items).map((item) => {
+    if (item.isGift !== undefined && typeof item.isGift !== "boolean")
+      throw F.fail(400, "isGift boolean olmalıdır.");
+    const value = {
+      productId: F.id(item.productId),
+      quantity: F.integer(item.quantity),
+      unitPrice: F.money(item.unitPrice, item.isGift === true),
+      isGift: item.isGift === true,
+    };
+    if (value.isGift && value.unitPrice !== 0)
+      throw F.fail(400, "Hədiyyənin qiyməti sıfır olmalıdır.");
+    return value;
+  });
+  const total = result.reduce(
+    (sum, item) => sum + F.minor(item.unitPrice) * item.quantity,
+    0,
+  );
+  if (!Number.isSafeInteger(total) || total > 999999999999)
+    throw F.fail(400, "Satışın ümumi məbləği çox böyükdür.");
+  return result;
 }
 
 async function ensureProductsExist(tx, productIds) {
   const uniqueIds = [...new Set(productIds)];
 
   const products = await tx.product.findMany({
-    where: { id: { in: uniqueIds } },
+    where: { id: { in: uniqueIds }, archivedAt: null },
     select: {
       id: true,
       name: true,
+      salePrice: true,
+      sku: true,
+      category: { select: { name: true } },
     },
   });
 
@@ -80,47 +63,17 @@ async function ensureProductsExist(tx, productIds) {
   return products;
 }
 
-async function giveBackStock(tx, items) {
-  for (const item of items) {
-    await tx.stock.upsert({
-      where: { productId: item.productId },
-      update: {
-        quantity: { increment: item.quantity },
-      },
-      create: {
-        productId: item.productId,
-        quantity: item.quantity,
-      },
-    });
-  }
+async function giveBackStock(tx, items, details) {
+  for (const item of [...items].sort((a, b) =>
+    a.productId.localeCompare(b.productId),
+  ))
+    await F.moveStock(tx, item.productId, item.quantity, details);
 }
-
-async function decrementStockOrThrow(tx, items) {
-  for (const item of items) {
-    await tx.stock.upsert({
-      where: { productId: item.productId },
-      update: {},
-      create: { productId: item.productId, quantity: 0 },
-    });
-
-    const updated = await tx.stock.updateMany({
-      where: {
-        productId: item.productId,
-        quantity: { gte: item.quantity },
-      },
-      data: {
-        quantity: { decrement: item.quantity },
-      },
-    });
-
-    if (updated.count === 0) {
-      const err = new Error(
-        `Insufficient stock for productId=${item.productId}`,
-      );
-      err.statusCode = 409;
-      throw err;
-    }
-  }
+async function decrementStockOrThrow(tx, items, details) {
+  for (const item of [...items].sort((a, b) =>
+    a.productId.localeCompare(b.productId),
+  ))
+    await F.moveStock(tx, item.productId, -item.quantity, details);
 }
 
 /**
@@ -193,32 +146,7 @@ router.get(
         where.paymentType = String(paymentType).trim();
       }
 
-      if (startDate || endDate) {
-        where.createdAt = {};
-
-        if (startDate) {
-          const start = new Date(startDate);
-          if (!isNaN(start.getTime())) {
-            where.createdAt.gte = start;
-          }
-        }
-
-        if (endDate) {
-          const end = new Date(endDate);
-          if (!isNaN(end.getTime())) {
-            end.setHours(23, 59, 59, 999);
-            where.createdAt.lte = end;
-          }
-        }
-
-        if (
-          where.createdAt &&
-          where.createdAt.gte === undefined &&
-          where.createdAt.lte === undefined
-        ) {
-          delete where.createdAt;
-        }
-      }
+      if (startDate || endDate) where.createdAt = W.dateRange(startDate, endDate, req.company.timezone);
 
       const [orders, total] = await prisma.$transaction([
         prisma.order.findMany({
@@ -251,8 +179,10 @@ router.get(
         prisma.order.count({ where }),
       ]);
 
+      const amounts=new Map();
+      for(const customerId of new Set(orders.map(o=>o.customerId)))for(const [id,value]of await R.orderFinancials(prisma,customerId))amounts.set(id,value);
       res.json({
-        orders,
+        orders: orders.map(o=>({...R.presentOrder(o),...amounts.get(o.id)})),
         pagination: {
           page: pageNumber,
           limit: limitNumber,
@@ -261,8 +191,8 @@ router.get(
         },
       });
     } catch (error) {
-      console.error("Get orders error:", error);
-      res.status(500).json({ message: error.message || "Server error" });
+      log("Get orders error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
+      F.errorResponse(res, error);
     }
   },
 );
@@ -270,58 +200,11 @@ router.get(
 /**
  * GET /orders/:id
  */
-router.get(
-  "/:id",
-  requireAuth,
-  requireRole("ADMIN", "EXPEDITOR", "WAREHOUSE", "DRIVER"),
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-
-      const where = { id };
-
-      if (req.user.role === "EXPEDITOR") {
-        where.createdById = req.user.userId;
-      }
-
-      const order = await prisma.order.findFirst({
-        where,
-        include: {
-          area: true,
-          customer: true,
-          createdBy: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-              role: true,
-            },
-          },
-          items: {
-            include: {
-              product: {
-                include: {
-                  category: true,
-                  stock: true,
-                },
-              },
-              returnItems: true,
-            },
-          },
-        },
-      });
-
-      if (!order) {
-        return res.status(404).json({ message: "Order not found" });
-      }
-
-      res.json({ order });
-    } catch (error) {
-      console.error("Get single order error:", error);
-      res.status(500).json({ message: error.message || "Server error" });
-    }
-  },
-);
+router.get("/:id",requireAuth,requireRole("ADMIN","EXPEDITOR","WAREHOUSE","DRIVER"),R.route(async(req,res)=>{
+ const where={id:F.id(req.params.id)};if(req.user.role==="EXPEDITOR")where.createdById=req.user.id;
+ const order=await prisma.$transaction(async tx=>{const row=await tx.order.findFirst({where,include:R.orderInclude});if(!row)return null;return {...R.presentOrder(row),...(await R.orderFinancials(tx,row.customerId)).get(row.id)};},{isolationLevel:"RepeatableRead"});
+ if(!order)throw F.fail(404,"Invoice not found.");res.json({order});
+}));
 
 /**
  * POST /orders
@@ -332,9 +215,10 @@ router.post(
   requireRole("ADMIN", "EXPEDITOR"),
   async (req, res) => {
     try {
-      const { customerId, paymentType, note, items } = req.body;
+      const { customerId, newCustomer, paymentType, note, items } =
+        req.body || {};
 
-      if (!customerId || typeof customerId !== "string") {
+      if (!newCustomer && (!customerId || typeof customerId !== "string")) {
         return res.status(400).json({ message: "customerId is required" });
       }
 
@@ -351,43 +235,80 @@ router.post(
           .json({ message: "Invalid token payload (missing user id)" });
       }
 
-      const result = await prisma.$transaction(async (tx) => {
-        const customer = await tx.customer.findUnique({
-          where: { id: customerId },
-          include: {
-            area: true,
-          },
-        });
+      if (newCustomer && customerId)
+        throw F.fail(400, "Ya mövcud, ya yeni müştəri göndər.");
+      const customerInput = newCustomer ? W.customerData(newCustomer) : null;
+      let initialPayment;
+      if(req.body.initialPayment!=null){
+        const p=req.body.initialPayment;
+        if(!p || typeof p!=="object" || Array.isArray(p))throw F.fail(400,"Check the initial payment.");
+        initialPayment={amount:F.money(p.amount),method:F.text(p.method,20)||"CASH",note:F.text(p.note,300),imageUrl:p.imageUrl?normalizeUploadUrl(p.imageUrl,req.company):null};
+        if(!["CASH","BANK","CARD"].includes(initialPayment.method))throw F.fail(400,"Choose a payment method.");
+        if(F.minor(initialPayment.amount)>F.minor(R.documentTotal(normalizedItems)))throw F.fail(409,"Payment exceeds the invoice balance.","PAYMENT_LIMIT");
+      }
+      const input = {
+        ...(initialPayment ? {initialPayment} : {}),
+        customerId: customerInput ? null : F.id(customerId),
+        newCustomer: customerInput,
+        paymentType,
+        note: F.text(note),
+        items: normalizedItems,
+      };
+      const result = await F.mutate(req, "sale", input, async (tx) => {
+        let customer;
+        if (input.newCustomer) {
+          await W.checkArea(tx, input.newCustomer.areaId);
+          customer = await tx.customer.create({
+            data: {
+              ...input.newCustomer,
+              assignedExpeditorId:
+                hasFeature(req.company, "customerAssignments") &&
+                req.user.role === "EXPEDITOR"
+                  ? req.user.id
+                  : null,
+            },
+          });
+        } else customer = await F.lockCustomer(tx, input.customerId, req);
 
-        if (!customer) {
-          const err = new Error("Customer not found");
-          err.statusCode = 404;
-          throw err;
-        }
-
-        await ensureProductsExist(
+        const products = await ensureProductsExist(
           tx,
           normalizedItems.map((x) => x.productId),
         );
+        if (req.user.role !== "ADMIN") {
+          const catalogue = new Map(
+            products.map((product) => [product.id, product]),
+          );
+          for (const item of normalizedItems) {
+            if (
+              item.isGift ||
+              F.minor(item.unitPrice) !==
+                F.minor(catalogue.get(item.productId).salePrice)
+            ) {
+              throw F.fail(
+                403,
+                "Qiyməti dəyişmək və hədiyyə əlavə etmək yalnız administratora icazəlidir.",
+                "PRICE_PERMISSION",
+              );
+            }
+          }
+        }
 
-        await decrementStockOrThrow(tx, normalizedItems);
-
+        const invoice = await R.nextInvoice(tx, req.company.id, req.company.invoicePrefix);
+        const snapshotItems = R.itemSnapshots(normalizedItems, products);
         const order = await tx.order.create({
           data: {
-            customerId,
+            ...invoice,
+            totalAmount: R.documentTotal(normalizedItems),
+            currency: req.company.currency,
+            customerSnapshot: R.customerSnapshot(customer),
+            companySnapshot: R.companySnapshot(req),
+            customerId: customer.id,
             createdById,
             paymentType,
             note: note ? String(note).trim() : null,
             areaId: customer.areaId || null,
             deliveryStatus: "IN_WAREHOUSE",
-            items: {
-              create: normalizedItems.map((it) => ({
-                productId: it.productId,
-                quantity: it.quantity,
-                unitPrice: it.unitPrice,
-                isGift: it.isGift,
-              })),
-            },
+            items: { create: snapshotItems },
           },
           include: {
             area: true,
@@ -412,14 +333,24 @@ router.post(
           },
         });
 
-        return order;
+        await decrementStockOrThrow(tx, normalizedItems, {
+          user: req.user,
+          kind: "SALE",
+          reason: "Satış " + invoice.invoiceNumber,
+          documentId: order.id,
+        });
+        let payment=null;
+        if(input.initialPayment){
+          const balance=await F.account(tx,customer.id);
+          if(F.minor(input.initialPayment.amount)>F.minor(balance.debt))throw F.fail(409,"Payment exceeds the remaining customer debt after credit.","PAYMENT_LIMIT");
+          payment=await tx.payment.create({data:{customerId:customer.id,orderId:order.id,createdById:req.user.id,amount:input.initialPayment.amount,paymentType:input.initialPayment.method,note:input.initialPayment.note||"Payment at sale",imageUrl:input.initialPayment.imageUrl,paymentDate:new Date()}});
+        }
+        return {order:R.presentOrder(order),payment,summary:await F.account(tx,customer.id)};
       });
 
-      res.status(201).json({ order: result });
+      res.status(result.replayed ? 200 : 201).json(result);
     } catch (error) {
-      const status = error.statusCode || 500;
-      console.error("Create order error:", error);
-      res.status(status).json({ message: error.message || "Server error" });
+      return F.errorResponse(res, error);
     }
   },
 );
@@ -448,7 +379,7 @@ router.post(
 
       return res.json({ order: updated });
     } catch (err) {
-      console.error("SIGNATURE ERROR:", err);
+      log("SIGNATURE ERROR:",{code:err.code||err.type||"REQUEST_FAILED",name:err.name,status:err.status||err.statusCode||500});
       return res.status(500).json({ message: "İmza saxlanmadı" });
     }
   },
@@ -474,7 +405,7 @@ router.post("/:id/seller-signature", requireAuth, async (req, res) => {
 
     return res.json({ message: "Seller imzası əlavə olundu", order });
   } catch (err) {
-    console.error("SELLER SIGN ERROR:", err);
+    log("SELLER SIGN ERROR:",{code:err.code||err.type||"REQUEST_FAILED",name:err.name,status:err.status||err.statusCode||500});
     return res.status(500).json({ message: "Xəta baş verdi" });
   }
 });
@@ -494,7 +425,8 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
 
     const normalizedItems = normalizeOrderItems(items);
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await F.transaction(async (tx) => {
+      await F.lockWorkspace(tx, req);
       const existingOrder = await tx.order.findUnique({
         where: { id },
         include: {
@@ -514,6 +446,8 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
         throw err;
       }
 
+      await F.lockCustomer(tx, existingOrder.customerId, req);
+
       if (existingOrder.deliveryStatus === "DELIVERED") {
         const err = new Error("Delivered order cannot be edited");
         err.statusCode = 400;
@@ -530,9 +464,14 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
         throw err;
       }
 
-      await ensureProductsExist(
+      const products = await ensureProductsExist(
         tx,
         normalizedItems.map((x) => x.productId),
+      );
+      const snapshotItems = R.itemSnapshots(
+        normalizedItems,
+        products,
+        existingOrder.items,
       );
 
       // 1) Köhnə sifarişin stokunu geri qaytar
@@ -542,10 +481,21 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
           productId: item.productId,
           quantity: item.quantity,
         })),
+        {
+          user: req.user,
+          kind: "SALE_EDIT",
+          reason: F.text(req.body.reason, 300) || "Sifariş redaktəsi",
+          documentId: existingOrder.id,
+        },
       );
 
       // 2) Yeni item-lara görə stoku yenidən çıx
-      await decrementStockOrThrow(tx, normalizedItems);
+      await decrementStockOrThrow(tx, normalizedItems, {
+        user: req.user,
+        kind: "SALE_EDIT",
+        reason: F.text(req.body.reason, 300) || "Sifariş redaktəsi",
+        documentId: existingOrder.id,
+      });
 
       // 3) Köhnə order item-ları sil
       await tx.orderItem.deleteMany({
@@ -554,12 +504,9 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
 
       // 4) Yenilərini yaz
       await tx.orderItem.createMany({
-        data: normalizedItems.map((it) => ({
+        data: snapshotItems.map((item) => ({
+          ...item,
           orderId: existingOrder.id,
-          productId: it.productId,
-          quantity: it.quantity,
-          unitPrice: it.unitPrice,
-          isGift: it.isGift,
         })),
       });
 
@@ -567,6 +514,9 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
       const updatedOrder = await tx.order.update({
         where: { id: existingOrder.id },
         data: {
+          totalAmount: R.documentTotal(normalizedItems),
+          lastEditedById: req.user.id,
+          lastEditedAt: new Date(),
           paymentType: paymentType || existingOrder.paymentType,
           note:
             note === undefined
@@ -601,7 +551,20 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
         },
       });
 
-      return updatedOrder;
+      await tx.orderEditLog.create({
+        data: {
+          orderId: existingOrder.id,
+          editedById: req.user.id,
+          reason: F.text(req.body.reason, 300) || "Sifariş redaktəsi",
+          beforeSnapshot: JSON.parse(
+            JSON.stringify(R.presentOrder(existingOrder)),
+          ),
+          afterSnapshot: JSON.parse(
+            JSON.stringify(R.presentOrder(updatedOrder)),
+          ),
+        },
+      });
+      return R.presentOrder(updatedOrder);
     });
 
     res.json({
@@ -609,9 +572,7 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
       order: result,
     });
   } catch (error) {
-    const status = error.statusCode || 500;
-    console.error("Update order error:", error);
-    res.status(status).json({ message: error.message || "Server error" });
+    return F.errorResponse(res, error);
   }
 });
 

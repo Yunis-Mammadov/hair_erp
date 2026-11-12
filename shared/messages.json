@@ -1,0 +1,5582 @@
+{
+  "Ana səhifə": {
+    "en": "Home",
+    "az": "Ana səhifə",
+    "tr": "Ana sayfa",
+    "ru": "Главная"
+  },
+  "Satış": {
+    "en": "Sale",
+    "az": "Satış",
+    "tr": "Satış",
+    "ru": "Продажа"
+  },
+  "Satışlar": {
+    "en": "Sales",
+    "az": "Satışlar",
+    "tr": "Satışlar",
+    "ru": "Продажи"
+  },
+  "Yeni satış": {
+    "en": "New sale",
+    "az": "Yeni satış",
+    "tr": "Yeni satış",
+    "ru": "Новая продажа"
+  },
+  "Satış tarixçəsi": {
+    "en": "Sales history",
+    "az": "Satış tarixçəsi",
+    "tr": "Satış geçmişi",
+    "ru": "История продаж"
+  },
+  "Müştərilər": {
+    "en": "Customers",
+    "az": "Müştərilər",
+    "tr": "Müşteriler",
+    "ru": "Клиенты"
+  },
+  "Müştəri": {
+    "en": "Customer",
+    "az": "Müştəri",
+    "tr": "Müşteri",
+    "ru": "Клиент"
+  },
+  "Müştəri adı": {
+    "en": "Customer name",
+    "az": "Müştəri adı",
+    "tr": "Müşteri adı",
+    "ru": "Имя клиента"
+  },
+  "Müştəri siyahısı": {
+    "en": "Customer list",
+    "az": "Müştəri siyahısı",
+    "tr": "Müşteri listesi",
+    "ru": "Список клиентов"
+  },
+  "Müştəri məlumatları": {
+    "en": "Customer details",
+    "az": "Müştəri məlumatları",
+    "tr": "Müşteri bilgileri",
+    "ru": "Данные клиента"
+  },
+  "Müştəri statusu": {
+    "en": "Customer type",
+    "az": "Müştəri statusu",
+    "tr": "Müşteri türü",
+    "ru": "Тип клиента"
+  },
+  "Yeni müştəri": {
+    "en": "New customer",
+    "az": "Yeni müştəri",
+    "tr": "Yeni müşteri",
+    "ru": "Новый клиент"
+  },
+  "Köhnə müştəri": {
+    "en": "Existing customer",
+    "az": "Köhnə müştəri",
+    "tr": "Mevcut müşteri",
+    "ru": "Существующий клиент"
+  },
+  "Müştəri axtar": {
+    "en": "Search customers",
+    "az": "Müştəri axtar",
+    "tr": "Müşteri ara",
+    "ru": "Поиск клиентов"
+  },
+  "Müştəri axtar və seç": {
+    "en": "Find and select a customer",
+    "az": "Müştəri axtar və seç",
+    "tr": "Müşteri ara ve seç",
+    "ru": "Найдите и выберите клиента"
+  },
+  "Köhnə müştərini axtar": {
+    "en": "Search existing customers",
+    "az": "Köhnə müştərini axtar",
+    "tr": "Mevcut müşteriyi ara",
+    "ru": "Поиск существующего клиента"
+  },
+  "Müştəri tapılmadı": {
+    "en": "Customer not found",
+    "az": "Müştəri tapılmadı",
+    "tr": "Müşteri bulunamadı",
+    "ru": "Клиент не найден"
+  },
+  "Müştəri tapılmadı.": {
+    "en": "Customer not found.",
+    "az": "Müştəri tapılmadı.",
+    "tr": "Müşteri bulunamadı.",
+    "ru": "Клиент не найден."
+  },
+  "Müştərilər siyahısı": {
+    "en": "Customer list",
+    "az": "Müştərilər siyahısı",
+    "tr": "Müşteri listesi",
+    "ru": "Список клиентов"
+  },
+  "Müştəri məlumatları, satışlar və borclar.": {
+    "en": "Customer details, sales and balances.",
+    "az": "Müştəri məlumatları, satışlar və borclar.",
+    "tr": "Müşteri bilgileri, satışlar ve borçlar.",
+    "ru": "Данные клиентов, продажи и задолженности."
+  },
+  "Müştərilər yüklənir": {
+    "en": "Loading customers",
+    "az": "Müştərilər yüklənir",
+    "tr": "Müşteriler yükleniyor",
+    "ru": "Загрузка клиентов"
+  },
+  "Müştərilər yüklənmədi.": {
+    "en": "Could not load customers.",
+    "az": "Müştərilər yüklənmədi.",
+    "tr": "Müşteriler yüklenemedi.",
+    "ru": "Не удалось загрузить клиентов."
+  },
+  "Müştəri sayı": {
+    "en": "Customers",
+    "az": "Müştəri sayı",
+    "tr": "Müşteri sayısı",
+    "ru": "Количество клиентов"
+  },
+  "Ümumi müştəri sayı": {
+    "en": "Total customers",
+    "az": "Ümumi müştəri sayı",
+    "tr": "Toplam müşteri",
+    "ru": "Всего клиентов"
+  },
+  "Müştəri / salon": {
+    "en": "Customer / business",
+    "az": "Müştəri / salon",
+    "tr": "Müşteri / işletme",
+    "ru": "Клиент / компания"
+  },
+  "Müştəri məlumatı": {
+    "en": "Customer information",
+    "az": "Müştəri məlumatı",
+    "tr": "Müşteri bilgisi",
+    "ru": "Информация о клиенте"
+  },
+  "Müştəri tarixçəsi": {
+    "en": "Customer history",
+    "az": "Müştəri tarixçəsi",
+    "tr": "Müşteri geçmişi",
+    "ru": "История клиента"
+  },
+  "Müştəri əməliyyatları": {
+    "en": "Customer activity",
+    "az": "Müştəri əməliyyatları",
+    "tr": "Müşteri işlemleri",
+    "ru": "Операции клиента"
+  },
+  "Müştərinin satışları": {
+    "en": "Customer sales",
+    "az": "Müştərinin satışları",
+    "tr": "Müşterinin satışları",
+    "ru": "Продажи клиенту"
+  },
+  "Müştərinin qaytarmaları": {
+    "en": "Customer returns",
+    "az": "Müştərinin qaytarmaları",
+    "tr": "Müşterinin iadeleri",
+    "ru": "Возвраты клиента"
+  },
+  "Müştərinin mədaxilləri": {
+    "en": "Customer payments",
+    "az": "Müştərinin mədaxilləri",
+    "tr": "Müşterinin ödemeleri",
+    "ru": "Платежи клиента"
+  },
+  "Müştəri ödənişini qeyd et": {
+    "en": "Record a customer payment",
+    "az": "Müştəri ödənişini qeyd et",
+    "tr": "Müşteri ödemesi kaydet",
+    "ru": "Записать платёж клиента"
+  },
+  "Müştəri ödənişinin qəbzi": {
+    "en": "Customer payment receipt",
+    "az": "Müştəri ödənişinin qəbzi",
+    "tr": "Müşteri ödeme makbuzu",
+    "ru": "Квитанция платежа клиента"
+  },
+  "Müştərilərin cari borclarını izlə və ödəniş əlavə et": {
+    "en": "Track customer balances and record payments",
+    "az": "Müştərilərin cari borclarını izlə və ödəniş əlavə et",
+    "tr": "Müşteri borçlarını takip et ve ödeme ekle",
+    "ru": "Отслеживайте долги клиентов и записывайте платежи"
+  },
+  "Müştərinin artıq ödənilmiş məbləği:": {
+    "en": "Customer credit:",
+    "az": "Müştərinin artıq ödənilmiş məbləği:",
+    "tr": "Müşteri alacağı:",
+    "ru": "Переплата клиента:"
+  },
+  "Bu müştərinin sifarişləri burada görünəcək.": {
+    "en": "This customer's sales will appear here.",
+    "az": "Bu müştərinin sifarişləri burada görünəcək.",
+    "tr": "Müşterinin siparişleri burada görünecek.",
+    "ru": "Здесь появятся продажи этому клиенту."
+  },
+  "Bu müştərinin ödəniş qeydləri burada görünəcək.": {
+    "en": "This customer's payments will appear here.",
+    "az": "Bu müştərinin ödəniş qeydləri burada görünəcək.",
+    "tr": "Müşterinin ödemeleri burada görünecek.",
+    "ru": "Здесь появятся платежи клиента."
+  },
+  "Ad, telefon və ya salon": {
+    "en": "Name, phone or business",
+    "az": "Ad, telefon və ya salon",
+    "tr": "Ad, telefon veya işletme",
+    "ru": "Имя, телефон или компания"
+  },
+  "Ad, telefon və ya salon yaz": {
+    "en": "Enter a name, phone or business",
+    "az": "Ad, telefon və ya salon yaz",
+    "tr": "Ad, telefon veya işletme yaz",
+    "ru": "Введите имя, телефон или компанию"
+  },
+  "Ad, telefon, salon üzrə axtar...": {
+    "en": "Search name, phone or business...",
+    "az": "Ad, telefon, salon üzrə axtar...",
+    "tr": "Ad, telefon veya işletme ara...",
+    "ru": "Поиск по имени, телефону или компании..."
+  },
+  "Axtarış (ad, telefon, salon)": {
+    "en": "Search (name, phone, business)",
+    "az": "Axtarış (ad, telefon, salon)",
+    "tr": "Ara (ad, telefon, işletme)",
+    "ru": "Поиск (имя, телефон, компания)"
+  },
+  "Salon": {
+    "en": "Business / store",
+    "az": "Salon",
+    "tr": "İşletme / mağaza",
+    "ru": "Компания / магазин"
+  },
+  "Salon / mağaza": {
+    "en": "Business / store",
+    "az": "Salon / mağaza",
+    "tr": "İşletme / mağaza",
+    "ru": "Компания / магазин"
+  },
+  "Telefon": {
+    "en": "Phone",
+    "az": "Telefon",
+    "tr": "Telefon",
+    "ru": "Телефон"
+  },
+  "Ünvan": {
+    "en": "Address",
+    "az": "Ünvan",
+    "tr": "Adres",
+    "ru": "Адрес"
+  },
+  "Ərazi": {
+    "en": "Area",
+    "az": "Ərazi",
+    "tr": "Bölge",
+    "ru": "Район"
+  },
+  "Ərazi axtar və seç": {
+    "en": "Find and select an area (optional)",
+    "az": "Ərazi axtar və seç",
+    "tr": "Bölge ara ve seç (isteğe bağlı)",
+    "ru": "Найдите и выберите район (необязательно)"
+  },
+  "Əlaqə / ünvan": {
+    "en": "Contact / address",
+    "az": "Əlaqə / ünvan",
+    "tr": "İletişim / adres",
+    "ru": "Контакты / адрес"
+  },
+  "Qeyd": {
+    "en": "Note",
+    "az": "Qeyd",
+    "tr": "Not",
+    "ru": "Примечание"
+  },
+  "Qeyd / əməkdaş": {
+    "en": "Note / employee",
+    "az": "Qeyd / əməkdaş",
+    "tr": "Not / çalışan",
+    "ru": "Примечание / сотрудник"
+  },
+  "Əməkdaş": {
+    "en": "Employee",
+    "az": "Əməkdaş",
+    "tr": "Çalışan",
+    "ru": "Сотрудник"
+  },
+  "Ekspeditor": {
+    "en": "Sales representative",
+    "az": "Ekspeditor",
+    "tr": "Satış temsilcisi",
+    "ru": "Торговый представитель"
+  },
+  "Administrator": {
+    "en": "Administrator",
+    "az": "Administrator",
+    "tr": "Yönetici",
+    "ru": "Администратор"
+  },
+  "Anbar əməkdaşı": {
+    "en": "Warehouse worker",
+    "az": "Anbar əməkdaşı",
+    "tr": "Depo çalışanı",
+    "ru": "Сотрудник склада"
+  },
+  "Sürücü": {
+    "en": "Driver",
+    "az": "Sürücü",
+    "tr": "Sürücü",
+    "ru": "Водитель"
+  },
+  "Məhsullar və anbar": {
+    "en": "Products & inventory",
+    "az": "Məhsullar və anbar",
+    "tr": "Ürünler ve stok",
+    "ru": "Товары и склад"
+  },
+  "Məhsullar və stok": {
+    "en": "Products & stock",
+    "az": "Məhsullar və stok",
+    "tr": "Ürünler ve stok",
+    "ru": "Товары и остатки"
+  },
+  "Məhsullar": {
+    "en": "Products",
+    "az": "Məhsullar",
+    "tr": "Ürünler",
+    "ru": "Товары"
+  },
+  "Məhsul": {
+    "en": "Product",
+    "az": "Məhsul",
+    "tr": "Ürün",
+    "ru": "Товар"
+  },
+  "məhsul": {
+    "en": "product",
+    "az": "məhsul",
+    "tr": "ürün",
+    "ru": "товар"
+  },
+  "Məhsul adı": {
+    "en": "Product name",
+    "az": "Məhsul adı",
+    "tr": "Ürün adı",
+    "ru": "Название товара"
+  },
+  "Məhsul sayı": {
+    "en": "Quantity",
+    "az": "Məhsul sayı",
+    "tr": "Ürün adedi",
+    "ru": "Количество"
+  },
+  "Məhsul seç": {
+    "en": "Select a product",
+    "az": "Məhsul seç",
+    "tr": "Ürün seç",
+    "ru": "Выберите товар"
+  },
+  "Məhsul seçilməyib": {
+    "en": "No product selected",
+    "az": "Məhsul seçilməyib",
+    "tr": "Ürün seçilmedi",
+    "ru": "Товар не выбран"
+  },
+  "Məhsul tapılmadı.": {
+    "en": "Product not found.",
+    "az": "Məhsul tapılmadı.",
+    "tr": "Ürün bulunamadı.",
+    "ru": "Товар не найден."
+  },
+  "Məhsul yoxdur.": {
+    "en": "No products.",
+    "az": "Məhsul yoxdur.",
+    "tr": "Ürün yok.",
+    "ru": "Товаров нет."
+  },
+  "Məhsul əlavə et": {
+    "en": "Add product",
+    "az": "Məhsul əlavə et",
+    "tr": "Ürün ekle",
+    "ru": "Добавить товар"
+  },
+  "Yeni məhsul": {
+    "en": "New product",
+    "az": "Yeni məhsul",
+    "tr": "Yeni ürün",
+    "ru": "Новый товар"
+  },
+  "Yeni Məhsul": {
+    "en": "New product",
+    "az": "Yeni Məhsul",
+    "tr": "Yeni ürün",
+    "ru": "Новый товар"
+  },
+  "Məhsul əlavə edilmədi. Yenidən cəhd et.": {
+    "en": "Could not add product. Try again.",
+    "az": "Məhsul əlavə edilmədi. Yenidən cəhd et.",
+    "tr": "Ürün eklenemedi. Tekrar dene.",
+    "ru": "Не удалось добавить товар. Попробуйте снова."
+  },
+  "Yeni məhsul yaradıldı": {
+    "en": "Product created",
+    "az": "Yeni məhsul yaradıldı",
+    "tr": "Ürün oluşturuldu",
+    "ru": "Товар создан"
+  },
+  "Məhsul seçimini təmizlə": {
+    "en": "Clear product selection",
+    "az": "Məhsul seçimini təmizlə",
+    "tr": "Ürün seçimini temizle",
+    "ru": "Очистить выбор товара"
+  },
+  "Məhsul axtar": {
+    "en": "Search products",
+    "az": "Məhsul axtar",
+    "tr": "Ürün ara",
+    "ru": "Поиск товаров"
+  },
+  "Məhsul adı, SKU və ya barkod": {
+    "en": "Product name, SKU or barcode",
+    "az": "Məhsul adı, SKU və ya barkod",
+    "tr": "Ürün adı, SKU veya barkod",
+    "ru": "Название, артикул или штрихкод"
+  },
+  "Ad, SKU və ya barkod": {
+    "en": "Name, SKU or barcode",
+    "az": "Ad, SKU və ya barkod",
+    "tr": "Ad, SKU veya barkod",
+    "ru": "Название, артикул или штрихкод"
+  },
+  "Məhsul və ya category axtar...": {
+    "en": "Search products or categories...",
+    "az": "Məhsul və ya category axtar...",
+    "tr": "Ürün veya kategori ara...",
+    "ru": "Поиск товаров или категорий..."
+  },
+  "Məhsul kataloqu, qalıqlar və stok hərəkətlərinin tarixçəsi.": {
+    "en": "Product catalogue, balances and stock movement history.",
+    "az": "Məhsul kataloqu, qalıqlar və stok hərəkətlərinin tarixçəsi.",
+    "tr": "Ürün kataloğu, stoklar ve stok hareketleri geçmişi.",
+    "ru": "Каталог товаров, остатки и история складских операций."
+  },
+  "Bütün məhsullarda axtar": {
+    "en": "Search all products",
+    "az": "Bütün məhsullarda axtar",
+    "tr": "Tüm ürünlerde ara",
+    "ru": "Поиск по всем товарам"
+  },
+  "Kataloq": {
+    "en": "Catalogue",
+    "az": "Kataloq",
+    "tr": "Katalog",
+    "ru": "Каталог"
+  },
+  "Kataloqdakı məhsullar": {
+    "en": "Products in catalogue",
+    "az": "Kataloqdakı məhsullar",
+    "tr": "Katalogdaki ürünler",
+    "ru": "Товары в каталоге"
+  },
+  "Kateqoriya": {
+    "en": "Category",
+    "az": "Kateqoriya",
+    "tr": "Kategori",
+    "ru": "Категория"
+  },
+  "Category": {
+    "en": "Category",
+    "az": "Category",
+    "tr": "Kategori",
+    "ru": "Категория"
+  },
+  "kateqoriya": {
+    "en": "category",
+    "az": "kateqoriya",
+    "tr": "kategori",
+    "ru": "категория"
+  },
+  "Category adı": {
+    "en": "Category name",
+    "az": "Category adı",
+    "tr": "Kategori adı",
+    "ru": "Название категории"
+  },
+  "Kateqoriyalar və məhsullar": {
+    "en": "Categories & products",
+    "az": "Kateqoriyalar və məhsullar",
+    "tr": "Kategoriler ve ürünler",
+    "ru": "Категории и товары"
+  },
+  "Yeni Category": {
+    "en": "New category",
+    "az": "Yeni Category",
+    "tr": "Yeni kategori",
+    "ru": "Новая категория"
+  },
+  "Yeni category": {
+    "en": "New category",
+    "az": "Yeni category",
+    "tr": "Yeni kategori",
+    "ru": "Новая категория"
+  },
+  "Yeni category yaradıldı": {
+    "en": "Category created",
+    "az": "Yeni category yaradıldı",
+    "tr": "Kategori oluşturuldu",
+    "ru": "Категория создана"
+  },
+  "Kateqoriya yoxdur.": {
+    "en": "No categories.",
+    "az": "Kateqoriya yoxdur.",
+    "tr": "Kategori yok.",
+    "ru": "Категорий нет."
+  },
+  "Hələ kateqoriya yoxdur.": {
+    "en": "No categories yet.",
+    "az": "Hələ kateqoriya yoxdur.",
+    "tr": "Henüz kategori yok.",
+    "ru": "Категорий пока нет."
+  },
+  "Kateqoriyalar yüklənmədi.": {
+    "en": "Could not load categories.",
+    "az": "Kateqoriyalar yüklənmədi.",
+    "tr": "Kategoriler yüklenemedi.",
+    "ru": "Не удалось загрузить категории."
+  },
+  "Bu kateqoriyada məhsul yoxdur.": {
+    "en": "No products in this category.",
+    "az": "Bu kateqoriyada məhsul yoxdur.",
+    "tr": "Bu kategoride ürün yok.",
+    "ru": "В этой категории нет товаров."
+  },
+  "Bu kateqoriyada uyğun məhsul tapılmadı.": {
+    "en": "No matching products in this category.",
+    "az": "Bu kateqoriyada uyğun məhsul tapılmadı.",
+    "tr": "Bu kategoride eşleşen ürün bulunamadı.",
+    "ru": "В этой категории нет подходящих товаров."
+  },
+  "Kateqoriyanı aç, satış və hədiyyə miqdarını yaz.": {
+    "en": "Open a category and enter quantities.",
+    "az": "Kateqoriyanı aç, satış və hədiyyə miqdarını yaz.",
+    "tr": "Kategori aç ve miktarları gir.",
+    "ru": "Откройте категорию и укажите количество."
+  },
+  "Anbar qalığı": {
+    "en": "Stock balances",
+    "az": "Anbar qalığı",
+    "tr": "Stok bakiyeleri",
+    "ru": "Остатки на складе"
+  },
+  "Stok": {
+    "en": "Stock",
+    "az": "Stok",
+    "tr": "Stok",
+    "ru": "Склад"
+  },
+  "Stock yoxdur": {
+    "en": "Out of stock",
+    "az": "Stock yoxdur",
+    "tr": "Stok yok",
+    "ru": "Нет в наличии"
+  },
+  "Stok bitib": {
+    "en": "Out of stock",
+    "az": "Stok bitib",
+    "tr": "Stok tükendi",
+    "ru": "Нет в наличии"
+  },
+  "Stock limiti": {
+    "en": "Stock limit",
+    "az": "Stock limiti",
+    "tr": "Stok limiti",
+    "ru": "Лимит остатка"
+  },
+  "Qalıq": {
+    "en": "Balance",
+    "az": "Qalıq",
+    "tr": "Kalan",
+    "ru": "Остаток"
+  },
+  "Faktiki qalıq": {
+    "en": "Actual stock count",
+    "az": "Faktiki qalıq",
+    "tr": "Fiili stok",
+    "ru": "Фактический остаток"
+  },
+  "Stok sayımı ·": {
+    "en": "Stock count ·",
+    "az": "Stok sayımı ·",
+    "tr": "Stok sayımı ·",
+    "ru": "Инвентаризация ·"
+  },
+  "Stok tarixçəsi ·": {
+    "en": "Stock history ·",
+    "az": "Stok tarixçəsi ·",
+    "tr": "Stok geçmişi ·",
+    "ru": "История склада ·"
+  },
+  "Sayım": {
+    "en": "Stock count",
+    "az": "Sayım",
+    "tr": "Stok sayımı",
+    "ru": "Инвентаризация"
+  },
+  "Sayımı saxla": {
+    "en": "Save stock count",
+    "az": "Sayımı saxla",
+    "tr": "Stok sayımını kaydet",
+    "ru": "Сохранить результат"
+  },
+  "Mövcud stoklara bax": {
+    "en": "View stock balances",
+    "az": "Mövcud stoklara bax",
+    "tr": "Stokları görüntüle",
+    "ru": "Посмотреть остатки"
+  },
+  "Yeni faktiki qalığı yaz. Bu əməliyyatın səbəbi və hesabın adı tarixçədə saxlanacaq.": {
+    "en": "Enter the actual stock quantity. The reason and employee are saved in history.",
+    "az": "Yeni faktiki qalığı yaz. Bu əməliyyatın səbəbi və hesabın adı tarixçədə saxlanacaq.",
+    "tr": "Fiili stok miktarını gir. Sebep ve çalışan geçmişe kaydedilir.",
+    "ru": "Введите фактический остаток. Причина и сотрудник сохранятся в истории."
+  },
+  "Arxiv": {
+    "en": "Archive",
+    "az": "Arxiv",
+    "tr": "Arşiv",
+    "ru": "Архив"
+  },
+  "Aktiv": {
+    "en": "Active",
+    "az": "Aktiv",
+    "tr": "Aktif",
+    "ru": "Активный"
+  },
+  "Alış": {
+    "en": "Purchase",
+    "az": "Alış",
+    "tr": "Alış",
+    "ru": "Закупка"
+  },
+  "Yeni alış": {
+    "en": "New purchase",
+    "az": "Yeni alış",
+    "tr": "Yeni alış",
+    "ru": "Новая закупка"
+  },
+  "Alış qiyməti": {
+    "en": "Purchase price",
+    "az": "Alış qiyməti",
+    "tr": "Alış fiyatı",
+    "ru": "Закупочная цена"
+  },
+  "Alış tarixçəsi": {
+    "en": "Purchase history",
+    "az": "Alış tarixçəsi",
+    "tr": "Alış geçmişi",
+    "ru": "История закупок"
+  },
+  "Alış tarixçəsi boşdur.": {
+    "en": "No purchases yet.",
+    "az": "Alış tarixçəsi boşdur.",
+    "tr": "Henüz alış yok.",
+    "ru": "Закупок пока нет."
+  },
+  "Anbara məhsul əlavə et": {
+    "en": "Receive goods into stock",
+    "az": "Anbara məhsul əlavə et",
+    "tr": "Depoya ürün ekle",
+    "ru": "Оприходовать товары"
+  },
+  "Seçilən alış səbəti": {
+    "en": "Purchase summary",
+    "az": "Seçilən alış səbəti",
+    "tr": "Alış özeti",
+    "ru": "Состав закупки"
+  },
+  "Məhsulları rahat seç, alış qiyməti və satış qiymətini yaz, sonra bir kliklə alış sənədini yarat.": {
+    "en": "Select products, enter cost and selling prices, then save the purchase.",
+    "az": "Məhsulları rahat seç, alış qiyməti və satış qiymətini yaz, sonra bir kliklə alış sənədini yarat.",
+    "tr": "Ürünleri seç, alış ve satış fiyatlarını gir, ardından alışı kaydet.",
+    "ru": "Выберите товары, укажите закупочные и продажные цены, затем сохраните закупку."
+  },
+  "Yazılmış alış sənədləri, məhsul detalları və ümumi məbləğlər": {
+    "en": "Purchase documents, product details and totals",
+    "az": "Yazılmış alış sənədləri, məhsul detalları və ümumi məbləğlər",
+    "tr": "Alış belgeleri, ürün detayları ve toplamlar",
+    "ru": "Документы закупок, товары и суммы"
+  },
+  "Supplier": {
+    "en": "Supplier",
+    "az": "Supplier",
+    "tr": "Tedarikçi",
+    "ru": "Поставщик"
+  },
+  "Invoice No": {
+    "en": "Invoice number",
+    "az": "Invoice No",
+    "tr": "Fatura numarası",
+    "ru": "Номер накладной"
+  },
+  "Qaimə / Invoice No": {
+    "en": "Invoice number",
+    "az": "Qaimə / Invoice No",
+    "tr": "Fatura numarası",
+    "ru": "Номер накладной"
+  },
+  "Supplier, invoice, qeyd...": {
+    "en": "Supplier, invoice, note...",
+    "az": "Supplier, invoice, qeyd...",
+    "tr": "Tedarikçi, fatura, not...",
+    "ru": "Поставщик, накладная, примечание..."
+  },
+  "Supplier və qaimə nömrəsi mütləqdir": {
+    "en": "Supplier and invoice number are required",
+    "az": "Supplier və qaimə nömrəsi mütləqdir",
+    "tr": "Tedarikçi ve fatura numarası gerekli",
+    "ru": "Укажите поставщика и номер накладной"
+  },
+  "* Supplier, qaimə nömrəsi, məhsul sayı, alış qiyməti və satış qiyməti mütləqdir.": {
+    "en": "* Supplier, invoice number, quantity, cost and selling price are required.",
+    "az": "* Supplier, qaimə nömrəsi, məhsul sayı, alış qiyməti və satış qiyməti mütləqdir.",
+    "tr": "* Tedarikçi, fatura numarası, miktar, alış ve satış fiyatı gerekli.",
+    "ru": "* Укажите поставщика, номер накладной, количество, закупочную и продажную цену."
+  },
+  "Confirm edəndə stok artır və məhsulun satış qiyməti yenilənir.": {
+    "en": "Saving increases stock. Only administrators can update catalogue prices.",
+    "az": "Confirm edəndə stok artır və məhsulun satış qiyməti yenilənir.",
+    "tr": "Kaydetmek stoku artırır. Katalog fiyatını yalnızca yönetici değiştirebilir.",
+    "ru": "Сохранение увеличит остаток. Цены каталога меняет только администратор."
+  },
+  "Bütün seçilən məhsullara düzgün alış qiyməti yaz": {
+    "en": "Enter a valid cost for every selected product",
+    "az": "Bütün seçilən məhsullara düzgün alış qiyməti yaz",
+    "tr": "Seçilen tüm ürünlere geçerli alış fiyatı gir",
+    "ru": "Укажите правильную закупочную цену для каждого товара"
+  },
+  "Bütün seçilən məhsullara düzgün satış qiyməti yaz": {
+    "en": "Enter a valid selling price for every selected product",
+    "az": "Bütün seçilən məhsullara düzgün satış qiyməti yaz",
+    "tr": "Seçilen tüm ürünlere geçerli satış fiyatı gir",
+    "ru": "Укажите правильную продажную цену для каждого товара"
+  },
+  "Qiymət": {
+    "en": "Price",
+    "az": "Qiymət",
+    "tr": "Fiyat",
+    "ru": "Цена"
+  },
+  "Vahid qiymət": {
+    "en": "Unit price",
+    "az": "Vahid qiymət",
+    "tr": "Birim fiyat",
+    "ru": "Цена за единицу"
+  },
+  "Vahid qiyməti": {
+    "en": "Unit price",
+    "az": "Vahid qiyməti",
+    "tr": "Birim fiyat",
+    "ru": "Цена за единицу"
+  },
+  "Satış qiyməti": {
+    "en": "Selling price",
+    "az": "Satış qiyməti",
+    "tr": "Satış fiyatı",
+    "ru": "Продажная цена"
+  },
+  "Qiyməti dəyiş": {
+    "en": "Change price",
+    "az": "Qiyməti dəyiş",
+    "tr": "Fiyatı değiştir",
+    "ru": "Изменить цену"
+  },
+  "Standart qiymətə qaytar": {
+    "en": "Restore catalogue price",
+    "az": "Standart qiymətə qaytar",
+    "tr": "Katalog fiyatına dön",
+    "ru": "Вернуть цену каталога"
+  },
+  "Normal məhsullar": {
+    "en": "Sale items",
+    "az": "Normal məhsullar",
+    "tr": "Satış ürünleri",
+    "ru": "Товары на продажу"
+  },
+  "Normal məhsul yoxdur": {
+    "en": "No sale items",
+    "az": "Normal məhsul yoxdur",
+    "tr": "Satış ürünü yok",
+    "ru": "Нет товаров на продажу"
+  },
+  "Normal məhsul əlavə et": {
+    "en": "Add sale item",
+    "az": "Normal məhsul əlavə et",
+    "tr": "Satış ürünü ekle",
+    "ru": "Добавить товар"
+  },
+  "Normal satış məhsulu yoxdur": {
+    "en": "No sale items",
+    "az": "Normal satış məhsulu yoxdur",
+    "tr": "Satış ürünü yok",
+    "ru": "Нет товаров на продажу"
+  },
+  "Satılan məhsullar": {
+    "en": "Sold products",
+    "az": "Satılan məhsullar",
+    "tr": "Satılan ürünler",
+    "ru": "Проданные товары"
+  },
+  "Satılan məhsul yoxdur": {
+    "en": "No sold products",
+    "az": "Satılan məhsul yoxdur",
+    "tr": "Satılan ürün yok",
+    "ru": "Нет проданных товаров"
+  },
+  "Satılan məhsulların hamısında qiymət olmalıdır": {
+    "en": "Every sale item needs a price",
+    "az": "Satılan məhsulların hamısında qiymət olmalıdır",
+    "tr": "Her satış ürününün fiyatı olmalı",
+    "ru": "Укажите цену для каждого товара"
+  },
+  "Satış qiymətləri sıfırdan böyük olmalıdır.": {
+    "en": "Selling prices must be greater than zero.",
+    "az": "Satış qiymətləri sıfırdan böyük olmalıdır.",
+    "tr": "Satış fiyatları sıfırdan büyük olmalı.",
+    "ru": "Продажные цены должны быть больше нуля."
+  },
+  "Hədiyyə": {
+    "en": "Gift",
+    "az": "Hədiyyə",
+    "tr": "Hediye",
+    "ru": "Подарок"
+  },
+  "Hədiyyə məhsullar": {
+    "en": "Gift products",
+    "az": "Hədiyyə məhsullar",
+    "tr": "Hediye ürünler",
+    "ru": "Подарочные товары"
+  },
+  "Hədiyyə məhsul yoxdur": {
+    "en": "No gift products",
+    "az": "Hədiyyə məhsul yoxdur",
+    "tr": "Hediye ürün yok",
+    "ru": "Нет подарочных товаров"
+  },
+  "Hədiyyə məhsul əlavə et": {
+    "en": "Add gift product",
+    "az": "Hədiyyə məhsul əlavə et",
+    "tr": "Hediye ürün ekle",
+    "ru": "Добавить подарок"
+  },
+  "Hədiyyə məhsul sayı:": {
+    "en": "Gift quantity:",
+    "az": "Hədiyyə məhsul sayı:",
+    "tr": "Hediye adedi:",
+    "ru": "Количество подарков:"
+  },
+  "Satış məbləği": {
+    "en": "Sales amount",
+    "az": "Satış məbləği",
+    "tr": "Satış tutarı",
+    "ru": "Сумма продаж"
+  },
+  "Bu ayın satış məbləği": {
+    "en": "Sales this month",
+    "az": "Bu ayın satış məbləği",
+    "tr": "Bu ayın satış tutarı",
+    "ru": "Продажи за месяц"
+  },
+  "Bu ayın sifarişləri": {
+    "en": "Orders this month",
+    "az": "Bu ayın sifarişləri",
+    "tr": "Bu ayın siparişleri",
+    "ru": "Заказы за месяц"
+  },
+  "Cari satış: {value0}": {
+    "en": "Current sale: {value0}",
+    "az": "Cari satış: {value0}",
+    "tr": "Güncel satış: {value0}",
+    "ru": "Текущая продажа: {value0}"
+  },
+  "Satış yazıldı: {value0}…": {
+    "en": "Sale recorded: {value0}…",
+    "az": "Satış yazıldı: {value0}…",
+    "tr": "Satış kaydedildi: {value0}…",
+    "ru": "Продажа записана: {value0}…"
+  },
+  "Alış yazıldı: {value0}…": {
+    "en": "Purchase recorded: {value0}…",
+    "az": "Alış yazıldı: {value0}…",
+    "tr": "Alış kaydedildi: {value0}…",
+    "ru": "Закупка записана: {value0}…"
+  },
+  "Sifariş xülasəsi": {
+    "en": "Order summary",
+    "az": "Sifariş xülasəsi",
+    "tr": "Sipariş özeti",
+    "ru": "Состав заказа"
+  },
+  "Seçilən məhsul sayı": {
+    "en": "Selected quantity",
+    "az": "Seçilən məhsul sayı",
+    "tr": "Seçilen ürün adedi",
+    "ru": "Выбрано товаров"
+  },
+  "Hələ məhsul seçilməyib. Soldakı kateqoriyalardan məhsul əlavə et.": {
+    "en": "No items selected. Add products from the catalogue.",
+    "az": "Hələ məhsul seçilməyib. Soldakı kateqoriyalardan məhsul əlavə et.",
+    "tr": "Henüz ürün seçilmedi. Katalogdan ürün ekle.",
+    "ru": "Товары не выбраны. Добавьте их из каталога."
+  },
+  "Heç bir məhsul seçilməyib": {
+    "en": "No products selected",
+    "az": "Heç bir məhsul seçilməyib",
+    "tr": "Ürün seçilmedi",
+    "ru": "Товары не выбраны"
+  },
+  "Heç nə seçilməyib": {
+    "en": "Nothing selected",
+    "az": "Heç nə seçilməyib",
+    "tr": "Hiçbir şey seçilmedi",
+    "ru": "Ничего не выбрано"
+  },
+  "Bütün seçimlər sıfırlandı": {
+    "en": "Selection cleared",
+    "az": "Bütün seçimlər sıfırlandı",
+    "tr": "Seçimler temizlendi",
+    "ru": "Выбор очищен"
+  },
+  "Siyahıdan məhsul seç.": {
+    "en": "Select a product from the list.",
+    "az": "Siyahıdan məhsul seç.",
+    "tr": "Listeden ürün seç.",
+    "ru": "Выберите товар из списка."
+  },
+  "Siyahıdan məhsul əlavə et.": {
+    "en": "Add a product from the list.",
+    "az": "Siyahıdan məhsul əlavə et.",
+    "tr": "Listeden ürün ekle.",
+    "ru": "Добавьте товар из списка."
+  },
+  "Miqdar": {
+    "en": "Quantity",
+    "az": "Miqdar",
+    "tr": "Miktar",
+    "ru": "Количество"
+  },
+  "Say": {
+    "en": "Quantity",
+    "az": "Say",
+    "tr": "Adet",
+    "ru": "Количество"
+  },
+  "Ümumi miqdar": {
+    "en": "Total quantity",
+    "az": "Ümumi miqdar",
+    "tr": "Toplam miktar",
+    "ru": "Общее количество"
+  },
+  "Cəm": {
+    "en": "Total",
+    "az": "Cəm",
+    "tr": "Toplam",
+    "ru": "Сумма"
+  },
+  "Cəmi": {
+    "en": "Total",
+    "az": "Cəmi",
+    "tr": "Toplam",
+    "ru": "Итого"
+  },
+  "Yekun": {
+    "en": "Total",
+    "az": "Yekun",
+    "tr": "Toplam",
+    "ru": "Итого"
+  },
+  "Yekun məbləğ": {
+    "en": "Total amount",
+    "az": "Yekun məbləğ",
+    "tr": "Toplam tutar",
+    "ru": "Итоговая сумма"
+  },
+  "Toplam məbləğ": {
+    "en": "Total amount",
+    "az": "Toplam məbləğ",
+    "tr": "Toplam tutar",
+    "ru": "Итоговая сумма"
+  },
+  "Toplam satış": {
+    "en": "Total sales",
+    "az": "Toplam satış",
+    "tr": "Toplam satış",
+    "ru": "Всего продаж"
+  },
+  "Toplam alış məbləği": {
+    "en": "Total purchases",
+    "az": "Toplam alış məbləği",
+    "tr": "Toplam alış tutarı",
+    "ru": "Сумма закупок"
+  },
+  "Toplam sifariş": {
+    "en": "Total orders",
+    "az": "Toplam sifariş",
+    "tr": "Toplam sipariş",
+    "ru": "Всего заказов"
+  },
+  "Ümumi sifariş": {
+    "en": "Total orders",
+    "az": "Ümumi sifariş",
+    "tr": "Toplam sipariş",
+    "ru": "Всего заказов"
+  },
+  "Son satışlar": {
+    "en": "Recent sales",
+    "az": "Son satışlar",
+    "tr": "Son satışlar",
+    "ru": "Последние продажи"
+  },
+  "Son satışlar cədvəli": {
+    "en": "Recent sales table",
+    "az": "Son satışlar cədvəli",
+    "tr": "Son satışlar tablosu",
+    "ru": "Таблица последних продаж"
+  },
+  "Satış siyahısı": {
+    "en": "Sales list",
+    "az": "Satış siyahısı",
+    "tr": "Satış listesi",
+    "ru": "Список продаж"
+  },
+  "Satış tapılmadı": {
+    "en": "No sales found",
+    "az": "Satış tapılmadı",
+    "tr": "Satış bulunamadı",
+    "ru": "Продажи не найдены"
+  },
+  "Satışlar yüklənir": {
+    "en": "Loading sales",
+    "az": "Satışlar yüklənir",
+    "tr": "Satışlar yükleniyor",
+    "ru": "Загрузка продаж"
+  },
+  "Satışlar yüklənmədi": {
+    "en": "Could not load sales",
+    "az": "Satışlar yüklənmədi",
+    "tr": "Satışlar yüklenemedi",
+    "ru": "Не удалось загрузить продажи"
+  },
+  "Hələ satış yoxdur": {
+    "en": "No sales yet",
+    "az": "Hələ satış yoxdur",
+    "tr": "Henüz satış yok",
+    "ru": "Продаж пока нет"
+  },
+  "Əlavə etdiyin sifarişlər burada görünəcək.": {
+    "en": "Your sales will appear here.",
+    "az": "Əlavə etdiyin sifarişlər burada görünəcək.",
+    "tr": "Eklediğin siparişler burada görünecek.",
+    "ru": "Здесь появятся ваши продажи."
+  },
+  "Ən son 8 sifariş": {
+    "en": "Latest 8 sales",
+    "az": "Ən son 8 sifariş",
+    "tr": "Son 8 sipariş",
+    "ru": "Последние 8 продаж"
+  },
+  "Bütün dövrlər üzrə son sifarişlər": {
+    "en": "Recent sales across all dates",
+    "az": "Bütün dövrlər üzrə son sifarişlər",
+    "tr": "Tüm dönemlerden son siparişler",
+    "ru": "Последние продажи за всё время"
+  },
+  "İlk satışını yarat": {
+    "en": "Create your first sale",
+    "az": "İlk satışını yarat",
+    "tr": "İlk satışını oluştur",
+    "ru": "Создайте первую продажу"
+  },
+  "Sifariş məlumatı": {
+    "en": "Order information",
+    "az": "Sifariş məlumatı",
+    "tr": "Sipariş bilgisi",
+    "ru": "Информация о заказе"
+  },
+  "Sifarişi yazan": {
+    "en": "Recorded by",
+    "az": "Sifarişi yazan",
+    "tr": "Kaydeden",
+    "ru": "Кто оформил"
+  },
+  "Sifariş detallarını bağla": {
+    "en": "Close order details",
+    "az": "Sifariş detallarını bağla",
+    "tr": "Sipariş detaylarını kapat",
+    "ru": "Закрыть детали заказа"
+  },
+  "Bu sifarişdə məhsul görünmədi.": {
+    "en": "No products found in this order.",
+    "az": "Bu sifarişdə məhsul görünmədi.",
+    "tr": "Bu siparişte ürün bulunamadı.",
+    "ru": "В заказе нет товаров."
+  },
+  "Qaimə": {
+    "en": "Invoice",
+    "az": "Qaimə",
+    "tr": "Fatura",
+    "ru": "Накладная"
+  },
+  "Qaimə №": {
+    "en": "Invoice no.",
+    "az": "Qaimə №",
+    "tr": "Fatura no.",
+    "ru": "Накладная №"
+  },
+  "Qaimə / tarix": {
+    "en": "Invoice / date",
+    "az": "Qaimə / tarix",
+    "tr": "Fatura / tarih",
+    "ru": "Накладная / дата"
+  },
+  "Satış Qaiməsi": {
+    "en": "Sales invoice",
+    "az": "Satış Qaiməsi",
+    "tr": "Satış faturası",
+    "ru": "Товарная накладная"
+  },
+  "Qaimələr, məhsullar və satış məlumatları.": {
+    "en": "Invoices, products and sales details.",
+    "az": "Qaimələr, məhsullar və satış məlumatları.",
+    "tr": "Faturalar, ürünler ve satış bilgileri.",
+    "ru": "Накладные, товары и сведения о продажах."
+  },
+  "Qaiməni çap et": {
+    "en": "Print invoice",
+    "az": "Qaiməni çap et",
+    "tr": "Faturayı yazdır",
+    "ru": "Печать накладной"
+  },
+  "Qaimə nömrəsi:": {
+    "en": "Invoice number:",
+    "az": "Qaimə nömrəsi:",
+    "tr": "Fatura numarası:",
+    "ru": "Номер накладной:"
+  },
+  "Qaimə № {value0}": {
+    "en": "Invoice no. {value0}",
+    "az": "Qaimə № {value0}",
+    "tr": "Fatura no. {value0}",
+    "ru": "Накладная № {value0}"
+  },
+  "Çap et": {
+    "en": "Print",
+    "az": "Çap et",
+    "tr": "Yazdır",
+    "ru": "Печать"
+  },
+  "Çap önizləmə": {
+    "en": "Print preview",
+    "az": "Çap önizləmə",
+    "tr": "Baskı önizleme",
+    "ru": "Предпросмотр печати"
+  },
+  "Qəbz": {
+    "en": "Receipt",
+    "az": "Qəbz",
+    "tr": "Makbuz",
+    "ru": "Квитанция"
+  },
+  "Mədaxil": {
+    "en": "Payments",
+    "az": "Mədaxil",
+    "tr": "Tahsilatlar",
+    "ru": "Платежи"
+  },
+  "Mədaxil / Tahsilat": {
+    "en": "Payments",
+    "az": "Mədaxil / Tahsilat",
+    "tr": "Tahsilatlar",
+    "ru": "Платежи"
+  },
+  "Mədaxil / tarix": {
+    "en": "Payment / date",
+    "az": "Mədaxil / tarix",
+    "tr": "Tahsilat / tarih",
+    "ru": "Платёж / дата"
+  },
+  "Mədaxil et": {
+    "en": "Record payment",
+    "az": "Mədaxil et",
+    "tr": "Ödeme al",
+    "ru": "Записать платёж"
+  },
+  "Mədaxil əlavə et": {
+    "en": "Add payment",
+    "az": "Mədaxil əlavə et",
+    "tr": "Ödeme ekle",
+    "ru": "Добавить платёж"
+  },
+  "Mədaxil şəkli": {
+    "en": "Receipt image",
+    "az": "Mədaxil şəkli",
+    "tr": "Makbuz görseli",
+    "ru": "Фото квитанции"
+  },
+  "Hələ mədaxil yoxdur": {
+    "en": "No payments yet",
+    "az": "Hələ mədaxil yoxdur",
+    "tr": "Henüz ödeme yok",
+    "ru": "Платежей пока нет"
+  },
+  "Toplam mədaxil": {
+    "en": "Total payments",
+    "az": "Toplam mədaxil",
+    "tr": "Toplam tahsilat",
+    "ru": "Сумма платежей"
+  },
+  "Ümumi mədaxil": {
+    "en": "Total payments",
+    "az": "Ümumi mədaxil",
+    "tr": "Toplam tahsilat",
+    "ru": "Сумма платежей"
+  },
+  "Maliyyə": {
+    "en": "Finance",
+    "az": "Maliyyə",
+    "tr": "Finans",
+    "ru": "Финансы"
+  },
+  "Məbləğ": {
+    "en": "Amount",
+    "az": "Məbləğ",
+    "tr": "Tutar",
+    "ru": "Сумма"
+  },
+  "Məbləğ düzgün daxil edilməlidir": {
+    "en": "Enter a valid amount",
+    "az": "Məbləğ düzgün daxil edilməlidir",
+    "tr": "Geçerli bir tutar gir",
+    "ru": "Введите корректную сумму"
+  },
+  "Daxil edilən məbləğ cari borcdan çox ola bilməz": {
+    "en": "Payment cannot exceed the current debt",
+    "az": "Daxil edilən məbləğ cari borcdan çox ola bilməz",
+    "tr": "Ödeme güncel borcu aşamaz",
+    "ru": "Платёж не может превышать текущий долг"
+  },
+  "Borc": {
+    "en": "Debt",
+    "az": "Borc",
+    "tr": "Borç",
+    "ru": "Долг"
+  },
+  "Cari borc": {
+    "en": "Current debt",
+    "az": "Cari borc",
+    "tr": "Güncel borç",
+    "ru": "Текущий долг"
+  },
+  "Qalıq borc": {
+    "en": "Outstanding debt",
+    "az": "Qalıq borc",
+    "tr": "Kalan borç",
+    "ru": "Остаток долга"
+  },
+  "Qalan borc": {
+    "en": "Remaining debt",
+    "az": "Qalan borc",
+    "tr": "Kalan borç",
+    "ru": "Оставшийся долг"
+  },
+  "Ümumi cari borc": {
+    "en": "Total outstanding debt",
+    "az": "Ümumi cari borc",
+    "tr": "Toplam güncel borç",
+    "ru": "Общий остаток долга"
+  },
+  "Bu səhifədə borclu müştəri sayı": {
+    "en": "Customers with debt on this page",
+    "az": "Bu səhifədə borclu müştəri sayı",
+    "tr": "Bu sayfadaki borçlu müşteriler",
+    "ru": "Клиенты с долгом на этой странице"
+  },
+  "Borclu": {
+    "en": "Unpaid",
+    "az": "Borclu",
+    "tr": "Borçlu",
+    "ru": "Не оплачено"
+  },
+  "Ödənib": {
+    "en": "Paid",
+    "az": "Ödənib",
+    "tr": "Ödendi",
+    "ru": "Оплачено"
+  },
+  "Qismən ödənib": {
+    "en": "Partially paid",
+    "az": "Qismən ödənib",
+    "tr": "Kısmen ödendi",
+    "ru": "Частично оплачено"
+  },
+  "Ödənilən": {
+    "en": "Paid",
+    "az": "Ödənilən",
+    "tr": "Ödenen",
+    "ru": "Оплачено"
+  },
+  "Ödənən": {
+    "en": "Paid",
+    "az": "Ödənən",
+    "tr": "Ödenen",
+    "ru": "Оплачено"
+  },
+  "Ödənilən məbləğ": {
+    "en": "Amount paid",
+    "az": "Ödənilən məbləğ",
+    "tr": "Ödenen tutar",
+    "ru": "Оплаченная сумма"
+  },
+  "Ödəniş növü": {
+    "en": "Payment type",
+    "az": "Ödəniş növü",
+    "tr": "Ödeme türü",
+    "ru": "Тип оплаты"
+  },
+  "Nağd": {
+    "en": "Cash",
+    "az": "Nağd",
+    "tr": "Nakit",
+    "ru": "Наличные"
+  },
+  "Realizasiya": {
+    "en": "Consignment",
+    "az": "Realizasiya",
+    "tr": "Konsinye",
+    "ru": "Реализация"
+  },
+  "Hissəli": {
+    "en": "Instalment",
+    "az": "Hissəli",
+    "tr": "Taksitli",
+    "ru": "Рассрочка"
+  },
+  "Digər": {
+    "en": "Other",
+    "az": "Digər",
+    "tr": "Diğer",
+    "ru": "Другое"
+  },
+  "Bank": {
+    "en": "Bank transfer",
+    "az": "Bank",
+    "tr": "Banka havalesi",
+    "ru": "Банковский перевод"
+  },
+  "Kart": {
+    "en": "Card",
+    "az": "Kart",
+    "tr": "Kart",
+    "ru": "Карта"
+  },
+  "Satılmış məhsulları qeyd et": {
+    "en": "Record paid-for products",
+    "az": "Satılmış məhsulları qeyd et",
+    "tr": "Ödenen ürünleri kaydet",
+    "ru": "Указать оплаченные товары"
+  },
+  "Satıldı": {
+    "en": "Paid-for quantity",
+    "az": "Satıldı",
+    "tr": "Ödenen adet",
+    "ru": "Оплачено единиц"
+  },
+  "Bu mədaxildə hansı məhsulların pulu yığıldığını qeyd et": {
+    "en": "Optionally record which products this collection covers",
+    "az": "Bu mədaxildə hansı məhsulların pulu yığıldığını qeyd et",
+    "tr": "Bu tahsilatın hangi ürünlere ait olduğunu isteğe bağlı kaydet",
+    "ru": "При желании укажите товары, за которые получена оплата"
+  },
+  "Bu mədaxildə qeyd olunan satılmış məhsullar": {
+    "en": "Products covered by this collection",
+    "az": "Bu mədaxildə qeyd olunan satılmış məhsullar",
+    "tr": "Bu tahsilattaki ürünler",
+    "ru": "Товары, указанные в платеже"
+  },
+  "Bu müştərinin seçilə biləcək satış məhsulu tapılmadı": {
+    "en": "No eligible sold products for this customer",
+    "az": "Bu müştərinin seçilə biləcək satış məhsulu tapılmadı",
+    "tr": "Bu müşteri için uygun satılan ürün bulunamadı",
+    "ru": "Нет подходящих проданных товаров для этого клиента"
+  },
+  "Çek, vitrin və ya ödənişlə bağlı şəkil əlavə edə bilərsən": {
+    "en": "Optionally attach a receipt or payment photo",
+    "az": "Çek, vitrin və ya ödənişlə bağlı şəkil əlavə edə bilərsən",
+    "tr": "İsteğe bağlı makbuz veya ödeme fotoğrafı ekle",
+    "ru": "Можно прикрепить фото квитанции или платежа"
+  },
+  ". Bu məbləğ sonrakı satışların borcundan avtomatik çıxılır.": {
+    "en": ". This credit is automatically applied to later sales.",
+    "az": ". Bu məbləğ sonrakı satışların borcundan avtomatik çıxılır.",
+    "tr": ". Bu alacak sonraki satışların borcundan otomatik düşülür.",
+    "ru": ". Эта переплата автоматически зачтётся при следующих продажах."
+  },
+  "Geri qaytarma": {
+    "en": "Return",
+    "az": "Geri qaytarma",
+    "tr": "İade",
+    "ru": "Возврат"
+  },
+  "Qaytarma": {
+    "en": "Return",
+    "az": "Qaytarma",
+    "tr": "İade",
+    "ru": "Возврат"
+  },
+  "Geri qaytarmalar": {
+    "en": "Returns",
+    "az": "Geri qaytarmalar",
+    "tr": "İadeler",
+    "ru": "Возвраты"
+  },
+  "Geri qaytarma tarixçəsi": {
+    "en": "Return history",
+    "az": "Geri qaytarma tarixçəsi",
+    "tr": "İade geçmişi",
+    "ru": "История возвратов"
+  },
+  "Qaytarma tarixçəsi": {
+    "en": "Return history",
+    "az": "Qaytarma tarixçəsi",
+    "tr": "İade geçmişi",
+    "ru": "История возвратов"
+  },
+  "Qaytarma / tarix": {
+    "en": "Return / date",
+    "az": "Qaytarma / tarix",
+    "tr": "İade / tarih",
+    "ru": "Возврат / дата"
+  },
+  "Qaytarma ID": {
+    "en": "Return ID",
+    "az": "Qaytarma ID",
+    "tr": "İade ID",
+    "ru": "ID возврата"
+  },
+  "Qaytarma detalları": {
+    "en": "Return details",
+    "az": "Qaytarma detalları",
+    "tr": "İade detayları",
+    "ru": "Детали возврата"
+  },
+  "Qaytarma məbləği": {
+    "en": "Return amount",
+    "az": "Qaytarma məbləği",
+    "tr": "İade tutarı",
+    "ru": "Сумма возврата"
+  },
+  "Qaytarma səbəbi / qeyd": {
+    "en": "Return reason / note",
+    "az": "Qaytarma səbəbi / qeyd",
+    "tr": "İade sebebi / not",
+    "ru": "Причина возврата / примечание"
+  },
+  "Qaytarmanı yazan": {
+    "en": "Return recorded by",
+    "az": "Qaytarmanı yazan",
+    "tr": "İadeyi kaydeden",
+    "ru": "Кто оформил возврат"
+  },
+  "Qaytarma var": {
+    "en": "Has returns",
+    "az": "Qaytarma var",
+    "tr": "İade var",
+    "ru": "Есть возвраты"
+  },
+  "Qaytarıla bilər": {
+    "en": "Returnable",
+    "az": "Qaytarıla bilər",
+    "tr": "İade edilebilir",
+    "ru": "Доступно для возврата"
+  },
+  "Qaytarılan say": {
+    "en": "Returned quantity",
+    "az": "Qaytarılan say",
+    "tr": "İade edilen adet",
+    "ru": "Возвращено единиц"
+  },
+  "Qaytarılan məhsullar burada görünəcək.": {
+    "en": "Returned products will appear here.",
+    "az": "Qaytarılan məhsullar burada görünəcək.",
+    "tr": "İade edilen ürünler burada görünecek.",
+    "ru": "Здесь появятся возвращённые товары."
+  },
+  "Hələ qaytarma yoxdur": {
+    "en": "No returns yet",
+    "az": "Hələ qaytarma yoxdur",
+    "tr": "Henüz iade yok",
+    "ru": "Возвратов пока нет"
+  },
+  "Seçilmiş qaytarma": {
+    "en": "Selected return",
+    "az": "Seçilmiş qaytarma",
+    "tr": "Seçilen iade",
+    "ru": "Выбранный возврат"
+  },
+  "Müştərinin qaytara biləcəyi məhsulları seç. Qiymət ilkin satışdan götürülür.": {
+    "en": "Select returnable products. The original selling price is used.",
+    "az": "Müştərinin qaytara biləcəyi məhsulları seç. Qiymət ilkin satışdan götürülür.",
+    "tr": "İade edilebilir ürünleri seç. İlk satış fiyatı kullanılır.",
+    "ru": "Выберите товары для возврата. Используется исходная цена продажи."
+  },
+  "Yekun məbləğ satışdakı qiymətlərə görə serverdə hesablanır. Bu əməliyyat müştərini avtomatik “problemli” etmir.": {
+    "en": "The server calculates the total from original sale prices. A return does not automatically flag the customer.",
+    "az": "Yekun məbləğ satışdakı qiymətlərə görə serverdə hesablanır. Bu əməliyyat müştərini avtomatik “problemli” etmir.",
+    "tr": "Toplam ilk satış fiyatlarıyla sunucuda hesaplanır. İade müşteriyi otomatik işaretlemez.",
+    "ru": "Сумма рассчитывается по исходным ценам продажи. Возврат не отмечает клиента как проблемного."
+  },
+  "Problemli": {
+    "en": "Flagged",
+    "az": "Problemli",
+    "tr": "İşaretli",
+    "ru": "С отметкой"
+  },
+  "Problemli müştəri": {
+    "en": "Flagged customer",
+    "az": "Problemli müştəri",
+    "tr": "İşaretli müşteri",
+    "ru": "Клиент с отметкой"
+  },
+  "Problemli müştəri qeydi": {
+    "en": "Customer risk note",
+    "az": "Problemli müştəri qeydi",
+    "tr": "Müşteri risk notu",
+    "ru": "Примечание о риске"
+  },
+  "Problem statusunu sil": {
+    "en": "Remove customer flag",
+    "az": "Problem statusunu sil",
+    "tr": "Müşteri işaretini kaldır",
+    "ru": "Снять отметку клиента"
+  },
+  "Bu müştəri problemli kimi işarələnəcək. Qeyd yazıldıqdan sonra ümumi siyahıda adının yanında status nişanı görünəcək.": {
+    "en": "This customer will be flagged. Your note and a status badge will appear in the customer list.",
+    "az": "Bu müştəri problemli kimi işarələnəcək. Qeyd yazıldıqdan sonra ümumi siyahıda adının yanında status nişanı görünəcək.",
+    "tr": "Bu müşteri işaretlenecek. Not ve durum rozeti müşteri listesinde görünecek.",
+    "ru": "Клиент будет отмечен. Примечание и отметка появятся в списке клиентов."
+  },
+  "Məsələn: ödəniş problemi var, kobud davranış edib, sifarişlə bağlı risk var və s.": {
+    "en": "For example: late payments or an order-related risk.",
+    "az": "Məsələn: ödəniş problemi var, kobud davranış edib, sifarişlə bağlı risk var və s.",
+    "tr": "Örneğin: geciken ödemeler veya sipariş riski.",
+    "ru": "Например: задержки платежей или риск по заказу."
+  },
+  "Biznesə ümumi baxış": {
+    "en": "Business overview",
+    "az": "Biznesə ümumi baxış",
+    "tr": "İşletmeye genel bakış",
+    "ru": "Обзор бизнеса"
+  },
+  "Aylıq xülasə": {
+    "en": "Monthly overview",
+    "az": "Aylıq xülasə",
+    "tr": "Aylık özet",
+    "ru": "Обзор месяца"
+  },
+  "Cari təqvim ayı": {
+    "en": "Current calendar month",
+    "az": "Cari təqvim ayı",
+    "tr": "Güncel takvim ayı",
+    "ru": "Текущий календарный месяц"
+  },
+  "Orta sifariş məbləği": {
+    "en": "Average order value",
+    "az": "Orta sifariş məbləği",
+    "tr": "Ortalama sipariş tutarı",
+    "ru": "Средняя сумма заказа"
+  },
+  "Satış məbləği sifarişlərin ilkin cəmidir. Ödənişlər və geri qaytarmalar bu göstəricidən çıxılmır.": {
+    "en": "Sales are the original order totals, before payments and returns.",
+    "az": "Satış məbləği sifarişlərin ilkin cəmidir. Ödənişlər və geri qaytarmalar bu göstəricidən çıxılmır.",
+    "tr": "Satışlar, ödeme ve iadeler düşülmeden ilk sipariş toplamlarıdır.",
+    "ru": "Продажи показаны по первоначальной сумме заказов, без вычета платежей и возвратов."
+  },
+  "Lazım olan bölməyə keç": {
+    "en": "Quick links",
+    "az": "Lazım olan bölməyə keç",
+    "tr": "Hızlı bağlantılar",
+    "ru": "Быстрые переходы"
+  },
+  "Hamısı": {
+    "en": "All",
+    "az": "Hamısı",
+    "tr": "Tümü",
+    "ru": "Все"
+  },
+  "Ətraflı": {
+    "en": "Details",
+    "az": "Ətraflı",
+    "tr": "Detaylar",
+    "ru": "Подробнее"
+  },
+  "Bax": {
+    "en": "View",
+    "az": "Bax",
+    "tr": "Görüntüle",
+    "ru": "Открыть"
+  },
+  "Axtar": {
+    "en": "Search",
+    "az": "Axtar",
+    "tr": "Ara",
+    "ru": "Поиск"
+  },
+  "Axtarış": {
+    "en": "Search",
+    "az": "Axtarış",
+    "tr": "Arama",
+    "ru": "Поиск"
+  },
+  "Filterlər": {
+    "en": "Filters",
+    "az": "Filterlər",
+    "tr": "Filtreler",
+    "ru": "Фильтры"
+  },
+  "Axtarış alınmadı.": {
+    "en": "Search failed.",
+    "az": "Axtarış alınmadı.",
+    "tr": "Arama başarısız.",
+    "ru": "Поиск не удался."
+  },
+  "Axtarış sözünü və filtrləri dəyişərək yenidən yoxla.": {
+    "en": "Try changing the search term or filters.",
+    "az": "Axtarış sözünü və filtrləri dəyişərək yenidən yoxla.",
+    "tr": "Arama veya filtreleri değiştirip tekrar dene.",
+    "ru": "Попробуйте изменить запрос или фильтры."
+  },
+  "Axtarış sözünü və tarix aralığını dəyişərək yoxla.": {
+    "en": "Try changing the search term or date range.",
+    "az": "Axtarış sözünü və tarix aralığını dəyişərək yoxla.",
+    "tr": "Arama veya tarih aralığını değiştir.",
+    "ru": "Попробуйте изменить запрос или период."
+  },
+  "Tarix": {
+    "en": "Date",
+    "az": "Tarix",
+    "tr": "Tarih",
+    "ru": "Дата"
+  },
+  "İlk tarix": {
+    "en": "Start date",
+    "az": "İlk tarix",
+    "tr": "Başlangıç tarihi",
+    "ru": "Начальная дата"
+  },
+  "Başlanğıc tarix": {
+    "en": "Start date",
+    "az": "Başlanğıc tarix",
+    "tr": "Başlangıç tarihi",
+    "ru": "Начальная дата"
+  },
+  "Son tarix": {
+    "en": "End date",
+    "az": "Son tarix",
+    "tr": "Bitiş tarihi",
+    "ru": "Конечная дата"
+  },
+  "Yaradılıb": {
+    "en": "Created",
+    "az": "Yaradılıb",
+    "tr": "Oluşturuldu",
+    "ru": "Создано"
+  },
+  "Son yenilənmə": {
+    "en": "Last updated",
+    "az": "Son yenilənmə",
+    "tr": "Son güncelleme",
+    "ru": "Последнее обновление"
+  },
+  "Yazan": {
+    "en": "Recorded by",
+    "az": "Yazan",
+    "tr": "Kaydeden",
+    "ru": "Кто оформил"
+  },
+  "Yazan şəxs": {
+    "en": "Recorded by",
+    "az": "Yazan şəxs",
+    "tr": "Kaydeden",
+    "ru": "Кто оформил"
+  },
+  "Sənəd məlumatı": {
+    "en": "Document details",
+    "az": "Sənəd məlumatı",
+    "tr": "Belge bilgileri",
+    "ru": "Данные документа"
+  },
+  "Əsas məlumatlar": {
+    "en": "Basic information",
+    "az": "Əsas məlumatlar",
+    "tr": "Temel bilgiler",
+    "ru": "Основные сведения"
+  },
+  "Məlumatlar və borclar": {
+    "en": "Details & balances",
+    "az": "Məlumatlar və borclar",
+    "tr": "Bilgiler ve borçlar",
+    "ru": "Данные и задолженности"
+  },
+  "Məlumat tapılmadı": {
+    "en": "No records found",
+    "az": "Məlumat tapılmadı",
+    "tr": "Kayıt bulunamadı",
+    "ru": "Записи не найдены"
+  },
+  "Məlumatları tam doldur": {
+    "en": "Complete the required details",
+    "az": "Məlumatları tam doldur",
+    "tr": "Gerekli bilgileri doldur",
+    "ru": "Заполните обязательные поля"
+  },
+  "Məlumatlar yüklənmədi. Bağlantını yoxlayıb yenidən cəhd et.": {
+    "en": "Could not load data. Check your connection and retry.",
+    "az": "Məlumatlar yüklənmədi. Bağlantını yoxlayıb yenidən cəhd et.",
+    "tr": "Veriler yüklenemedi. Bağlantını kontrol edip tekrar dene.",
+    "ru": "Не удалось загрузить данные. Проверьте соединение и повторите."
+  },
+  "Bağlantı bərpa olunandan sonra məlumatları yenilə.": {
+    "en": "Refresh after your connection is restored.",
+    "az": "Bağlantı bərpa olunandan sonra məlumatları yenilə.",
+    "tr": "Bağlantı düzeldikten sonra yenile.",
+    "ru": "Обновите данные после восстановления соединения."
+  },
+  "Məlumatları yenilə": {
+    "en": "Refresh data",
+    "az": "Məlumatları yenilə",
+    "tr": "Verileri yenile",
+    "ru": "Обновить данные"
+  },
+  "Siyahı yenilənmədi": {
+    "en": "Could not refresh the list",
+    "az": "Siyahı yenilənmədi",
+    "tr": "Liste yenilenemedi",
+    "ru": "Не удалось обновить список"
+  },
+  "Yenilə": {
+    "en": "Refresh",
+    "az": "Yenilə",
+    "tr": "Yenile",
+    "ru": "Обновить"
+  },
+  "Yenidən yoxla": {
+    "en": "Retry",
+    "az": "Yenidən yoxla",
+    "tr": "Tekrar dene",
+    "ru": "Повторить"
+  },
+  "Yenilə düyməsi ilə təkrar yoxla.": {
+    "en": "Use Refresh to try again.",
+    "az": "Yenilə düyməsi ilə təkrar yoxla.",
+    "tr": "Yenile düğmesiyle tekrar dene.",
+    "ru": "Нажмите «Обновить», чтобы повторить."
+  },
+  "Sıfırla": {
+    "en": "Reset",
+    "az": "Sıfırla",
+    "tr": "Sıfırla",
+    "ru": "Сбросить"
+  },
+  "Təmizlə": {
+    "en": "Clear",
+    "az": "Təmizlə",
+    "tr": "Temizle",
+    "ru": "Очистить"
+  },
+  "Artır": {
+    "en": "Increase",
+    "az": "Artır",
+    "tr": "Artır",
+    "ru": "Увеличить"
+  },
+  "Azalt": {
+    "en": "Decrease",
+    "az": "Azalt",
+    "tr": "Azalt",
+    "ru": "Уменьшить"
+  },
+  "Əlavə et": {
+    "en": "Add",
+    "az": "Əlavə et",
+    "tr": "Ekle",
+    "ru": "Добавить"
+  },
+  "Düzəliş et": {
+    "en": "Edit",
+    "az": "Düzəliş et",
+    "tr": "Düzenle",
+    "ru": "Изменить"
+  },
+  "Edit məlumatları": {
+    "en": "Edit details",
+    "az": "Edit məlumatları",
+    "tr": "Bilgileri düzenle",
+    "ru": "Изменить данные"
+  },
+  "Düzəlişin səbəbi": {
+    "en": "Reason for edit",
+    "az": "Düzəlişin səbəbi",
+    "tr": "Düzenleme sebebi",
+    "ru": "Причина изменения"
+  },
+  "Dəyiş": {
+    "en": "Change",
+    "az": "Dəyiş",
+    "tr": "Değiştir",
+    "ru": "Изменить"
+  },
+  "Saxla": {
+    "en": "Save",
+    "az": "Saxla",
+    "tr": "Kaydet",
+    "ru": "Сохранить"
+  },
+  "Yadda saxla": {
+    "en": "Save",
+    "az": "Yadda saxla",
+    "tr": "Kaydet",
+    "ru": "Сохранить"
+  },
+  "Yarat": {
+    "en": "Create",
+    "az": "Yarat",
+    "tr": "Oluştur",
+    "ru": "Создать"
+  },
+  "Sil": {
+    "en": "Remove",
+    "az": "Sil",
+    "tr": "Kaldır",
+    "ru": "Удалить"
+  },
+  "Seç": {
+    "en": "Select",
+    "az": "Seç",
+    "tr": "Seç",
+    "ru": "Выбрать"
+  },
+  "Seçin": {
+    "en": "Select",
+    "az": "Seçin",
+    "tr": "Seç",
+    "ru": "Выбрать"
+  },
+  "Geri": {
+    "en": "Back",
+    "az": "Geri",
+    "tr": "Geri",
+    "ru": "Назад"
+  },
+  "Növbəti": {
+    "en": "Next",
+    "az": "Növbəti",
+    "tr": "Sonraki",
+    "ru": "Далее"
+  },
+  "Bağla": {
+    "en": "Close",
+    "az": "Bağla",
+    "tr": "Kapat",
+    "ru": "Закрыть"
+  },
+  "Ləğv et": {
+    "en": "Cancel",
+    "az": "Ləğv et",
+    "tr": "İptal",
+    "ru": "Отмена"
+  },
+  "Cancel": {
+    "en": "Cancel",
+    "az": "Cancel",
+    "tr": "İptal",
+    "ru": "Отмена"
+  },
+  "Loading...": {
+    "en": "Loading...",
+    "az": "Loading...",
+    "tr": "Yükleniyor...",
+    "ru": "Загрузка..."
+  },
+  "Yüklənir…": {
+    "en": "Loading…",
+    "az": "Yüklənir…",
+    "tr": "Yükleniyor…",
+    "ru": "Загрузка…"
+  },
+  "Naməlum": {
+    "en": "Unknown",
+    "az": "Naməlum",
+    "tr": "Bilinmiyor",
+    "ru": "Неизвестно"
+  },
+  "Əməliyyat": {
+    "en": "Operation",
+    "az": "Əməliyyat",
+    "tr": "İşlem",
+    "ru": "Операция"
+  },
+  "Əməliyyatlar": {
+    "en": "Actions",
+    "az": "Əməliyyatlar",
+    "tr": "İşlemler",
+    "ru": "Действия"
+  },
+  "Tarixçə": {
+    "en": "History",
+    "az": "Tarixçə",
+    "tr": "Geçmiş",
+    "ru": "История"
+  },
+  "Tarixçəyə keç": {
+    "en": "View history",
+    "az": "Tarixçəyə keç",
+    "tr": "Geçmişi görüntüle",
+    "ru": "Открыть историю"
+  },
+  "Səhifə": {
+    "en": "Page",
+    "az": "Səhifə",
+    "tr": "Sayfa",
+    "ru": "Страница"
+  },
+  "Limit": {
+    "en": "Limit",
+    "az": "Limit",
+    "tr": "Limit",
+    "ru": "Лимит"
+  },
+  "Status": {
+    "en": "Status",
+    "az": "Status",
+    "tr": "Durum",
+    "ru": "Статус"
+  },
+  "Statusu dəyiş": {
+    "en": "Change status",
+    "az": "Statusu dəyiş",
+    "tr": "Durumu değiştir",
+    "ru": "Изменить статус"
+  },
+  "Status yeniləndi": {
+    "en": "Status updated",
+    "az": "Status yeniləndi",
+    "tr": "Durum güncellendi",
+    "ru": "Статус обновлён"
+  },
+  "CSV idxal": {
+    "en": "Import CSV",
+    "az": "CSV idxal",
+    "tr": "CSV içe aktar",
+    "ru": "Импорт CSV"
+  },
+  "CSV ilə əlavə et": {
+    "en": "Add from CSV",
+    "az": "CSV ilə əlavə et",
+    "tr": "CSV ile ekle",
+    "ru": "Добавить из CSV"
+  },
+  "CSV yüklənmədi. Yenidən cəhd et.": {
+    "en": "Could not upload CSV. Try again.",
+    "az": "CSV yüklənmədi. Yenidən cəhd et.",
+    "tr": "CSV yüklenemedi. Tekrar dene.",
+    "ru": "Не удалось загрузить CSV. Повторите попытку."
+  },
+  "Nümunə CSV": {
+    "en": "CSV template",
+    "az": "Nümunə CSV",
+    "tr": "CSV şablonu",
+    "ru": "Шаблон CSV"
+  },
+  "Fayl seç": {
+    "en": "Choose file",
+    "az": "Fayl seç",
+    "tr": "Dosya seç",
+    "ru": "Выбрать файл"
+  },
+  "Fayl 1 MB-dan kiçik olmalıdır.": {
+    "en": "File must be under 1 MB.",
+    "az": "Fayl 1 MB-dan kiçik olmalıdır.",
+    "tr": "Dosya 1 MB'dan küçük olmalı.",
+    "ru": "Файл должен быть меньше 1 МБ."
+  },
+  "Sütunlar nümunə fayla uyğun olmalıdır.": {
+    "en": "Columns must match the template.",
+    "az": "Sütunlar nümunə fayla uyğun olmalıdır.",
+    "tr": "Sütunlar şablona uygun olmalı.",
+    "ru": "Столбцы должны соответствовать шаблону."
+  },
+  "Ən çox 200 yeni qeyd. Faylda xəta varsa bütün əməliyyat geri qaytarılır. Mövcud qeydlər yenilənmir.": {
+    "en": "Up to 200 new records. Invalid files are rejected entirely. Existing records are not updated.",
+    "az": "Ən çox 200 yeni qeyd. Faylda xəta varsa bütün əməliyyat geri qaytarılır. Mövcud qeydlər yenilənmir.",
+    "tr": "En fazla 200 yeni kayıt. Hatalı dosya bütünüyle reddedilir. Mevcut kayıtlar güncellenmez.",
+    "ru": "До 200 новых записей. Файл с ошибками отклоняется целиком. Существующие записи не обновляются."
+  },
+  "Şəkil əlavə et": {
+    "en": "Attach image",
+    "az": "Şəkil əlavə et",
+    "tr": "Görsel ekle",
+    "ru": "Прикрепить фото"
+  },
+  "Şəkilə bax": {
+    "en": "View image",
+    "az": "Şəkilə bax",
+    "tr": "Görseli aç",
+    "ru": "Открыть фото"
+  },
+  "Şəkil tapılmadı": {
+    "en": "Image not found",
+    "az": "Şəkil tapılmadı",
+    "tr": "Görsel bulunamadı",
+    "ru": "Фото не найдено"
+  },
+  "Qalereyadan seç": {
+    "en": "Choose from gallery",
+    "az": "Qalereyadan seç",
+    "tr": "Galeriden seç",
+    "ru": "Выбрать из галереи"
+  },
+  "Əsas menyu": {
+    "en": "Main menu",
+    "az": "Əsas menyu",
+    "tr": "Ana menü",
+    "ru": "Главное меню"
+  },
+  "Menyunu bağla": {
+    "en": "Close menu",
+    "az": "Menyunu bağla",
+    "tr": "Menüyü kapat",
+    "ru": "Закрыть меню"
+  },
+  "Menyunu gizlət": {
+    "en": "Hide menu",
+    "az": "Menyunu gizlət",
+    "tr": "Menüyü gizle",
+    "ru": "Скрыть меню"
+  },
+  "Məzmuna keç": {
+    "en": "Skip to content",
+    "az": "Məzmuna keç",
+    "tr": "İçeriğe geç",
+    "ru": "Перейти к содержимому"
+  },
+  "· Satışlar və gündəlik əməliyyatlar": {
+    "en": "· Sales and daily operations",
+    "az": "· Satışlar və gündəlik əməliyyatlar",
+    "tr": "· Satışlar ve günlük işlemler",
+    "ru": "· Продажи и ежедневные операции"
+  },
+  "Şirkət hesabı": {
+    "en": "Company account",
+    "az": "Şirkət hesabı",
+    "tr": "Şirket hesabı",
+    "ru": "Учётная запись компании"
+  },
+  "Şirkətin e-poçtu": {
+    "en": "Company email",
+    "az": "Şirkətin e-poçtu",
+    "tr": "Şirket e-postası",
+    "ru": "Эл. почта компании"
+  },
+  "Şirkətin şifrəsi": {
+    "en": "Company password",
+    "az": "Şirkətin şifrəsi",
+    "tr": "Şirket şifresi",
+    "ru": "Пароль компании"
+  },
+  "Şifrə": {
+    "en": "Password",
+    "az": "Şifrə",
+    "tr": "Şifre",
+    "ru": "Пароль"
+  },
+  "Şəxsi PIN": {
+    "en": "Personal PIN",
+    "az": "Şəxsi PIN",
+    "tr": "Kişisel PIN",
+    "ru": "Личный PIN"
+  },
+  "Şəxsi PIN kod": {
+    "en": "Personal PIN",
+    "az": "Şəxsi PIN kod",
+    "tr": "Kişisel PIN",
+    "ru": "Личный PIN"
+  },
+  "PIN kodunu daxil et": {
+    "en": "Enter your PIN",
+    "az": "PIN kodunu daxil et",
+    "tr": "PIN kodunu gir",
+    "ru": "Введите PIN"
+  },
+  "PIN kodun 4–8 rəqəmdən ibarətdir.": {
+    "en": "Your PIN contains 4–8 digits.",
+    "az": "PIN kodun 4–8 rəqəmdən ibarətdir.",
+    "tr": "PIN kodun 4–8 rakamdan oluşur.",
+    "ru": "Ваш PIN содержит 4–8 цифр."
+  },
+  "Şəxsi PIN 4–8 rəqəmdən ibarət olmalıdır.": {
+    "en": "Personal PIN must contain 4–8 digits.",
+    "az": "Şəxsi PIN 4–8 rəqəmdən ibarət olmalıdır.",
+    "tr": "Kişisel PIN 4–8 rakamdan oluşmalı.",
+    "ru": "Личный PIN должен содержать 4–8 цифр."
+  },
+  "Şirkət hesabı və şəxsi PIN ilə giriş": {
+    "en": "Company account and personal PIN sign-in",
+    "az": "Şirkət hesabı və şəxsi PIN ilə giriş",
+    "tr": "Şirket hesabı ve kişisel PIN ile giriş",
+    "ru": "Вход по учётной записи компании и личному PIN"
+  },
+  "Giriş mərhələləri": {
+    "en": "Sign-in steps",
+    "az": "Giriş mərhələləri",
+    "tr": "Giriş adımları",
+    "ru": "Этапы входа"
+  },
+  "Başqa şirkətlə daxil ol": {
+    "en": "Change company",
+    "az": "Başqa şirkətlə daxil ol",
+    "tr": "Şirketi değiştir",
+    "ru": "Сменить компанию"
+  },
+  "Şirkətin e-poçtunu və şifrəsini daxil et.": {
+    "en": "Enter the company email and password.",
+    "az": "Şirkətin e-poçtunu və şifrəsini daxil et.",
+    "tr": "Şirket e-postasını ve şifresini gir.",
+    "ru": "Введите почту и пароль компании."
+  },
+  "Şirkət məlumatı alınmadı. Yenidən cəhd et.": {
+    "en": "Could not load company details. Try again.",
+    "az": "Şirkət məlumatı alınmadı. Yenidən cəhd et.",
+    "tr": "Şirket bilgileri alınamadı. Tekrar dene.",
+    "ru": "Не удалось получить данные компании. Повторите."
+  },
+  "Giriş məlumatı alınmadı. Yenidən cəhd et.": {
+    "en": "Could not complete sign-in. Try again.",
+    "az": "Giriş məlumatı alınmadı. Yenidən cəhd et.",
+    "tr": "Giriş tamamlanamadı. Tekrar dene.",
+    "ru": "Не удалось завершить вход. Повторите."
+  },
+  "Bu səhifəyə giriş icazən yoxdur.": {
+    "en": "You do not have access to this page.",
+    "az": "Bu səhifəyə giriş icazən yoxdur.",
+    "tr": "Bu sayfaya erişim iznin yok.",
+    "ru": "У вас нет доступа к этой странице."
+  },
+  "Role tapılmadı.": {
+    "en": "Role not found.",
+    "az": "Role tapılmadı.",
+    "tr": "Rol bulunamadı.",
+    "ru": "Роль не найдена."
+  },
+  "z-Index · Biznes idarəetməsi": {
+    "en": "z-Index · Business management",
+    "az": "z-Index · Biznes idarəetməsi",
+    "tr": "z-Index · İşletme yönetimi",
+    "ru": "z-Index · Управление бизнесом"
+  },
+  "Əvvəl müştəri statusunu seç, sonra sifarişi yaz": {
+    "en": "Choose a customer, then create the sale",
+    "az": "Əvvəl müştəri statusunu seç, sonra sifarişi yaz",
+    "tr": "Önce müşteriyi seç, sonra satışı oluştur",
+    "ru": "Выберите клиента, затем создайте продажу"
+  },
+  "Xəritədən ünvan seç": {
+    "en": "Choose location on map",
+    "az": "Xəritədən ünvan seç",
+    "tr": "Haritadan konum seç",
+    "ru": "Выбрать место на карте"
+  },
+  "Xəritədə klik et, axtarış et, ya da “Mənim yerim” seç.": {
+    "en": "Click the map, search an address or choose your current location.",
+    "az": "Xəritədə klik et, axtarış et, ya da “Mənim yerim” seç.",
+    "tr": "Haritaya tıkla, adres ara veya mevcut konumunu seç.",
+    "ru": "Нажмите на карту, найдите адрес или выберите текущее местоположение."
+  },
+  "Ünvan axtar": {
+    "en": "Search address",
+    "az": "Ünvan axtar",
+    "tr": "Adres ara",
+    "ru": "Поиск адреса"
+  },
+  "Ünvan tapılır...": {
+    "en": "Finding address...",
+    "az": "Ünvan tapılır...",
+    "tr": "Adres bulunuyor...",
+    "ru": "Поиск адреса..."
+  },
+  "Seçilən nöqtə": {
+    "en": "Selected location",
+    "az": "Seçilən nöqtə",
+    "tr": "Seçilen konum",
+    "ru": "Выбранная точка"
+  },
+  "Məs: Yasamal, Bakı": {
+    "en": "Search for a street, city or address",
+    "az": "Məs: Yasamal, Bakı",
+    "tr": "Sokak, şehir veya adres ara",
+    "ru": "Улица, город или адрес"
+  },
+  "Konum icazəsi verilmədi": {
+    "en": "Location permission was denied",
+    "az": "Konum icazəsi verilmədi",
+    "tr": "Konum izni verilmedi",
+    "ru": "Доступ к геопозиции запрещён"
+  },
+  "Bu cihazda geolocation dəstəyi yoxdur": {
+    "en": "Geolocation is unavailable on this device",
+    "az": "Bu cihazda geolocation dəstəyi yoxdur",
+    "tr": "Bu cihazda konum desteği yok",
+    "ru": "Геолокация недоступна на устройстве"
+  },
+  "Bu brauzerdə location dəstəyi yoxdur": {
+    "en": "Geolocation is unavailable in this browser",
+    "az": "Bu brauzerdə location dəstəyi yoxdur",
+    "tr": "Bu tarayıcıda konum desteği yok",
+    "ru": "Браузер не поддерживает геолокацию"
+  },
+  "Location alınmadı": {
+    "en": "Could not get location",
+    "az": "Location alınmadı",
+    "tr": "Konum alınamadı",
+    "ru": "Не удалось определить местоположение"
+  },
+  "Google Maps-də aç": {
+    "en": "Open in Google Maps",
+    "az": "Google Maps-də aç",
+    "tr": "Google Maps'te aç",
+    "ru": "Открыть в Google Maps"
+  },
+  "Waze-də aç": {
+    "en": "Open in Waze",
+    "az": "Waze-də aç",
+    "tr": "Waze'de aç",
+    "ru": "Открыть в Waze"
+  },
+  "Çatdırılma": {
+    "en": "Delivery",
+    "az": "Çatdırılma",
+    "tr": "Teslimat",
+    "ru": "Доставка"
+  },
+  "Çatdırıldı": {
+    "en": "Delivered",
+    "az": "Çatdırıldı",
+    "tr": "Teslim edildi",
+    "ru": "Доставлено"
+  },
+  "Çatdırılıb": {
+    "en": "Delivered",
+    "az": "Çatdırılıb",
+    "tr": "Teslim edildi",
+    "ru": "Доставлено"
+  },
+  "Çatdırılmışlar": {
+    "en": "Delivered orders",
+    "az": "Çatdırılmışlar",
+    "tr": "Teslim edilenler",
+    "ru": "Доставленные заказы"
+  },
+  "Çatdırılmaya başla": {
+    "en": "Start delivery",
+    "az": "Çatdırılmaya başla",
+    "tr": "Teslimata başla",
+    "ru": "Начать доставку"
+  },
+  "Anbardadır": {
+    "en": "In warehouse",
+    "az": "Anbardadır",
+    "tr": "Depoda",
+    "ru": "На складе"
+  },
+  "Anbarda": {
+    "en": "In warehouse",
+    "az": "Anbarda",
+    "tr": "Depoda",
+    "ru": "На складе"
+  },
+  "Bortda": {
+    "en": "Out for delivery",
+    "az": "Bortda",
+    "tr": "Dağıtımda",
+    "ru": "В доставке"
+  },
+  "Yoldadır": {
+    "en": "Out for delivery",
+    "az": "Yoldadır",
+    "tr": "Yolda",
+    "ru": "В пути"
+  },
+  "Canlı məkan": {
+    "en": "Live location",
+    "az": "Canlı məkan",
+    "tr": "Canlı konum",
+    "ru": "Геопозиция онлайн"
+  },
+  "Canlı Location": {
+    "en": "Live location",
+    "az": "Canlı Location",
+    "tr": "Canlı konum",
+    "ru": "Геопозиция онлайн"
+  },
+  "Canlı paylaşım başladı": {
+    "en": "Live sharing started",
+    "az": "Canlı paylaşım başladı",
+    "tr": "Canlı paylaşım başladı",
+    "ru": "Передача геопозиции начата"
+  },
+  "Canlı paylaşım başladılmadı": {
+    "en": "Could not start live sharing",
+    "az": "Canlı paylaşım başladılmadı",
+    "tr": "Canlı paylaşım başlatılamadı",
+    "ru": "Не удалось начать передачу геопозиции"
+  },
+  "Canlı paylaşım dayandırıldı": {
+    "en": "Live sharing stopped",
+    "az": "Canlı paylaşım dayandırıldı",
+    "tr": "Canlı paylaşım durduruldu",
+    "ru": "Передача геопозиции остановлена"
+  },
+  "Canlı paylaşımı dayandır": {
+    "en": "Stop live sharing",
+    "az": "Canlı paylaşımı dayandır",
+    "tr": "Canlı paylaşımı durdur",
+    "ru": "Остановить передачу геопозиции"
+  },
+  "Status: canlı paylaşım aktivdir": {
+    "en": "Status: live sharing is active",
+    "az": "Status: canlı paylaşım aktivdir",
+    "tr": "Durum: canlı paylaşım açık",
+    "ru": "Статус: геопозиция передаётся"
+  },
+  "Aktiv sürücülər": {
+    "en": "Active drivers",
+    "az": "Aktiv sürücülər",
+    "tr": "Aktif sürücüler",
+    "ru": "Активные водители"
+  },
+  "Aktiv çatdırılmalar": {
+    "en": "Active deliveries",
+    "az": "Aktiv çatdırılmalar",
+    "tr": "Aktif teslimatlar",
+    "ru": "Активные доставки"
+  },
+  "Aktiv sifariş": {
+    "en": "Active order",
+    "az": "Aktiv sifariş",
+    "tr": "Aktif sipariş",
+    "ru": "Активный заказ"
+  },
+  "Bortda olan sifariş nöqtələri": {
+    "en": "Delivery locations",
+    "az": "Bortda olan sifariş nöqtələri",
+    "tr": "Dağıtımdaki konumlar",
+    "ru": "Адреса доставки"
+  },
+  "Bortda olan sifariş nöqtələri və sürücünün canlı konumu": {
+    "en": "Delivery locations and driver's live location",
+    "az": "Bortda olan sifariş nöqtələri və sürücünün canlı konumu",
+    "tr": "Teslimat noktaları ve sürücünün canlı konumu",
+    "ru": "Адреса доставки и геопозиция водителя"
+  },
+  "Hazırda “Bortda” statusunda sifariş yoxdur.": {
+    "en": "No orders are currently out for delivery.",
+    "az": "Hazırda “Bortda” statusunda sifariş yoxdur.",
+    "tr": "Şu anda dağıtımda sipariş yok.",
+    "ru": "Нет заказов в доставке."
+  },
+  "Günlük, sahə, rut və ərazi üzrə logistika paneli": {
+    "en": "Logistics by day, zone, route and area",
+    "az": "Günlük, sahə, rut və ərazi üzrə logistika paneli",
+    "tr": "Gün, bölge ve rotaya göre lojistik",
+    "ru": "Логистика по дням, зонам, маршрутам и районам"
+  },
+  "Sifarişlərin çatdırılması": {
+    "en": "Order deliveries",
+    "az": "Sifarişlərin çatdırılması",
+    "tr": "Sipariş teslimatları",
+    "ru": "Доставка заказов"
+  },
+  "Seçilmiş filter üzrə çatdırılmış sifariş tapılmadı": {
+    "en": "No delivered orders match the filter",
+    "az": "Seçilmiş filter üzrə çatdırılmış sifariş tapılmadı",
+    "tr": "Filtreye uygun teslim edilmiş sipariş yok",
+    "ru": "Нет доставленных заказов по этому фильтру"
+  },
+  "Rut üzrə": {
+    "en": "By route",
+    "az": "Rut üzrə",
+    "tr": "Rotaya göre",
+    "ru": "По маршруту"
+  },
+  "Rutlar bölməsi": {
+    "en": "Routes",
+    "az": "Rutlar bölməsi",
+    "tr": "Rotalar",
+    "ru": "Маршруты"
+  },
+  "Təhvil alan imzası": {
+    "en": "Recipient signature",
+    "az": "Təhvil alan imzası",
+    "tr": "Teslim alan imzası",
+    "ru": "Подпись получателя"
+  },
+  "Təhvil verən imzası": {
+    "en": "Sender signature",
+    "az": "Təhvil verən imzası",
+    "tr": "Teslim eden imzası",
+    "ru": "Подпись отправителя"
+  },
+  "Delivered filter": {
+    "en": "Delivery filter",
+    "az": "Delivered filter",
+    "tr": "Teslimat filtresi",
+    "ru": "Фильтр доставки"
+  },
+  "Start time": {
+    "en": "Start time",
+    "az": "Start time",
+    "tr": "Başlangıç saati",
+    "ru": "Время начала"
+  },
+  "End time": {
+    "en": "End time",
+    "az": "End time",
+    "tr": "Bitiş saati",
+    "ru": "Время окончания"
+  },
+  "ID": {
+    "en": "ID",
+    "az": "ID",
+    "tr": "ID",
+    "ru": "ID"
+  },
+  "ID:": {
+    "en": "ID:",
+    "az": "ID:",
+    "tr": "ID:",
+    "ru": "ID:"
+  },
+  "Lat:": {
+    "en": "Lat:",
+    "az": "Lat:",
+    "tr": "Enlem:",
+    "ru": "Широта:"
+  },
+  "Lng:": {
+    "en": "Lng:",
+    "az": "Lng:",
+    "tr": "Boylam:",
+    "ru": "Долгота:"
+  },
+  "Lat: {value0} / Lng: {value1}": {
+    "en": "Lat: {value0} / Lng: {value1}",
+    "az": "Lat: {value0} / Lng: {value1}",
+    "tr": "Enlem: {value0} / Boylam: {value1}",
+    "ru": "Широта: {value0} / Долгота: {value1}"
+  },
+  "ədəd": {
+    "en": "units",
+    "az": "ədəd",
+    "tr": "adet",
+    "ru": "шт."
+  },
+  "ədəd · Hədiyyə": {
+    "en": "units · Gift",
+    "az": "ədəd · Hədiyyə",
+    "tr": "adet · Hediye",
+    "ru": "шт. · Подарок"
+  },
+  "Ad:": {
+    "en": "Name:",
+    "az": "Ad:",
+    "tr": "Ad:",
+    "ru": "Имя:"
+  },
+  "Aktiv sürücü: {value0}": {
+    "en": "Active driver: {value0}",
+    "az": "Aktiv sürücü: {value0}",
+    "tr": "Aktif sürücü: {value0}",
+    "ru": "Активный водитель: {value0}"
+  },
+  "Başlama vaxtı:": {
+    "en": "Start time:",
+    "az": "Başlama vaxtı:",
+    "tr": "Başlangıç saati:",
+    "ru": "Время начала:"
+  },
+  "Bortda sifariş: {value0}": {
+    "en": "Orders out for delivery: {value0}",
+    "az": "Bortda sifariş: {value0}",
+    "tr": "Dağıtımdaki sipariş: {value0}",
+    "ru": "Заказы в доставке: {value0}"
+  },
+  "Normal məhsul sayı: {value0}": {
+    "en": "Sale quantity: {value0}",
+    "az": "Normal məhsul sayı: {value0}",
+    "tr": "Satış adedi: {value0}",
+    "ru": "Количество товаров: {value0}"
+  },
+  "Qaytarılıb: {value0}": {
+    "en": "Returned: {value0}",
+    "az": "Qaytarılıb: {value0}",
+    "tr": "İade edilen: {value0}",
+    "ru": "Возвращено: {value0}"
+  },
+  "Qeyd edilə bilər: {value0}": {
+    "en": "Available to record: {value0}",
+    "az": "Qeyd edilə bilər: {value0}",
+    "tr": "Kaydedilebilir: {value0}",
+    "ru": "Доступно для записи: {value0}"
+  },
+  "Qeyd tarixi:": {
+    "en": "Recorded date:",
+    "az": "Qeyd tarixi:",
+    "tr": "Kayıt tarihi:",
+    "ru": "Дата записи:"
+  },
+  "Rol:": {
+    "en": "Role:",
+    "az": "Rol:",
+    "tr": "Rol:",
+    "ru": "Роль:"
+  },
+  "Satılıb: {value0}": {
+    "en": "Paid-for quantity: {value0}",
+    "az": "Satılıb: {value0}",
+    "tr": "Ödenen adet: {value0}",
+    "ru": "Оплачено единиц: {value0}"
+  },
+  "Seçilən məhsul: {value0}": {
+    "en": "Selected products: {value0}",
+    "az": "Seçilən məhsul: {value0}",
+    "tr": "Seçilen ürünler: {value0}",
+    "ru": "Выбрано товаров: {value0}"
+  },
+  "Seçilən ümumi say: {value0}": {
+    "en": "Total selected quantity: {value0}",
+    "az": "Seçilən ümumi say: {value0}",
+    "tr": "Seçilen toplam miktar: {value0}",
+    "ru": "Всего выбрано: {value0}"
+  },
+  "Sənəd: {value0}": {
+    "en": "Document: {value0}",
+    "az": "Sənəd: {value0}",
+    "tr": "Belge: {value0}",
+    "ru": "Документ: {value0}"
+  },
+  "Toplam: {value0}": {
+    "en": "Total: {value0}",
+    "az": "Toplam: {value0}",
+    "tr": "Toplam: {value0}",
+    "ru": "Итого: {value0}"
+  },
+  "Yazılma vaxtı:": {
+    "en": "Recorded at:",
+    "az": "Yazılma vaxtı:",
+    "tr": "Kayıt zamanı:",
+    "ru": "Время записи:"
+  },
+  "nəticə · səhifə": {
+    "en": " results · page ",
+    "az": "nəticə · səhifə",
+    "tr": " sonuç · sayfa ",
+    "ru": " записей · страница "
+  },
+  "qeyd ·": {
+    "en": " records ·",
+    "az": "qeyd ·",
+    "tr": " kayıt ·",
+    "ru": " записей ·"
+  },
+  "sətir · ilk 10 sətrin önbaxışı": {
+    "en": " rows · preview of the first 10",
+    "az": "sətir · ilk 10 sətrin önbaxışı",
+    "tr": " satır · ilk 10 satırın önizlemesi",
+    "ru": " строк · просмотр первых 10"
+  },
+  "{value0} aktiv sifariş": {
+    "en": "{value0} active orders",
+    "az": "{value0} aktiv sifariş",
+    "tr": "{value0} aktif sipariş",
+    "ru": "{value0} активных заказов"
+  },
+  "{value0} məhsul": {
+    "en": "{value0} products",
+    "az": "{value0} məhsul",
+    "tr": "{value0} ürün",
+    "ru": "{value0} товаров"
+  },
+  "{value0} sifariş": {
+    "en": "{value0} orders",
+    "az": "{value0} sifariş",
+    "tr": "{value0} sipariş",
+    "ru": "{value0} заказов"
+  },
+  "{value0} çatdırılmış sifariş": {
+    "en": "{value0} delivered orders",
+    "az": "{value0} çatdırılmış sifariş",
+    "tr": "{value0} teslim edilen sipariş",
+    "ru": "{value0} доставленных заказов"
+  },
+  "{value0} ədəd": {
+    "en": "{value0} units",
+    "az": "{value0} ədəd",
+    "tr": "{value0} adet",
+    "ru": "{value0} шт."
+  },
+  "Çatdırılma saatı:": {
+    "en": "Delivery time:",
+    "az": "Çatdırılma saatı:",
+    "tr": "Teslimat saati:",
+    "ru": "Время доставки:"
+  },
+  "Ümumi:": {
+    "en": "Total:",
+    "az": "Ümumi:",
+    "tr": "Toplam:",
+    "ru": "Итого:"
+  },
+  "üçün göstəriləcək sifariş yoxdur.": {
+    "en": "has no orders to display.",
+    "az": "üçün göstəriləcək sifariş yoxdur.",
+    "tr": "için gösterilecek sipariş yok.",
+    "ru": "нет заказов для отображения."
+  },
+  "Ərazi üzrə ümumi say": {
+    "en": "Total by area",
+    "az": "Ərazi üzrə ümumi say",
+    "tr": "Bölgeye göre toplam",
+    "ru": "Всего по району"
+  },
+  "order-{value0}": {
+    "en": "order-{value0}",
+    "az": "order-{value0}",
+    "tr": "order-{value0}",
+    "ru": "order-{value0}"
+  },
+  "payment-preview": {
+    "en": "payment-preview",
+    "az": "payment-preview",
+    "tr": "payment-preview",
+    "ru": "payment-preview"
+  },
+  "seller-signature": {
+    "en": "seller-signature",
+    "az": "seller-signature",
+    "tr": "seller-signature",
+    "ru": "seller-signature"
+  },
+  "session-{value0}": {
+    "en": "session-{value0}",
+    "az": "session-{value0}",
+    "tr": "session-{value0}",
+    "ru": "session-{value0}"
+  },
+  "signature": {
+    "en": "signature",
+    "az": "signature",
+    "tr": "signature",
+    "ru": "signature"
+  },
+  "sirket@zindex.invalid": {
+    "en": "company@zindex.invalid",
+    "az": "sirket@zindex.invalid",
+    "tr": "sirket@zindex.invalid",
+    "ru": "company@zindex.invalid"
+  },
+  "useAuth must be used within AuthProvider": {
+    "en": "useAuth must be used within AuthProvider",
+    "az": "useAuth must be used within AuthProvider",
+    "tr": "useAuth must be used within AuthProvider",
+    "ru": "useAuth must be used within AuthProvider"
+  },
+  "x{value0}": {
+    "en": "×{value0}",
+    "az": "x{value0}",
+    "tr": "×{value0}",
+    "ru": "×{value0}"
+  },
+  "İş paneli": {
+    "en": "Dashboard",
+    "az": "İş paneli",
+    "tr": "Kontrol paneli",
+    "ru": "Панель управления"
+  },
+  "İstifadəçi": {
+    "en": "User",
+    "az": "İstifadəçi",
+    "tr": "Kullanıcı",
+    "ru": "Пользователь"
+  },
+  "Hesabdan çıx": {
+    "en": "Sign out",
+    "az": "Hesabdan çıx",
+    "tr": "Çıkış yap",
+    "ru": "Выйти"
+  },
+  "Menyunu aç": {
+    "en": "Open menu",
+    "az": "Menyunu aç",
+    "tr": "Menüyü aç",
+    "ru": "Открыть меню"
+  },
+  "Köçürmə": {
+    "en": "Bank transfer",
+    "az": "Köçürmə",
+    "tr": "Banka havalesi",
+    "ru": "Банковский перевод"
+  },
+  "Nisyə": {
+    "en": "On credit",
+    "az": "Nisyə",
+    "tr": "Veresiye",
+    "ru": "В кредит"
+  },
+  "Müştəri detalı yüklənə bilmədi": {
+    "en": "Could not load customer details",
+    "az": "Müştəri detalı yüklənə bilmədi",
+    "tr": "Müşteri bilgileri yüklenemedi",
+    "ru": "Не удалось загрузить данные клиента"
+  },
+  "Tarixçə yüklənmədi.": {
+    "en": "Could not load history.",
+    "az": "Tarixçə yüklənmədi.",
+    "tr": "Geçmiş yüklenemedi.",
+    "ru": "Не удалось загрузить историю."
+  },
+  "Status saxlanılmadı. Yenidən cəhd et.": {
+    "en": "Could not save status. Try again.",
+    "az": "Status saxlanılmadı. Yenidən cəhd et.",
+    "tr": "Durum kaydedilemedi. Tekrar dene.",
+    "ru": "Не удалось сохранить статус. Повторите."
+  },
+  "Status silinmədi. Yenidən cəhd et.": {
+    "en": "Could not remove status. Try again.",
+    "az": "Status silinmədi. Yenidən cəhd et.",
+    "tr": "Durum kaldırılamadı. Tekrar dene.",
+    "ru": "Не удалось снять отметку. Повторите."
+  },
+  "Adsız müştəri": {
+    "en": "Unnamed customer",
+    "az": "Adsız müştəri",
+    "tr": "Adsız müşteri",
+    "ru": "Клиент без имени"
+  },
+  "Bu müştəri problemli kimi işarələnib.": {
+    "en": "This customer has been flagged.",
+    "az": "Bu müştəri problemli kimi işarələnib.",
+    "tr": "Bu müşteri işaretlendi.",
+    "ru": "У клиента есть отметка."
+  },
+  "Qaytarmadan əvvəlki məbləğ": {
+    "en": "Amount before returns",
+    "az": "Qaytarmadan əvvəlki məbləğ",
+    "tr": "İadelerden önceki tutar",
+    "ru": "Сумма до возвратов"
+  },
+  "Yazılır...": {
+    "en": "Recording...",
+    "az": "Yazılır...",
+    "tr": "Kaydediliyor...",
+    "ru": "Запись..."
+  },
+  "Təsdiqlə": {
+    "en": "Confirm",
+    "az": "Təsdiqlə",
+    "tr": "Onayla",
+    "ru": "Подтвердить"
+  },
+  "Müştərilər yüklənmədi. Yenidən cəhd et.": {
+    "en": "Could not load customers. Try again.",
+    "az": "Müştərilər yüklənmədi. Yenidən cəhd et.",
+    "tr": "Müşteriler yüklenemedi. Tekrar dene.",
+    "ru": "Не удалось загрузить клиентов. Повторите."
+  },
+  "Yüklənmə alınmadı": {
+    "en": "Loading failed",
+    "az": "Yüklənmə alınmadı",
+    "tr": "Yükleme başarısız",
+    "ru": "Ошибка загрузки"
+  },
+  " Son yüklənmiş məlumatlar göstərilir.": {
+    "en": " Showing previously loaded data.",
+    "az": " Son yüklənmiş məlumatlar göstərilir.",
+    "tr": " Önceden yüklenen veriler gösteriliyor.",
+    "ru": " Показаны ранее загруженные данные."
+  },
+  "Məlumatlar yenilənir…": {
+    "en": "Refreshing data…",
+    "az": "Məlumatlar yenilənir…",
+    "tr": "Veriler yenileniyor…",
+    "ru": "Обновление данных…"
+  },
+  "Məlumatlar yüklənməyib": {
+    "en": "Data has not been loaded",
+    "az": "Məlumatlar yüklənməyib",
+    "tr": "Veriler yüklenmedi",
+    "ru": "Данные не загружены"
+  },
+  "Məhsul yoxdur": {
+    "en": "No products",
+    "az": "Məhsul yoxdur",
+    "tr": "Ürün yok",
+    "ru": "Товаров нет"
+  },
+  "Çatdırılma məlumatları alınmadı": {
+    "en": "Could not load delivery details",
+    "az": "Çatdırılma məlumatları alınmadı",
+    "tr": "Teslimat bilgileri alınamadı",
+    "ru": "Не удалось загрузить данные доставки"
+  },
+  "Status dəyişdirilmədi": {
+    "en": "Could not change status",
+    "az": "Status dəyişdirilmədi",
+    "tr": "Durum değiştirilemedi",
+    "ru": "Не удалось изменить статус"
+  },
+  "Canlı location məlumatları alınmadı": {
+    "en": "Could not load live locations",
+    "az": "Canlı location məlumatları alınmadı",
+    "tr": "Canlı konumlar alınamadı",
+    "ru": "Не удалось загрузить геопозиции"
+  },
+  "Canlı paylaşım başlatılmadı": {
+    "en": "Could not start live sharing",
+    "az": "Canlı paylaşım başlatılmadı",
+    "tr": "Canlı paylaşım başlatılamadı",
+    "ru": "Не удалось начать передачу геопозиции"
+  },
+  "Canlı paylaşım dayandırılmadı": {
+    "en": "Could not stop live sharing",
+    "az": "Canlı paylaşım dayandırılmadı",
+    "tr": "Canlı paylaşım durdurulamadı",
+    "ru": "Не удалось остановить передачу геопозиции"
+  },
+  "Canlı paylaşım aktivdir": {
+    "en": "Live sharing is active",
+    "az": "Canlı paylaşım aktivdir",
+    "tr": "Canlı paylaşım aktif",
+    "ru": "Геопозиция передаётся"
+  },
+  "Canlı paylaşım passivdir": {
+    "en": "Live sharing is inactive",
+    "az": "Canlı paylaşım passivdir",
+    "tr": "Canlı paylaşım kapalı",
+    "ru": "Геопозиция не передаётся"
+  },
+  "Serverlə əlaqə qurulmadı. Yenidən cəhd et.": {
+    "en": "Could not connect to the server. Try again.",
+    "az": "Serverlə əlaqə qurulmadı. Yenidən cəhd et.",
+    "tr": "Sunucuya bağlanılamadı. Tekrar dene.",
+    "ru": "Не удалось подключиться к серверу. Повторите."
+  },
+  "Giriş zamanı xəta baş verdi.": {
+    "en": "An error occurred during sign-in.",
+    "az": "Giriş zamanı xəta baş verdi.",
+    "tr": "Giriş sırasında hata oluştu.",
+    "ru": "Ошибка при входе."
+  },
+  "Şifrəni": {
+    "en": "Password",
+    "az": "Şifrəni",
+    "tr": "Şifreyi",
+    "ru": "Пароль"
+  },
+  " gizlət": {
+    "en": " hide",
+    "az": " gizlət",
+    "tr": " gizle",
+    "ru": " скрыть"
+  },
+  " göstər": {
+    "en": " show",
+    "az": " göstər",
+    "tr": " göster",
+    "ru": " показать"
+  },
+  "Şəxsi PIN ilə davam et": {
+    "en": "Continue with your personal PIN",
+    "az": "Şəxsi PIN ilə davam et",
+    "tr": "Kişisel PIN ile devam et",
+    "ru": "Продолжить с личным PIN"
+  },
+  "İş panelinə giriş": {
+    "en": "Sign in to your workspace",
+    "az": "İş panelinə giriş",
+    "tr": "Çalışma alanına giriş",
+    "ru": "Вход в рабочее пространство"
+  },
+  "Hesabına daxil olmaq üçün öz PIN kodunu yaz.": {
+    "en": "Enter your personal PIN to sign in.",
+    "az": "Hesabına daxil olmaq üçün öz PIN kodunu yaz.",
+    "tr": "Giriş yapmak için kişisel PIN kodunu gir.",
+    "ru": "Введите личный PIN для входа."
+  },
+  "Şirkətinə verilən e-poçt və şifrəni daxil et.": {
+    "en": "Enter the email and password assigned to your company.",
+    "az": "Şirkətinə verilən e-poçt və şifrəni daxil et.",
+    "tr": "Şirketine verilen e-posta ve şifreyi gir.",
+    "ru": "Введите почту и пароль, назначенные компании."
+  },
+  "Yoxlanır…": {
+    "en": "Checking…",
+    "az": "Yoxlanır…",
+    "tr": "Kontrol ediliyor…",
+    "ru": "Проверка…"
+  },
+  "Alış tarixçəsi yüklənmədi": {
+    "en": "Could not load purchase history",
+    "az": "Alış tarixçəsi yüklənmədi",
+    "tr": "Alış geçmişi yüklenemedi",
+    "ru": "Не удалось загрузить историю закупок"
+  },
+  "Kateqoriyalar yüklənmədi": {
+    "en": "Could not load categories",
+    "az": "Kateqoriyalar yüklənmədi",
+    "tr": "Kategoriler yüklenemedi",
+    "ru": "Не удалось загрузить категории"
+  },
+  "Məhsullar yüklənmədi": {
+    "en": "Could not load products",
+    "az": "Məhsullar yüklənmədi",
+    "tr": "Ürünler yüklenemedi",
+    "ru": "Не удалось загрузить товары"
+  },
+  "Məhsullar yüklənmədi.": {
+    "en": "Could not load products.",
+    "az": "Məhsullar yüklənmədi.",
+    "tr": "Ürünler yüklenemedi.",
+    "ru": "Не удалось загрузить товары."
+  },
+  "Supplier mütləqdir": {
+    "en": "Supplier is required",
+    "az": "Supplier mütləqdir",
+    "tr": "Tedarikçi gerekli",
+    "ru": "Укажите поставщика"
+  },
+  "Qaimə / Invoice No mütləqdir": {
+    "en": "Invoice number is required",
+    "az": "Qaimə / Invoice No mütləqdir",
+    "tr": "Fatura numarası gerekli",
+    "ru": "Укажите номер накладной"
+  },
+  "Alış yazılmadı": {
+    "en": "Could not record purchase",
+    "az": "Alış yazılmadı",
+    "tr": "Alış kaydedilemedi",
+    "ru": "Не удалось записать закупку"
+  },
+  "Category adı mütləqdir": {
+    "en": "Category name is required",
+    "az": "Category adı mütləqdir",
+    "tr": "Kategori adı gerekli",
+    "ru": "Укажите название категории"
+  },
+  "Category yaradılmadı": {
+    "en": "Could not create category",
+    "az": "Category yaradılmadı",
+    "tr": "Kategori oluşturulamadı",
+    "ru": "Не удалось создать категорию"
+  },
+  "Məhsul adı mütləqdir": {
+    "en": "Product name is required",
+    "az": "Məhsul adı mütləqdir",
+    "tr": "Ürün adı gerekli",
+    "ru": "Укажите название товара"
+  },
+  "Category seçilməlidir": {
+    "en": "Choose a category",
+    "az": "Category seçilməlidir",
+    "tr": "Kategori seç",
+    "ru": "Выберите категорию"
+  },
+  "Satış qiyməti düzgün olmalıdır": {
+    "en": "Enter a valid selling price",
+    "az": "Satış qiyməti düzgün olmalıdır",
+    "tr": "Geçerli satış fiyatı gir",
+    "ru": "Введите правильную продажную цену"
+  },
+  "Məhsul yaradılmadı": {
+    "en": "Could not create product",
+    "az": "Məhsul yaradılmadı",
+    "tr": "Ürün oluşturulamadı",
+    "ru": "Не удалось создать товар"
+  },
+  "Alışı təsdiqlə": {
+    "en": "Confirm purchase",
+    "az": "Alışı təsdiqlə",
+    "tr": "Alışı onayla",
+    "ru": "Подтвердить закупку"
+  },
+  "Müştərilər yüklənə bilmədi": {
+    "en": "Could not load customers",
+    "az": "Müştərilər yüklənə bilmədi",
+    "tr": "Müşteriler yüklenemedi",
+    "ru": "Не удалось загрузить клиентов"
+  },
+  "Mədaxil əlavə edilə bilmədi": {
+    "en": "Could not record payment",
+    "az": "Mədaxil əlavə edilə bilmədi",
+    "tr": "Ödeme kaydedilemedi",
+    "ru": "Не удалось записать платёж"
+  },
+  "Yadda saxlanır...": {
+    "en": "Saving...",
+    "az": "Yadda saxlanır...",
+    "tr": "Kaydediliyor...",
+    "ru": "Сохранение..."
+  },
+  "Qaytarma qeydə alındı. Yeni borc: {value0}": {
+    "en": "Return recorded. New debt: {value0}",
+    "az": "Qaytarma qeydə alındı. Yeni borc: {value0}",
+    "tr": "İade kaydedildi. Yeni borç: {value0}",
+    "ru": "Возврат записан. Новый долг: {value0}"
+  },
+  "Qaytarma alınmadı. Yenidən cəhd et.": {
+    "en": "Could not record return. Try again.",
+    "az": "Qaytarma alınmadı. Yenidən cəhd et.",
+    "tr": "İade kaydedilemedi. Tekrar dene.",
+    "ru": "Не удалось записать возврат. Повторите."
+  },
+  "Saxlanılır…": {
+    "en": "Saving…",
+    "az": "Saxlanılır…",
+    "tr": "Kaydediliyor…",
+    "ru": "Сохранение…"
+  },
+  "Qaytarmanı təsdiqlə": {
+    "en": "Confirm return",
+    "az": "Qaytarmanı təsdiqlə",
+    "tr": "İadeyi onayla",
+    "ru": "Подтвердить возврат"
+  },
+  "Satışlar yüklənmədi. Yenidən cəhd et.": {
+    "en": "Could not load sales. Try again.",
+    "az": "Satışlar yüklənmədi. Yenidən cəhd et.",
+    "tr": "Satışlar yüklenemedi. Tekrar dene.",
+    "ru": "Не удалось загрузить продажи. Повторите."
+  },
+  "Ödəniş növü seçilməlidir": {
+    "en": "Choose a payment type",
+    "az": "Ödəniş növü seçilməlidir",
+    "tr": "Ödeme türü seç",
+    "ru": "Выберите тип оплаты"
+  },
+  "Ən azı 1 məhsul olmalıdır": {
+    "en": "Add at least one product",
+    "az": "Ən azı 1 məhsul olmalıdır",
+    "tr": "En az bir ürün ekle",
+    "ru": "Добавьте хотя бы один товар"
+  },
+  "Məhsul məlumatlarında problem var": {
+    "en": "Check the product details",
+    "az": "Məhsul məlumatlarında problem var",
+    "tr": "Ürün bilgilerini kontrol et",
+    "ru": "Проверьте данные товаров"
+  },
+  "Sifariş uğurla yeniləndi": {
+    "en": "Order updated",
+    "az": "Sifariş uğurla yeniləndi",
+    "tr": "Sipariş güncellendi",
+    "ru": "Заказ обновлён"
+  },
+  "Sifariş yenilənə bilmədi": {
+    "en": "Could not update order",
+    "az": "Sifariş yenilənə bilmədi",
+    "tr": "Sipariş güncellenemedi",
+    "ru": "Не удалось обновить заказ"
+  },
+  "Sifariş redaktəsi": {
+    "en": "Edit order",
+    "az": "Sifariş redaktəsi",
+    "tr": "Siparişi düzenle",
+    "ru": "Изменить заказ"
+  },
+  "Sifariş detalları": {
+    "en": "Order details",
+    "az": "Sifariş detalları",
+    "tr": "Sipariş detayları",
+    "ru": "Детали заказа"
+  },
+  "Yadda saxlanılır...": {
+    "en": "Saving...",
+    "az": "Yadda saxlanılır...",
+    "tr": "Kaydediliyor...",
+    "ru": "Сохранение..."
+  },
+  "Sifariş üzrə satış sənədi": {
+    "en": "Sales document",
+    "az": "Sifariş üzrə satış sənədi",
+    "tr": "Satış belgesi",
+    "ru": "Документ продажи"
+  },
+  "Ərazilər yüklənmədi": {
+    "en": "Could not load areas",
+    "az": "Ərazilər yüklənmədi",
+    "tr": "Bölgeler yüklenemedi",
+    "ru": "Не удалось загрузить районы"
+  },
+  "Müştəri axtarışı alınmadı": {
+    "en": "Customer search failed",
+    "az": "Müştəri axtarışı alınmadı",
+    "tr": "Müşteri araması başarısız",
+    "ru": "Поиск клиентов не удался"
+  },
+  "Müştəri statusu seçilməlidir": {
+    "en": "Choose a customer type",
+    "az": "Müştəri statusu seçilməlidir",
+    "tr": "Müşteri türü seç",
+    "ru": "Выберите тип клиента"
+  },
+  "Köhnə müştəri seçilməlidir": {
+    "en": "Choose an existing customer",
+    "az": "Köhnə müştəri seçilməlidir",
+    "tr": "Mevcut müşteri seç",
+    "ru": "Выберите существующего клиента"
+  },
+  "Müştəri adı ən azı 2 hərf olmalıdır": {
+    "en": "Customer name must have at least two characters",
+    "az": "Müştəri adı ən azı 2 hərf olmalıdır",
+    "tr": "Müşteri adı en az iki karakter olmalı",
+    "ru": "Имя клиента должно содержать минимум два символа"
+  },
+  "Minimum 2 hərf yazıb müştərini seç": {
+    "en": "Type at least two characters and select a customer",
+    "az": "Minimum 2 hərf yazıb müştərini seç",
+    "tr": "En az iki karakter yaz ve müşteri seç",
+    "ru": "Введите минимум два символа и выберите клиента"
+  },
+  "Ərazi tapılmadı": {
+    "en": "Area not found",
+    "az": "Ərazi tapılmadı",
+    "tr": "Bölge bulunamadı",
+    "ru": "Район не найден"
+  },
+  "Koordinat seçildi: {value0}, {value1}": {
+    "en": "Location selected: {value0}, {value1}",
+    "az": "Koordinat seçildi: {value0}, {value1}",
+    "tr": "Konum seçildi: {value0}, {value1}",
+    "ru": "Место выбрано: {value0}, {value1}"
+  },
+  "Ərazini seç və xəritədən koordinatı qeyd et": {
+    "en": "Area and map location are optional",
+    "az": "Ərazini seç və xəritədən koordinatı qeyd et",
+    "tr": "Bölge ve harita konumu isteğe bağlı",
+    "ru": "Район и место на карте необязательны"
+  },
+  "Koordinat seçildi": {
+    "en": "Location selected",
+    "az": "Koordinat seçildi",
+    "tr": "Konum seçildi",
+    "ru": "Место выбрано"
+  },
+  "Xəritədən seç": {
+    "en": "Choose on map",
+    "az": "Xəritədən seç",
+    "tr": "Haritadan seç",
+    "ru": "Выбрать на карте"
+  },
+  "Sifariş yazılır…": {
+    "en": "Recording sale…",
+    "az": "Sifariş yazılır…",
+    "tr": "Satış kaydediliyor…",
+    "ru": "Запись продажи…"
+  },
+  "Satışı təsdiqlə": {
+    "en": "Confirm sale",
+    "az": "Satışı təsdiqlə",
+    "tr": "Satışı onayla",
+    "ru": "Подтвердить продажу"
+  },
+  "Stok yüklənmədi.": {
+    "en": "Could not load stock.",
+    "az": "Stok yüklənmədi.",
+    "tr": "Stok yüklenemedi.",
+    "ru": "Не удалось загрузить остатки."
+  },
+  "Əməliyyat alınmadı.": {
+    "en": "Operation failed.",
+    "az": "Əməliyyat alınmadı.",
+    "tr": "İşlem başarısız.",
+    "ru": "Операция не удалась."
+  },
+  "Ümumi qalıq": {
+    "en": "Total stock",
+    "az": "Ümumi qalıq",
+    "tr": "Toplam stok",
+    "ru": "Общий остаток"
+  },
+  "Az qalıb": {
+    "en": "Low stock",
+    "az": "Az qalıb",
+    "tr": "Az stok",
+    "ru": "Мало на складе"
+  },
+  "Bərpa et": {
+    "en": "Restore",
+    "az": "Bərpa et",
+    "tr": "Geri yükle",
+    "ru": "Восстановить"
+  },
+  "Arxivlə": {
+    "en": "Archive",
+    "az": "Arxivlə",
+    "tr": "Arşivle",
+    "ru": "Архивировать"
+  },
+  "Məhsulu dəyiş": {
+    "en": "Edit product",
+    "az": "Məhsulu dəyiş",
+    "tr": "Ürünü düzenle",
+    "ru": "Изменить товар"
+  },
+  "İlkin qalıq": {
+    "en": "Opening stock",
+    "az": "İlkin qalıq",
+    "tr": "Başlangıç stoğu",
+    "ru": "Начальный остаток"
+  },
+  "Əməliyyat / səbəb": {
+    "en": "Operation / reason",
+    "az": "Əməliyyat / səbəb",
+    "tr": "İşlem / sebep",
+    "ru": "Операция / причина"
+  },
+  "Əvvəl": {
+    "en": "Before",
+    "az": "Əvvəl",
+    "tr": "Önce",
+    "ru": "До"
+  },
+  "Dəyişiklik": {
+    "en": "Change",
+    "az": "Dəyişiklik",
+    "tr": "Değişiklik",
+    "ru": "Изменение"
+  },
+  "Axtarılır...": {
+    "en": "Searching...",
+    "az": "Axtarılır...",
+    "tr": "Aranıyor...",
+    "ru": "Поиск..."
+  },
+  "Tapılır...": {
+    "en": "Locating...",
+    "az": "Tapılır...",
+    "tr": "Konum bulunuyor...",
+    "ru": "Определение местоположения..."
+  },
+  "Mənim yerim": {
+    "en": "Use my location",
+    "az": "Mənim yerim",
+    "tr": "Konumumu kullan",
+    "ru": "Моё местоположение"
+  },
+  "Məhsulları": {
+    "en": "Products",
+    "az": "Məhsulları",
+    "tr": "Ürünleri",
+    "ru": "Товары"
+  },
+  "Müştəriləri": {
+    "en": "Customers",
+    "az": "Müştəriləri",
+    "tr": "Müşterileri",
+    "ru": "Клиенты"
+  },
+  "{value0} qeyd əlavə edildi.": {
+    "en": "Added {value0} records.",
+    "az": "{value0} qeyd əlavə edildi.",
+    "tr": "{value0} kayıt eklendi.",
+    "ru": "Добавлено записей: {value0}."
+  },
+  "İdxal alınmadı. Yenidən cəhd et.": {
+    "en": "Import failed. Try again.",
+    "az": "İdxal alınmadı. Yenidən cəhd et.",
+    "tr": "İçe aktarma başarısız. Tekrar dene.",
+    "ru": "Импорт не удался. Повторите."
+  },
+  "Əlavə edilir…": {
+    "en": "Adding…",
+    "az": "Əlavə edilir…",
+    "tr": "Ekleniyor…",
+    "ru": "Добавление…"
+  },
+  "Yoxladım, əlavə et": {
+    "en": "Confirm import",
+    "az": "Yoxladım, əlavə et",
+    "tr": "İçe aktarmayı onayla",
+    "ru": "Подтвердить импорт"
+  },
+  "Məlumat cədvəli": {
+    "en": "Data table",
+    "az": "Məlumat cədvəli",
+    "tr": "Veri tablosu",
+    "ru": "Таблица данных"
+  },
+  "-": {
+    "en": "-",
+    "az": "-",
+    "tr": "-",
+    "ru": "-"
+  },
+  "CSV-də bağlanmayan dırnaq var.": {
+    "en": "CSV contains an unclosed quote.",
+    "az": "CSV-də bağlanmayan dırnaq var.",
+    "tr": "CSV'de kapanmayan tırnak var.",
+    "ru": "В CSV есть незакрытая кавычка."
+  },
+  "CSV dırnaqlarını yoxla.": {
+    "en": "Check the CSV quotes.",
+    "az": "CSV dırnaqlarını yoxla.",
+    "tr": "CSV tırnaklarını kontrol et.",
+    "ru": "Проверьте кавычки в CSV."
+  },
+  "Dırnaqdan sonra yalnız vergül və ya yeni sətir ola bilər.": {
+    "en": "Only a comma or newline may follow a closing quote.",
+    "az": "Dırnaqdan sonra yalnız vergül və ya yeni sətir ola bilər.",
+    "tr": "Kapanan tırnaktan sonra yalnızca virgül veya yeni satır olabilir.",
+    "ru": "После закрывающей кавычки допустимы только запятая или новая строка."
+  },
+  "Başlıqdan sonra ən azı bir sətir lazımdır.": {
+    "en": "Add at least one data row after the header.",
+    "az": "Başlıqdan sonra ən azı bir sətir lazımdır.",
+    "tr": "Başlıktan sonra en az bir veri satırı ekle.",
+    "ru": "После заголовка нужна хотя бы одна строка данных."
+  },
+  "Bir faylda ən çox 200 məlumat sətri ola bilər.": {
+    "en": "A file may contain at most 200 data rows.",
+    "az": "Bir faylda ən çox 200 məlumat sətri ola bilər.",
+    "tr": "Bir dosyada en fazla 200 veri satırı olabilir.",
+    "ru": "В файле может быть не более 200 строк данных."
+  },
+  "CSV başlıqları yanlışdır.": {
+    "en": "Invalid CSV headers.",
+    "az": "CSV başlıqları yanlışdır.",
+    "tr": "CSV başlıkları geçersiz.",
+    "ru": "Неверные заголовки CSV."
+  },
+  "Sətir {value0}: sütun sayı başlığa uyğun deyil.": {
+    "en": "Row {value0}: column count does not match the header.",
+    "az": "Sətir {value0}: sütun sayı başlığa uyğun deyil.",
+    "tr": "Satır {value0}: sütun sayısı başlığa uymuyor.",
+    "ru": "Строка {value0}: число столбцов не соответствует заголовку."
+  },
+  "Bitib": {
+    "en": "Out of stock",
+    "az": "Bitib",
+    "tr": "Tükendi",
+    "ru": "Нет в наличии"
+  },
+  "Ad": {
+    "en": "Name",
+    "az": "Ad",
+    "tr": "Ad",
+    "ru": "Название"
+  },
+  "Barkod": {
+    "en": "Barcode",
+    "az": "Barkod",
+    "tr": "Barkod",
+    "ru": "Штрихкод"
+  },
+  "Sistem": {
+    "en": "System",
+    "az": "Sistem",
+    "tr": "Sistem",
+    "ru": "Система"
+  },
+  "Daxil olmaq lazımdır.": {
+    "en": "Please sign in.",
+    "az": "Daxil olmaq lazımdır.",
+    "tr": "Giriş yapman gerekiyor.",
+    "ru": "Войдите в систему."
+  },
+  "Sessiya bitib. Yenidən daxil ol.": {
+    "en": "Session expired. Please sign in again.",
+    "az": "Sessiya bitib. Yenidən daxil ol.",
+    "tr": "Oturum sona erdi. Tekrar giriş yap.",
+    "ru": "Сеанс истёк. Войдите снова."
+  },
+  "Bu əməliyyata icazə yoxdur.": {
+    "en": "You do not have permission for this action.",
+    "az": "Bu əməliyyata icazə yoxdur.",
+    "tr": "Bu işlem için yetkin yok.",
+    "ru": "У вас нет разрешения на эту операцию."
+  },
+  "Şirkətin aktiv abunəliyi yoxdur.": {
+    "en": "This company has no active subscription.",
+    "az": "Şirkətin aktiv abunəliyi yoxdur.",
+    "tr": "Şirketin aktif aboneliği yok.",
+    "ru": "У компании нет активной подписки."
+  },
+  "Bu funksiya şirkətin paketinə daxil deyil.": {
+    "en": "This feature is not included in the company plan.",
+    "az": "Bu funksiya şirkətin paketinə daxil deyil.",
+    "tr": "Bu özellik şirket paketine dahil değil.",
+    "ru": "Эта функция недоступна в тарифе компании."
+  },
+  "Sürücü bölməsi Premium paketdədir.": {
+    "en": "Driver tools require Premium.",
+    "az": "Sürücü bölməsi Premium paketdədir.",
+    "tr": "Sürücü araçları Premium gerektirir.",
+    "ru": "Для работы водителя нужен Premium."
+  },
+  "E-poçt və ya şifrə yanlışdır.": {
+    "en": "Incorrect email or password.",
+    "az": "E-poçt və ya şifrə yanlışdır.",
+    "tr": "E-posta veya şifre yanlış.",
+    "ru": "Неверная почта или пароль."
+  },
+  "PIN yanlışdır.": {
+    "en": "Incorrect PIN.",
+    "az": "PIN yanlışdır.",
+    "tr": "PIN yanlış.",
+    "ru": "Неверный PIN."
+  },
+  "PIN 4–8 rəqəmdən ibarət olmalıdır.": {
+    "en": "PIN must contain 4–8 digits.",
+    "az": "PIN 4–8 rəqəmdən ibarət olmalıdır.",
+    "tr": "PIN 4–8 rakamdan oluşmalı.",
+    "ru": "PIN должен содержать 4–8 цифр."
+  },
+  "Əvvəl şirkətin e-poçtu və şifrəsi ilə daxil ol.": {
+    "en": "Sign in with the company email and password first.",
+    "az": "Əvvəl şirkətin e-poçtu və şifrəsi ilə daxil ol.",
+    "tr": "Önce şirket e-postası ve şifresiyle giriş yap.",
+    "ru": "Сначала войдите с почтой и паролем компании."
+  },
+  "Çox sayda giriş cəhdi oldu. Bir qədər sonra yenidən yoxla.": {
+    "en": "Too many sign-in attempts. Try again later.",
+    "az": "Çox sayda giriş cəhdi oldu. Bir qədər sonra yenidən yoxla.",
+    "tr": "Çok fazla giriş denemesi. Biraz sonra tekrar dene.",
+    "ru": "Слишком много попыток входа. Повторите позже."
+  },
+  "Bir qədər sonra yenidən cəhd et.": {
+    "en": "Please try again later.",
+    "az": "Bir qədər sonra yenidən cəhd et.",
+    "tr": "Biraz sonra tekrar dene.",
+    "ru": "Повторите попытку позже."
+  },
+  "Bu şirkətdə təkrarlanan PIN var. Administrator PIN-ləri fərqləndirməlidir.": {
+    "en": "Duplicate PINs exist. Ask the administrator to assign unique PINs.",
+    "az": "Bu şirkətdə təkrarlanan PIN var. Administrator PIN-ləri fərqləndirməlidir.",
+    "tr": "Yinelenen PIN var. Yöneticiden benzersiz PIN atamasını iste.",
+    "ru": "Обнаружены одинаковые PIN. Администратор должен назначить уникальные PIN."
+  },
+  "JSON formatı yanlışdır.": {
+    "en": "Invalid JSON format.",
+    "az": "JSON formatı yanlışdır.",
+    "tr": "JSON biçimi geçersiz.",
+    "ru": "Некорректный формат JSON."
+  },
+  "Fayl və ya sorğu icazə verilən ölçünü aşır.": {
+    "en": "File or request exceeds the size limit.",
+    "az": "Fayl və ya sorğu icazə verilən ölçünü aşır.",
+    "tr": "Dosya veya istek boyut sınırını aşıyor.",
+    "ru": "Файл или запрос превышает лимит размера."
+  },
+  "Serverdə xəta baş verdi.": {
+    "en": "A server error occurred.",
+    "az": "Serverdə xəta baş verdi.",
+    "tr": "Sunucu hatası oluştu.",
+    "ru": "Произошла ошибка сервера."
+  },
+  "Yalnız bir şəkil faylı göndər.": {
+    "en": "Send a single image file.",
+    "az": "Yalnız bir şəkil faylı göndər.",
+    "tr": "Tek bir görsel gönder.",
+    "ru": "Отправьте одно изображение."
+  },
+  "Stok kifayət etmir və ya maksimum miqdar həddi aşılır.": {
+    "en": "Insufficient stock or maximum quantity exceeded.",
+    "az": "Stok kifayət etmir və ya maksimum miqdar həddi aşılır.",
+    "tr": "Stok yetersiz veya maksimum miktar aşıldı.",
+    "ru": "Недостаточно товара или превышен предел количества."
+  },
+  "Məbləğ ən çox iki onluq rəqəmlə yazılmalıdır.": {
+    "en": "Use no more than two decimal places for money.",
+    "az": "Məbləğ ən çox iki onluq rəqəmlə yazılmalıdır.",
+    "tr": "Tutar en fazla iki ondalık basamak içermeli.",
+    "ru": "В сумме должно быть не более двух десятичных знаков."
+  },
+  "Məbləğ icazə verilən həddi aşır.": {
+    "en": "Amount exceeds the allowed limit.",
+    "az": "Məbləğ icazə verilən həddi aşır.",
+    "tr": "Tutar izin verilen sınırı aşıyor.",
+    "ru": "Сумма превышает допустимый предел."
+  },
+  "Məlumatın ID-si yanlışdır.": {
+    "en": "Invalid record ID.",
+    "az": "Məlumatın ID-si yanlışdır.",
+    "tr": "Kayıt ID geçersiz.",
+    "ru": "Неверный ID записи."
+  },
+  "Mətn sahəsini yoxla.": {
+    "en": "Check the text field.",
+    "az": "Mətn sahəsini yoxla.",
+    "tr": "Metin alanını kontrol et.",
+    "ru": "Проверьте текстовое поле."
+  },
+  "1–100 məhsul sətri göndərilməlidir.": {
+    "en": "Send between 1 and 100 product lines.",
+    "az": "1–100 məhsul sətri göndərilməlidir.",
+    "tr": "1–100 ürün satırı gönder.",
+    "ru": "Отправьте от 1 до 100 строк товаров."
+  },
+  "Məhsul sətrini yoxla.": {
+    "en": "Check the product line.",
+    "az": "Məhsul sətrini yoxla.",
+    "tr": "Ürün satırını kontrol et.",
+    "ru": "Проверьте строку товара."
+  },
+  "Bu əməliyyat üçün Idempotency-Key tələb olunur.": {
+    "en": "An Idempotency-Key is required for this operation.",
+    "az": "Bu əməliyyat üçün Idempotency-Key tələb olunur.",
+    "tr": "Bu işlem için Idempotency-Key gerekli.",
+    "ru": "Для этой операции требуется Idempotency-Key."
+  },
+  "Bu əməliyyat açarı başqa məlumat üçün istifadə edilib.": {
+    "en": "This operation key was used for different data.",
+    "az": "Bu əməliyyat açarı başqa məlumat üçün istifadə edilib.",
+    "tr": "Bu işlem anahtarı farklı verilerle kullanılmış.",
+    "ru": "Этот ключ операции использован с другими данными."
+  },
+  "Bu müştəri başqa ekspeditora təyin edilib.": {
+    "en": "This customer belongs to another sales representative.",
+    "az": "Bu müştəri başqa ekspeditora təyin edilib.",
+    "tr": "Bu müşteri başka temsilciye atanmış.",
+    "ru": "Этот клиент назначен другому торговому представителю."
+  },
+  "Qiyməti dəyişmək və hədiyyə əlavə etmək yalnız administratora icazəlidir.": {
+    "en": "Only administrators may change prices or add gifts.",
+    "az": "Qiyməti dəyişmək və hədiyyə əlavə etmək yalnız administratora icazəlidir.",
+    "tr": "Fiyat değiştirme ve hediye ekleme yalnızca yöneticiye açık.",
+    "ru": "Только администратор может менять цены или добавлять подарки."
+  },
+  "Əməliyyat tamamlanmadı. Yenidən cəhd et.": {
+    "en": "The operation could not be completed. Please try again.",
+    "az": "Əməliyyat tamamlanmadı. Yenidən cəhd et.",
+    "tr": "İşlem tamamlanamadı. Tekrar dene.",
+    "ru": "Не удалось завершить операцию. Повторите попытку."
+  },
+  "Paralel dəyişiklik oldu. Eyni əməliyyat açarı ilə yenidən cəhd et.": {
+    "en": "A concurrent update occurred. Retry with the same operation key.",
+    "az": "Paralel dəyişiklik oldu. Eyni əməliyyat açarı ilə yenidən cəhd et.",
+    "tr": "Eş zamanlı değişiklik oldu. Aynı işlem anahtarıyla tekrar dene.",
+    "ru": "Произошло параллельное изменение. Повторите с тем же ключом."
+  },
+  "Ödəniş qalan borcu aşır. Qalan borc {value0}-dir.": {
+    "en": "Payment exceeds the remaining debt of {value0}.",
+    "az": "Ödəniş qalan borcu aşır. Qalan borc {value0}-dir.",
+    "tr": "Ödeme kalan {value0} borcu aşıyor.",
+    "ru": "Платёж превышает оставшийся долг {value0}."
+  },
+  "Miqdar {value0}–{value1} aralığında tam ədəd olmalıdır.": {
+    "en": "Quantity must be an integer between {value0} and {value1}.",
+    "az": "Miqdar {value0}–{value1} aralığında tam ədəd olmalıdır.",
+    "tr": "Miktar {value0}–{value1} arasında tam sayı olmalı.",
+    "ru": "Количество должно быть целым числом от {value0} до {value1}."
+  },
+  "Language": {
+    "en": "Language",
+    "az": "Dil",
+    "tr": "Dil",
+    "ru": "Язык"
+  },
+  "Company settings": {
+    "en": "Company settings",
+    "az": "Şirkət ayarları",
+    "tr": "Şirket ayarları",
+    "ru": "Настройки компании"
+  },
+  "Company details, operating currency and invoice information.": {
+    "en": "Company details, operating currency and invoice information.",
+    "az": "Şirkət, valyuta və qaimə məlumatları.",
+    "tr": "Şirket, işlem para birimi ve fatura bilgileri.",
+    "ru": "Данные компании, рабочая валюта и реквизиты накладной."
+  },
+  "Company profile": {
+    "en": "Company profile",
+    "az": "Şirkət məlumatları",
+    "tr": "Şirket profili",
+    "ru": "Профиль компании"
+  },
+  "Company name": {
+    "en": "Company name",
+    "az": "Şirkət adı",
+    "tr": "Şirket adı",
+    "ru": "Название компании"
+  },
+  "Company address": {
+    "en": "Company address",
+    "az": "Şirkət ünvanı",
+    "tr": "Şirket adresi",
+    "ru": "Адрес компании"
+  },
+  "Company phone": {
+    "en": "Company phone",
+    "az": "Şirkət telefonu",
+    "tr": "Şirket telefonu",
+    "ru": "Телефон компании"
+  },
+  "Contact email": {
+    "en": "Contact email",
+    "az": "Əlaqə e-poçtu",
+    "tr": "İletişim e-postası",
+    "ru": "Контактная почта"
+  },
+  "Tax ID": {
+    "en": "Tax ID",
+    "az": "VÖEN / vergi nömrəsi",
+    "tr": "Vergi numarası",
+    "ru": "Налоговый номер"
+  },
+  "Invoice prefix": {
+    "en": "Invoice prefix",
+    "az": "Qaimə prefiksi",
+    "tr": "Fatura öneki",
+    "ru": "Префикс накладной"
+  },
+  "Operating currency": {
+    "en": "Operating currency",
+    "az": "Əməliyyat valyutası",
+    "tr": "İşlem para birimi",
+    "ru": "Рабочая валюта"
+  },
+  "Time zone": {
+    "en": "Time zone",
+    "az": "Saat qurşağı",
+    "tr": "Saat dilimi",
+    "ru": "Часовой пояс"
+  },
+  "Company logo": {
+    "en": "Company logo",
+    "az": "Şirkət loqosu",
+    "tr": "Şirket logosu",
+    "ru": "Логотип компании"
+  },
+  "Upload logo": {
+    "en": "Upload logo",
+    "az": "Loqo yüklə",
+    "tr": "Logo yükle",
+    "ru": "Загрузить логотип"
+  },
+  "Remove logo": {
+    "en": "Remove logo",
+    "az": "Loqonu sil",
+    "tr": "Logoyu kaldır",
+    "ru": "Убрать логотип"
+  },
+  "Save settings": {
+    "en": "Save settings",
+    "az": "Ayarları saxla",
+    "tr": "Ayarları kaydet",
+    "ru": "Сохранить настройки"
+  },
+  "Saving...": {
+    "en": "Saving...",
+    "az": "Saxlanılır...",
+    "tr": "Kaydediliyor...",
+    "ru": "Сохранение..."
+  },
+  "Company settings saved.": {
+    "en": "Company settings saved.",
+    "az": "Şirkət ayarları saxlanıldı.",
+    "tr": "Şirket ayarları kaydedildi.",
+    "ru": "Настройки компании сохранены."
+  },
+  "Could not load company settings.": {
+    "en": "Could not load company settings.",
+    "az": "Şirkət ayarları yüklənmədi.",
+    "tr": "Şirket ayarları yüklenemedi.",
+    "ru": "Не удалось загрузить настройки компании."
+  },
+  "Could not save company settings.": {
+    "en": "Could not save company settings.",
+    "az": "Şirkət ayarları saxlanılmadı.",
+    "tr": "Şirket ayarları kaydedilemedi.",
+    "ru": "Не удалось сохранить настройки компании."
+  },
+  "Could not upload image.": {
+    "en": "Could not upload image.",
+    "az": "Şəkil yüklənmədi.",
+    "tr": "Görsel yüklenemedi.",
+    "ru": "Не удалось загрузить изображение."
+  },
+  "Only an administrator can change company settings.": {
+    "en": "Only an administrator can change company settings.",
+    "az": "Şirkət ayarlarını yalnız administrator dəyişə bilər.",
+    "tr": "Şirket ayarlarını yalnızca yönetici değiştirebilir.",
+    "ru": "Настройки компании может менять только администратор."
+  },
+  "Currency is locked because financial records already exist.": {
+    "en": "Currency is locked because financial records already exist.",
+    "az": "Maliyyə qeydləri olduğu üçün valyuta dəyişdirilə bilməz.",
+    "tr": "Finansal kayıtlar bulunduğundan para birimi değiştirilemez.",
+    "ru": "Валюта заблокирована, так как уже есть финансовые записи."
+  },
+  "Choose your currency before the first transaction. Existing catalogue prices are not converted.": {
+    "en": "Choose your currency before the first transaction. Existing catalogue prices are not converted.",
+    "az": "İlk əməliyyatdan əvvəl valyutanı seç. Kataloqdakı qiymətlər çevrilmir.",
+    "tr": "İlk işlemden önce para birimini seç. Katalog fiyatları dönüştürülmez.",
+    "ru": "Выберите валюту до первой операции. Цены каталога не пересчитываются."
+  },
+  "Subscription": {
+    "en": "Subscription",
+    "az": "Abunəlik",
+    "tr": "Abonelik",
+    "ru": "Подписка"
+  },
+  "Monthly billing": {
+    "en": "Monthly billing",
+    "az": "Aylıq ödəniş",
+    "tr": "Aylık ödeme",
+    "ru": "Ежемесячная оплата"
+  },
+  "Yearly billing": {
+    "en": "Yearly billing",
+    "az": "İllik ödəniş",
+    "tr": "Yıllık ödeme",
+    "ru": "Ежегодная оплата"
+  },
+  "Expires": {
+    "en": "Expires",
+    "az": "Bitmə tarixi",
+    "tr": "Bitiş tarihi",
+    "ru": "Действует до"
+  },
+  "Active account limit": {
+    "en": "Active account limit",
+    "az": "Aktiv hesab limiti",
+    "tr": "Aktif hesap limiti",
+    "ru": "Лимит активных учётных записей"
+  },
+  "Subscription billing currency is separate from your operating currency.": {
+    "en": "Subscription billing currency is separate from your operating currency.",
+    "az": "Abunə ödənişinin valyutası əməliyyat valyutasından ayrıdır.",
+    "tr": "Abonelik para birimi işlem para biriminden ayrıdır.",
+    "ru": "Валюта оплаты подписки не связана с рабочей валютой."
+  },
+  "Getting started": {
+    "en": "Getting started",
+    "az": "Başlanğıc",
+    "tr": "Başlangıç",
+    "ru": "Начало работы"
+  },
+  "Set up your workspace in four steps.": {
+    "en": "Set up your workspace in four steps.",
+    "az": "İş mühitini dörd addımda hazırla.",
+    "tr": "Çalışma alanını dört adımda hazırla.",
+    "ru": "Настройте рабочее пространство за четыре шага."
+  },
+  "Choose your currency": {
+    "en": "Choose your currency",
+    "az": "Valyutanı seç",
+    "tr": "Para birimini seç",
+    "ru": "Выберите валюту"
+  },
+  "Add your first product": {
+    "en": "Add your first product",
+    "az": "İlk məhsulunu əlavə et",
+    "tr": "İlk ürününü ekle",
+    "ru": "Добавьте первый товар"
+  },
+  "Receive stock": {
+    "en": "Receive stock",
+    "az": "Stok daxil et",
+    "tr": "Stok girişi yap",
+    "ru": "Оприходуйте товары"
+  },
+  "Record your first sale": {
+    "en": "Record your first sale",
+    "az": "İlk satışını yaz",
+    "tr": "İlk satışını kaydet",
+    "ru": "Запишите первую продажу"
+  },
+  "Sign in": {
+    "en": "Sign in",
+    "az": "Daxil ol",
+    "tr": "Giriş yap",
+    "ru": "Войти"
+  },
+  "Phone (optional)": {
+    "en": "Phone (optional)",
+    "az": "Telefon (seçimli)",
+    "tr": "Telefon (isteğe bağlı)",
+    "ru": "Телефон (необязательно)"
+  },
+  "International or local number; country code is optional.": {
+    "en": "International or local number; country code is optional.",
+    "az": "Beynəlxalq və ya yerli nömrə; ölkə kodu seçimlidir.",
+    "tr": "Uluslararası veya yerel numara; ülke kodu isteğe bağlı.",
+    "ru": "Международный или местный номер; код страны необязателен."
+  },
+  "Address (optional)": {
+    "en": "Address (optional)",
+    "az": "Ünvan (seçimli)",
+    "tr": "Adres (isteğe bağlı)",
+    "ru": "Адрес (необязательно)"
+  },
+  "Search for a street, city or address": {
+    "en": "Search for a street, city or address",
+    "az": "Küçə, şəhər və ya ünvan axtar",
+    "tr": "Sokak, şehir veya adres ara",
+    "ru": "Поиск улицы, города или адреса"
+  },
+  "Enter a valid phone number (7–15 digits).": {
+    "en": "Enter a valid phone number (7–15 digits).",
+    "az": "Düzgün telefon nömrəsi daxil et (7–15 rəqəm).",
+    "tr": "Geçerli telefon numarası gir (7–15 rakam).",
+    "ru": "Введите правильный номер телефона (7–15 цифр)."
+  },
+  "Choose valid coordinates for both latitude and longitude.": {
+    "en": "Choose valid coordinates for both latitude and longitude.",
+    "az": "Enlik və uzunluq üçün düzgün koordinatlar seç.",
+    "tr": "Enlem ve boylam için geçerli koordinatlar seç.",
+    "ru": "Укажите правильные широту и долготу."
+  },
+  "Check the customer details.": {
+    "en": "Check the customer details.",
+    "az": "Müştəri məlumatlarını yoxla.",
+    "tr": "Müşteri bilgilerini kontrol et.",
+    "ru": "Проверьте данные клиента."
+  },
+  "Customer name must contain at least two characters.": {
+    "en": "Customer name must contain at least two characters.",
+    "az": "Müştəri adı ən azı iki simvol olmalıdır.",
+    "tr": "Müşteri adı en az iki karakter olmalı.",
+    "ru": "Имя клиента должно содержать минимум два символа."
+  },
+  "Choose an active area belonging to this company.": {
+    "en": "Choose an active area belonging to this company.",
+    "az": "Bu şirkətə aid aktiv ərazi seç.",
+    "tr": "Bu şirkete ait aktif bir bölge seç.",
+    "ru": "Выберите активный район этой компании."
+  },
+  "Enter a valid calendar date.": {
+    "en": "Enter a valid calendar date.",
+    "az": "Düzgün təqvim tarixi daxil et.",
+    "tr": "Geçerli takvim tarihi gir.",
+    "ru": "Введите корректную календарную дату."
+  },
+  "The end date must follow the start date.": {
+    "en": "The end date must follow the start date.",
+    "az": "Son tarix başlanğıc tarixdən əvvəl ola bilməz.",
+    "tr": "Bitiş tarihi başlangıçtan önce olamaz.",
+    "ru": "Конечная дата не может быть раньше начальной."
+  },
+  "Check the company settings.": {
+    "en": "Check the company settings.",
+    "az": "Şirkət ayarlarını yoxla.",
+    "tr": "Şirket ayarlarını kontrol et.",
+    "ru": "Проверьте настройки компании."
+  },
+  "Company name must contain at least two characters.": {
+    "en": "Company name must contain at least two characters.",
+    "az": "Şirkət adı ən azı iki simvol olmalıdır.",
+    "tr": "Şirket adı en az iki karakter olmalı.",
+    "ru": "Название компании должно содержать минимум два символа."
+  },
+  "Choose a supported currency.": {
+    "en": "Choose a supported currency.",
+    "az": "Dəstəklənən valyuta seç.",
+    "tr": "Desteklenen para birimini seç.",
+    "ru": "Выберите поддерживаемую валюту."
+  },
+  "Choose a valid time zone.": {
+    "en": "Choose a valid time zone.",
+    "az": "Düzgün saat qurşağı seç.",
+    "tr": "Geçerli saat dilimi seç.",
+    "ru": "Выберите правильный часовой пояс."
+  },
+  "Enter a valid contact email.": {
+    "en": "Enter a valid contact email.",
+    "az": "Düzgün əlaqə e-poçtu daxil et.",
+    "tr": "Geçerli iletişim e-postası gir.",
+    "ru": "Введите правильный контактный адрес почты."
+  },
+  "Invoice prefix may contain up to 12 letters, digits or hyphens.": {
+    "en": "Invoice prefix may contain up to 12 letters, digits or hyphens.",
+    "az": "Qaimə prefiksi ən çox 12 hərf, rəqəm və ya defisdən ibarət ola bilər.",
+    "tr": "Fatura öneki en fazla 12 harf, rakam veya tire içerebilir.",
+    "ru": "Префикс может содержать до 12 букв, цифр или дефисов."
+  },
+  "Currency is locked because this company already has financial records.": {
+    "en": "Currency is locked because this company already has financial records.",
+    "az": "Şirkətin maliyyə qeydləri olduğu üçün valyuta kilidlənib.",
+    "tr": "Şirketin finansal kayıtları olduğu için para birimi kilitli.",
+    "ru": "Валюта заблокирована: у компании уже есть финансовые записи."
+  },
+  "Company currency changed. Refresh the page before continuing.": {
+    "en": "Company currency changed. Refresh the page before continuing.",
+    "az": "Şirkətin valyutası dəyişib. Davam etməzdən əvvəl səhifəni yenilə.",
+    "tr": "Şirketin para birimi değişti. Devam etmeden önce sayfayı yenile.",
+    "ru": "Валюта компании изменилась. Обновите страницу перед продолжением."
+  },
+  "CSV currency does not match the company currency.": {
+    "en": "CSV currency does not match the company currency.",
+    "az": "CSV valyutası şirkətin valyutasına uyğun deyil.",
+    "tr": "CSV para birimi şirketin para birimiyle eşleşmiyor.",
+    "ru": "Валюта CSV не совпадает с валютой компании."
+  },
+  "Please check the supplied details.": {
+    "en": "Please check the supplied details.",
+    "az": "Göndərilən məlumatları yoxla.",
+    "tr": "Gönderilen bilgileri kontrol et.",
+    "ru": "Проверьте введённые данные."
+  },
+  "The operation could not be completed. Please try again.": {
+    "en": "The operation could not be completed. Please try again.",
+    "az": "Əməliyyat tamamlanmadı. Yenidən cəhd et.",
+    "tr": "İşlem tamamlanamadı. Tekrar dene.",
+    "ru": "Не удалось завершить операцию. Повторите попытку."
+  },
+  "Upload new receipt images through the image upload endpoint.": {
+    "en": "Upload new receipt images through the image upload endpoint.",
+    "az": "Yeni qəbz şəklini şəkil yükləmə bölməsindən əlavə et.",
+    "tr": "Yeni makbuz görsellerini görsel yükleme alanından ekle.",
+    "ru": "Загрузите новое фото квитанции через загрузку изображений."
+  },
+  "Choose a JPEG, PNG or WebP image.": {
+    "en": "Choose a JPEG, PNG or WebP image.",
+    "az": "JPEG, PNG və ya WebP şəkli seç.",
+    "tr": "JPEG, PNG veya WebP görseli seç.",
+    "ru": "Выберите изображение JPEG, PNG или WebP."
+  },
+  "The file is not a valid supported image.": {
+    "en": "The file is not a valid supported image.",
+    "az": "Fayl düzgün və dəstəklənən şəkil deyil.",
+    "tr": "Dosya geçerli ve desteklenen bir görsel değil.",
+    "ru": "Файл не является поддерживаемым изображением."
+  },
+  "Too many uploads. Please wait a minute.": {
+    "en": "Too many uploads. Please wait a minute.",
+    "az": "Çox sayda yükləmə oldu. Bir dəqiqə gözlə.",
+    "tr": "Çok fazla yükleme. Bir dakika bekle.",
+    "ru": "Слишком много загрузок. Подождите минуту."
+  },
+  "Company image storage is full. Contact support.": {
+    "en": "Company image storage is full. Contact support.",
+    "az": "Şirkətin şəkil yaddaşı dolub. Dəstəyə müraciət et.",
+    "tr": "Şirketin görsel alanı dolu. Destekle iletişime geç.",
+    "ru": "Хранилище изображений компании заполнено. Обратитесь в поддержку."
+  },
+  "View invoice: {number}": {
+    "en": "View invoice: {number}",
+    "az": "Qaiməyə bax: {number}",
+    "tr": "Faturayı görüntüle: {number}",
+    "ru": "Открыть накладную: {number}"
+  },
+  "Cari borc:": {
+    "en": "Current debt:",
+    "az": "Cari borc:",
+    "tr": "Güncel borç:",
+    "ru": "Текущий долг:"
+  },
+  "Ekspeditor:": {
+    "en": "Sales representative:",
+    "az": "Ekspeditor:",
+    "tr": "Satış temsilcisi:",
+    "ru": "Торговый представитель:"
+  },
+  "Hədiyyə məhsul sayı: {value0}": {
+    "en": "Gift quantity: {value0}",
+    "az": "Hədiyyə məhsul sayı: {value0}",
+    "tr": "Hediye adedi: {value0}",
+    "ru": "Количество подарков: {value0}"
+  },
+  "Hədiyyə:": {
+    "en": "Gift:",
+    "az": "Hədiyyə:",
+    "tr": "Hediye:",
+    "ru": "Подарок:"
+  },
+  "Kateqoriya: {value0}": {
+    "en": "Category: {value0}",
+    "az": "Kateqoriya: {value0}",
+    "tr": "Kategori: {value0}",
+    "ru": "Категория: {value0}"
+  },
+  "Miqdar: {value0}": {
+    "en": "Quantity: {value0}",
+    "az": "Miqdar: {value0}",
+    "tr": "Miktar: {value0}",
+    "ru": "Количество: {value0}"
+  },
+  "Müştəri #": {
+    "en": "Customer #",
+    "az": "Müştəri #",
+    "tr": "Müşteri #",
+    "ru": "Клиент #"
+  },
+  "Müştəri:": {
+    "en": "Customer:",
+    "az": "Müştəri:",
+    "tr": "Müşteri:",
+    "ru": "Клиент:"
+  },
+  "Məbləğ:": {
+    "en": "Amount:",
+    "az": "Məbləğ:",
+    "tr": "Tutar:",
+    "ru": "Сумма:"
+  },
+  "Məhsul sayı:": {
+    "en": "Quantity:",
+    "az": "Məhsul sayı:",
+    "tr": "Ürün adedi:",
+    "ru": "Количество:"
+  },
+  "Məhsul sayı: {value0}": {
+    "en": "Quantity: {value0}",
+    "az": "Məhsul sayı: {value0}",
+    "tr": "Ürün adedi: {value0}",
+    "ru": "Количество: {value0}"
+  },
+  "Məhsullar:": {
+    "en": "Products:",
+    "az": "Məhsullar:",
+    "tr": "Ürünler:",
+    "ru": "Товары:"
+  },
+  "Qalıq:": {
+    "en": "Balance:",
+    "az": "Qalıq:",
+    "tr": "Kalan:",
+    "ru": "Остаток:"
+  },
+  "Qeyd:": {
+    "en": "Note:",
+    "az": "Qeyd:",
+    "tr": "Not:",
+    "ru": "Примечание:"
+  },
+  "Salon:": {
+    "en": "Business / store:",
+    "az": "Salon:",
+    "tr": "İşletme / mağaza:",
+    "ru": "Компания / магазин:"
+  },
+  "Satış:": {
+    "en": "Sale:",
+    "az": "Satış:",
+    "tr": "Satış:",
+    "ru": "Продажа:"
+  },
+  "Son yenilənmə:": {
+    "en": "Last updated:",
+    "az": "Son yenilənmə:",
+    "tr": "Son güncelleme:",
+    "ru": "Последнее обновление:"
+  },
+  "Stok: {value0}": {
+    "en": "Stock: {value0}",
+    "az": "Stok: {value0}",
+    "tr": "Stok: {value0}",
+    "ru": "Склад: {value0}"
+  },
+  "Səhifə: {value0} / {value1}": {
+    "en": "Page: {value0} / {value1}",
+    "az": "Səhifə: {value0} / {value1}",
+    "tr": "Sayfa: {value0} / {value1}",
+    "ru": "Страница: {value0} / {value1}"
+  },
+  "Tarix:": {
+    "en": "Date:",
+    "az": "Tarix:",
+    "tr": "Tarih:",
+    "ru": "Дата:"
+  },
+  "Telefon:": {
+    "en": "Phone:",
+    "az": "Telefon:",
+    "tr": "Telefon:",
+    "ru": "Телефон:"
+  },
+  "Toplam məbləğ: {value0}": {
+    "en": "Total amount: {value0}",
+    "az": "Toplam məbləğ: {value0}",
+    "tr": "Toplam tutar: {value0}",
+    "ru": "Итоговая сумма: {value0}"
+  },
+  "Toplam satış:": {
+    "en": "Total sales:",
+    "az": "Toplam satış:",
+    "tr": "Toplam satış:",
+    "ru": "Всего продаж:"
+  },
+  "Toplam satış: {value0}": {
+    "en": "Total sales: {value0}",
+    "az": "Toplam satış: {value0}",
+    "tr": "Toplam satış: {value0}",
+    "ru": "Всего продаж: {value0}"
+  },
+  "· Qalıq:": {
+    "en": "· Balance:",
+    "az": "· Qalıq:",
+    "tr": "· Kalan:",
+    "ru": "· Остаток:"
+  },
+  "Ödəniş növü:": {
+    "en": "Payment type:",
+    "az": "Ödəniş növü:",
+    "tr": "Ödeme türü:",
+    "ru": "Тип оплаты:"
+  },
+  "Ünvan:": {
+    "en": "Address:",
+    "az": "Ünvan:",
+    "tr": "Adres:",
+    "ru": "Адрес:"
+  },
+  "Ərazi:": {
+    "en": "Area:",
+    "az": "Ərazi:",
+    "tr": "Bölge:",
+    "ru": "Район:"
+  },
+  "Could not load products.": {
+    "en": "Could not load products.",
+    "az": "Məhsullar yüklənmədi.",
+    "tr": "Ürünler yüklenemedi.",
+    "ru": "Не удалось загрузить товары."
+  },
+  "Search products": {
+    "en": "Search products",
+    "az": "Məhsul axtar",
+    "tr": "Ürün ara",
+    "ru": "Поиск товаров"
+  },
+  "Name, SKU or barcode": {
+    "en": "Name, SKU or barcode",
+    "az": "Ad, SKU və ya barkod",
+    "tr": "Ad, SKU veya barkod",
+    "ru": "Название, артикул или штрихкод"
+  },
+  "Add": {
+    "en": "Add",
+    "az": "Əlavə et",
+    "tr": "Ekle",
+    "ru": "Добавить"
+  },
+  "Gift": {
+    "en": "Gift",
+    "az": "Hədiyyə",
+    "tr": "Hediye",
+    "ru": "Подарок"
+  },
+  "Could not load customers.": {
+    "en": "Could not load customers.",
+    "az": "Müştərilər yüklənmədi.",
+    "tr": "Müşteriler yüklenemedi.",
+    "ru": "Не удалось загрузить клиентов."
+  },
+  "Could not load history.": {
+    "en": "Could not load history.",
+    "az": "Tarixçə yüklənmədi.",
+    "tr": "Geçmiş yüklenemedi.",
+    "ru": "Не удалось загрузить историю."
+  },
+  "Purchase history": {
+    "en": "Purchase history",
+    "az": "Alış tarixçəsi",
+    "tr": "Alış geçmişi",
+    "ru": "История закупок"
+  },
+  "Return history": {
+    "en": "Return history",
+    "az": "Qaytarma tarixçəsi",
+    "tr": "İade geçmişi",
+    "ru": "История возвратов"
+  },
+  "New purchase": {
+    "en": "New purchase",
+    "az": "Yeni alış",
+    "tr": "Yeni alış",
+    "ru": "Новая закупка"
+  },
+  "Search": {
+    "en": "Search",
+    "az": "Axtarış",
+    "tr": "Arama",
+    "ru": "Поиск"
+  },
+  "Start date": {
+    "en": "Start date",
+    "az": "Başlanğıc tarix",
+    "tr": "Başlangıç tarihi",
+    "ru": "Начальная дата"
+  },
+  "End date": {
+    "en": "End date",
+    "az": "Son tarix",
+    "tr": "Bitiş tarihi",
+    "ru": "Конечная дата"
+  },
+  "Reset": {
+    "en": "Reset",
+    "az": "Sıfırla",
+    "tr": "Sıfırla",
+    "ru": "Сбросить"
+  },
+  "Customer": {
+    "en": "Customer",
+    "az": "Müştəri",
+    "tr": "Müşteri",
+    "ru": "Клиент"
+  },
+  "Date": {
+    "en": "Date",
+    "az": "Tarix",
+    "tr": "Tarih",
+    "ru": "Дата"
+  },
+  "Quantity": {
+    "en": "Quantity",
+    "az": "Say",
+    "tr": "Adet",
+    "ru": "Количество"
+  },
+  "Total": {
+    "en": "Total",
+    "az": "Yekun",
+    "tr": "Toplam",
+    "ru": "Итого"
+  },
+  "Actions": {
+    "en": "Actions",
+    "az": "Əməliyyatlar",
+    "tr": "İşlemler",
+    "ru": "Действия"
+  },
+  "Details": {
+    "en": "Details",
+    "az": "Ətraflı",
+    "tr": "Detaylar",
+    "ru": "Подробнее"
+  },
+  "Document details": {
+    "en": "Document details",
+    "az": "Sənəd məlumatı",
+    "tr": "Belge bilgileri",
+    "ru": "Данные документа"
+  },
+  "Product": {
+    "en": "Product",
+    "az": "Məhsul",
+    "tr": "Ürün",
+    "ru": "Товар"
+  },
+  "Unit price": {
+    "en": "Unit price",
+    "az": "Vahid qiyməti",
+    "tr": "Birim fiyat",
+    "ru": "Цена за единицу"
+  },
+  "Close": {
+    "en": "Close",
+    "az": "Bağla",
+    "tr": "Kapat",
+    "ru": "Закрыть"
+  },
+  "Print preview": {
+    "en": "Print preview",
+    "az": "Çap önizləmə",
+    "tr": "Baskı önizleme",
+    "ru": "Предпросмотр печати"
+  },
+  "Sales invoice": {
+    "en": "Sales invoice",
+    "az": "Satış Qaiməsi",
+    "tr": "Satış faturası",
+    "ru": "Товарная накладная"
+  },
+  "Recorded by": {
+    "en": "Recorded by",
+    "az": "Yazan şəxs",
+    "tr": "Kaydeden",
+    "ru": "Кто оформил"
+  },
+  "Note": {
+    "en": "Note",
+    "az": "Qeyd",
+    "tr": "Not",
+    "ru": "Примечание"
+  },
+  "Sender signature": {
+    "en": "Sender signature",
+    "az": "Təhvil verən imzası",
+    "tr": "Teslim eden imzası",
+    "ru": "Подпись отправителя"
+  },
+  "Recipient signature": {
+    "en": "Recipient signature",
+    "az": "Təhvil alan imzası",
+    "tr": "Teslim alan imzası",
+    "ru": "Подпись получателя"
+  },
+  "Returns": {
+    "en": "Returns",
+    "az": "Geri qaytarmalar",
+    "tr": "İadeler",
+    "ru": "Возвраты"
+  },
+  "Paid": {
+    "en": "Paid",
+    "az": "Ödənən",
+    "tr": "Ödenen",
+    "ru": "Оплачено"
+  },
+  "Print invoice": {
+    "en": "Print invoice",
+    "az": "Qaiməni çap et",
+    "tr": "Faturayı yazdır",
+    "ru": "Печать накладной"
+  },
+  "Record payment": {
+    "en": "Record payment",
+    "az": "Mədaxil et",
+    "tr": "Ödeme al",
+    "ru": "Записать платёж"
+  },
+  "Amount": {
+    "en": "Amount",
+    "az": "Məbləğ",
+    "tr": "Tutar",
+    "ru": "Сумма"
+  },
+  "Sales": {
+    "en": "Sales",
+    "az": "Satışlar",
+    "tr": "Satışlar",
+    "ru": "Продажи"
+  },
+  "Payments": {
+    "en": "Payments",
+    "az": "Mədaxil / Tahsilat",
+    "tr": "Tahsilatlar",
+    "ru": "Платежи"
+  },
+  "New sale": {
+    "en": "New sale",
+    "az": "Yeni satış",
+    "tr": "Yeni satış",
+    "ru": "Новая продажа"
+  },
+  "Flagged customer": {
+    "en": "Flagged customer",
+    "az": "Problemli müştəri",
+    "tr": "İşaretli müşteri",
+    "ru": "Клиент с отметкой"
+  },
+  "Outstanding debt": {
+    "en": "Outstanding debt",
+    "az": "Qalıq borc",
+    "tr": "Kalan borç",
+    "ru": "Остаток долга"
+  },
+  "Customer details": {
+    "en": "Customer details",
+    "az": "Müştəri məlumatları",
+    "tr": "Müşteri bilgileri",
+    "ru": "Данные клиента"
+  },
+  "Customer history": {
+    "en": "Customer history",
+    "az": "Müştəri tarixçəsi",
+    "tr": "Müşteri geçmişi",
+    "ru": "История клиента"
+  },
+  "Save": {
+    "en": "Save",
+    "az": "Yadda saxla",
+    "tr": "Kaydet",
+    "ru": "Сохранить"
+  },
+  "Products": {
+    "en": "Products",
+    "az": "Məhsulları",
+    "tr": "Ürünleri",
+    "ru": "Товары"
+  },
+  "Purchase summary": {
+    "en": "Purchase summary",
+    "az": "Seçilən alış səbəti",
+    "tr": "Alış özeti",
+    "ru": "Состав закупки"
+  },
+  "Selling price": {
+    "en": "Selling price",
+    "az": "Satış qiyməti",
+    "tr": "Satış fiyatı",
+    "ru": "Продажная цена"
+  },
+  "Confirm purchase": {
+    "en": "Confirm purchase",
+    "az": "Alışı təsdiqlə",
+    "tr": "Alışı onayla",
+    "ru": "Подтвердить закупку"
+  },
+  "Search customers": {
+    "en": "Search customers",
+    "az": "Müştəri axtar",
+    "tr": "Müşteri ara",
+    "ru": "Поиск клиентов"
+  },
+  "Name, phone or business": {
+    "en": "Name, phone or business",
+    "az": "Ad, telefon və ya salon",
+    "tr": "Ad, telefon veya işletme",
+    "ru": "Имя, телефон или компания"
+  },
+  "Existing customer": {
+    "en": "Existing customer",
+    "az": "Köhnə müştəri",
+    "tr": "Mevcut müşteri",
+    "ru": "Существующий клиент"
+  },
+  "New customer": {
+    "en": "New customer",
+    "az": "Yeni müştəri",
+    "tr": "Yeni müşteri",
+    "ru": "Новый клиент"
+  },
+  "Customer name": {
+    "en": "Customer name",
+    "az": "Müştəri adı",
+    "tr": "Müşteri adı",
+    "ru": "Имя клиента"
+  },
+  "Order summary": {
+    "en": "Order summary",
+    "az": "Sifariş xülasəsi",
+    "tr": "Sipariş özeti",
+    "ru": "Состав заказа"
+  },
+  "Amount paid": {
+    "en": "Amount paid",
+    "az": "Ödənilən məbləğ",
+    "tr": "Ödenen tutar",
+    "ru": "Оплаченная сумма"
+  },
+  "Confirm sale": {
+    "en": "Confirm sale",
+    "az": "Satışı təsdiqlə",
+    "tr": "Satışı onayla",
+    "ru": "Подтвердить продажу"
+  },
+  "All categories": {
+    "en": "All categories",
+    "az": "Bütün kateqoriyalar",
+    "tr": "Tüm kategoriler",
+    "ru": "Все категории"
+  },
+  "No products found.": {
+    "en": "No products found.",
+    "az": "Məhsul tapılmadı.",
+    "tr": "Ürün bulunamadı.",
+    "ru": "Товары не найдены."
+  },
+  "In stock: {quantity}": {
+    "en": "In stock: {quantity}",
+    "az": "Stokda: {quantity}",
+    "tr": "Stokta: {quantity}",
+    "ru": "В наличии: {quantity}"
+  },
+  "No customers found.": {
+    "en": "No customers found.",
+    "az": "Müştəri tapılmadı.",
+    "tr": "Müşteri bulunamadı.",
+    "ru": "Клиенты не найдены."
+  },
+  "Find customer": {
+    "en": "Find customer",
+    "az": "Müştəri axtar",
+    "tr": "Müşteri ara",
+    "ru": "Найти клиента"
+  },
+  "Search by name, phone or business.": {
+    "en": "Search by name, phone or business.",
+    "az": "Ad, telefon və ya biznes adı ilə axtar.",
+    "tr": "Ad, telefon veya işletme adına göre ara.",
+    "ru": "Поиск по имени, телефону или компании."
+  },
+  "Could not load document.": {
+    "en": "Could not load document.",
+    "az": "Sənəd yüklənmədi.",
+    "tr": "Belge yüklenemedi.",
+    "ru": "Не удалось загрузить документ."
+  },
+  "Purchase documents and stock receipts.": {
+    "en": "Purchase documents and stock receipts.",
+    "az": "Alış sənədləri və stok girişləri.",
+    "tr": "Alış belgeleri ve stok girişleri.",
+    "ru": "Документы закупок и поступления товаров."
+  },
+  "Returned products and original sale prices.": {
+    "en": "Returned products and original sale prices.",
+    "az": "Qaytarılan məhsullar və ilkin satış qiymətləri.",
+    "tr": "İade edilen ürünler ve ilk satış fiyatları.",
+    "ru": "Возвращённые товары и исходные цены продажи."
+  },
+  "New return": {
+    "en": "New return",
+    "az": "Yeni qaytarma",
+    "tr": "Yeni iade",
+    "ru": "Новый возврат"
+  },
+  "No records yet.": {
+    "en": "No records yet.",
+    "az": "Hələ qeyd yoxdur.",
+    "tr": "Henüz kayıt yok.",
+    "ru": "Записей пока нет."
+  },
+  "Document": {
+    "en": "Document",
+    "az": "Sənəd",
+    "tr": "Belge",
+    "ru": "Документ"
+  },
+  "Unit cost": {
+    "en": "Unit cost",
+    "az": "Vahid alış qiyməti",
+    "tr": "Birim alış fiyatı",
+    "ru": "Закупочная цена за единицу"
+  },
+  "Could not save signature.": {
+    "en": "Could not save signature.",
+    "az": "İmza saxlanılmadı.",
+    "tr": "İmza kaydedilemedi.",
+    "ru": "Не удалось сохранить подпись."
+  },
+  "Customer ID": {
+    "en": "Customer ID",
+    "az": "Müştəri ID-si",
+    "tr": "Müşteri ID",
+    "ru": "ID клиента"
+  },
+  "Outstanding": {
+    "en": "Outstanding",
+    "az": "Qalan borc",
+    "tr": "Kalan borç",
+    "ru": "Остаток долга"
+  },
+  "Could not load customer balance.": {
+    "en": "Could not load customer balance.",
+    "az": "Müştəri balansı yüklənmədi.",
+    "tr": "Müşteri bakiyesi yüklenemedi.",
+    "ru": "Не удалось загрузить баланс клиента."
+  },
+  "Enter an amount within the available balance.": {
+    "en": "Enter an amount within the available balance.",
+    "az": "Mövcud balansı aşmayan düzgün məbləğ yaz.",
+    "tr": "Mevcut bakiyeyi aşmayan geçerli tutar gir.",
+    "ru": "Введите корректную сумму в пределах доступного остатка."
+  },
+  "Enter a reason of at least three characters.": {
+    "en": "Enter a reason of at least three characters.",
+    "az": "Ən azı üç simvoldan ibarət səbəb yaz.",
+    "tr": "En az üç karakterlik sebep yaz.",
+    "ru": "Укажите причину минимум из трёх символов."
+  },
+  "Could not save the operation.": {
+    "en": "Could not save the operation.",
+    "az": "Əməliyyat saxlanılmadı.",
+    "tr": "İşlem kaydedilemedi.",
+    "ru": "Не удалось сохранить операцию."
+  },
+  "Void payment": {
+    "en": "Void payment",
+    "az": "Ödənişi ləğv et",
+    "tr": "Ödemeyi iptal et",
+    "ru": "Отменить платёж"
+  },
+  "Refund customer credit": {
+    "en": "Refund customer credit",
+    "az": "Müştəri kreditini geri qaytar",
+    "tr": "Müşteri alacağını iade et",
+    "ru": "Вернуть переплату клиенту"
+  },
+  "A previous attempt was restored. Check history before changing it, or retry it unchanged.": {
+    "en": "A previous attempt was restored. Check history before changing it, or retry it unchanged.",
+    "az": "Əvvəlki cəhd bərpa edildi. Dəyişməzdən əvvəl tarixçəni yoxla və ya eyni məlumatla təkrar göndər.",
+    "tr": "Önceki deneme geri yüklendi. Değiştirmeden önce geçmişi kontrol et veya aynı bilgilerle tekrar dene.",
+    "ru": "Восстановлена предыдущая попытка. Проверьте историю перед изменением или повторите без изменений."
+  },
+  "Voiding keeps the original payment and recalculates the customer balance.": {
+    "en": "Voiding keeps the original payment and recalculates the customer balance.",
+    "az": "Ləğv zamanı ilkin ödəniş tarixçədə qalır və müştəri balansı yenidən hesablanır.",
+    "tr": "İptalde ilk ödeme geçmişte kalır ve müşteri bakiyesi yeniden hesaplanır.",
+    "ru": "При отмене исходный платёж сохраняется, а баланс клиента пересчитывается."
+  },
+  "Available credit": {
+    "en": "Available credit",
+    "az": "Mövcud müştəri krediti",
+    "tr": "Mevcut müşteri alacağı",
+    "ru": "Доступная переплата"
+  },
+  "Available balance": {
+    "en": "Available balance",
+    "az": "Ödənilə bilən borc",
+    "tr": "Ödenebilir borç",
+    "ru": "Доступная сумма долга"
+  },
+  "Use full balance": {
+    "en": "Use full balance",
+    "az": "Tam məbləği seç",
+    "tr": "Tam tutarı kullan",
+    "ru": "Выбрать всю сумму"
+  },
+  "Payment method": {
+    "en": "Payment method",
+    "az": "Ödəniş üsulu",
+    "tr": "Ödeme yöntemi",
+    "ru": "Способ оплаты"
+  },
+  "Payment date": {
+    "en": "Payment date",
+    "az": "Ödəniş tarixi",
+    "tr": "Ödeme tarihi",
+    "ru": "Дата платежа"
+  },
+  "Note (optional)": {
+    "en": "Note (optional)",
+    "az": "Qeyd (seçimli)",
+    "tr": "Not (isteğe bağlı)",
+    "ru": "Примечание (необязательно)"
+  },
+  "Reason": {
+    "en": "Reason",
+    "az": "Səbəb",
+    "tr": "Sebep",
+    "ru": "Причина"
+  },
+  "Attach receipt photo": {
+    "en": "Attach receipt photo",
+    "az": "Qəbz şəkli əlavə et",
+    "tr": "Makbuz fotoğrafı ekle",
+    "ru": "Прикрепить фото квитанции"
+  },
+  "Remove photo": {
+    "en": "Remove photo",
+    "az": "Şəkli sil",
+    "tr": "Fotoğrafı kaldır",
+    "ru": "Убрать фото"
+  },
+  "Replace receipt photo": {
+    "en": "Replace receipt photo",
+    "az": "Qəbz şəklini dəyiş",
+    "tr": "Makbuz fotoğrafını değiştir",
+    "ru": "Заменить фото квитанции"
+  },
+  "The previously uploaded receipt is retained for this retry.": {
+    "en": "The previously uploaded receipt is retained for this retry.",
+    "az": "Əvvəl yüklənən qəbz şəkli təkrar cəhd üçün saxlanılıb.",
+    "tr": "Önceden yüklenen makbuz bu deneme için saklandı.",
+    "ru": "Ранее загруженная квитанция сохранена для повторной попытки."
+  },
+  "Record products covered (optional)": {
+    "en": "Record products covered (optional)",
+    "az": "Ödənişi alınan məhsulları qeyd et (seçimli)",
+    "tr": "Ödenen ürünleri kaydet (isteğe bağlı)",
+    "ru": "Указать оплаченные товары (необязательно)"
+  },
+  "Available: {quantity}": {
+    "en": "Available: {quantity}",
+    "az": "Qeyd edilə bilər: {quantity}",
+    "tr": "Kaydedilebilir: {quantity}",
+    "ru": "Доступно: {quantity}"
+  },
+  "Refunds": {
+    "en": "Refunds",
+    "az": "Pul qaytarmaları",
+    "tr": "Para iadeleri",
+    "ru": "Возвраты денег"
+  },
+  "Could not load customer history.": {
+    "en": "Could not load customer history.",
+    "az": "Müştəri tarixçəsi yüklənmədi.",
+    "tr": "Müşteri geçmişi yüklenemedi.",
+    "ru": "Не удалось загрузить историю клиента."
+  },
+  "Could not load invoice.": {
+    "en": "Could not load invoice.",
+    "az": "Qaimə yüklənmədi.",
+    "tr": "Fatura yüklenemedi.",
+    "ru": "Не удалось загрузить накладную."
+  },
+  "Could not save customer flag.": {
+    "en": "Could not save customer flag.",
+    "az": "Müştəri statusu saxlanılmadı.",
+    "tr": "Müşteri işareti kaydedilemedi.",
+    "ru": "Не удалось сохранить отметку клиента."
+  },
+  "Back to customers": {
+    "en": "Back to customers",
+    "az": "Müştərilərə qayıt",
+    "tr": "Müşterilere dön",
+    "ru": "Назад к клиентам"
+  },
+  "Refund credit": {
+    "en": "Refund credit",
+    "az": "Krediti geri qaytar",
+    "tr": "Alacağı iade et",
+    "ru": "Вернуть переплату"
+  },
+  "Sales total": {
+    "en": "Sales total",
+    "az": "Satışların cəmi",
+    "tr": "Satış toplamı",
+    "ru": "Сумма продаж"
+  },
+  "Net payments": {
+    "en": "Net payments",
+    "az": "Xalis mədaxil",
+    "tr": "Net tahsilat",
+    "ru": "Чистые поступления"
+  },
+  "Customer credit": {
+    "en": "Customer credit",
+    "az": "Müştərinin artıq ödənişi",
+    "tr": "Müşteri alacağı",
+    "ru": "Переплата клиента"
+  },
+  "Open map": {
+    "en": "Open map",
+    "az": "Xəritəni aç",
+    "tr": "Haritayı aç",
+    "ru": "Открыть карту"
+  },
+  "Orders": {
+    "en": "Orders",
+    "az": "Sifarişlər",
+    "tr": "Siparişler",
+    "ru": "Заказы"
+  },
+  "Customer flag": {
+    "en": "Customer flag",
+    "az": "Müştəri risk statusu",
+    "tr": "Müşteri risk işareti",
+    "ru": "Отметка о клиенте"
+  },
+  "Voided": {
+    "en": "Voided",
+    "az": "Ləğv edilib",
+    "tr": "İptal edildi",
+    "ru": "Отменён"
+  },
+  "View invoice": {
+    "en": "View invoice",
+    "az": "Qaiməyə bax",
+    "tr": "Faturayı görüntüle",
+    "ru": "Открыть накладную"
+  },
+  "View receipt": {
+    "en": "View receipt",
+    "az": "Qəbzə bax",
+    "tr": "Makbuzu görüntüle",
+    "ru": "Открыть квитанцию"
+  },
+  "Receipt photo": {
+    "en": "Receipt photo",
+    "az": "Qəbz şəkli",
+    "tr": "Makbuz fotoğrafı",
+    "ru": "Фото квитанции"
+  },
+  "Remove flag": {
+    "en": "Remove flag",
+    "az": "Risk statusunu sil",
+    "tr": "Risk işaretini kaldır",
+    "ru": "Снять отметку"
+  },
+  "Could not save purchase.": {
+    "en": "Could not save purchase.",
+    "az": "Alış saxlanılmadı.",
+    "tr": "Alış kaydedilemedi.",
+    "ru": "Не удалось сохранить закупку."
+  },
+  "Receive stock and record purchase costs.": {
+    "en": "Receive stock and record purchase costs.",
+    "az": "Stok daxil et və alış qiymətlərini qeyd et.",
+    "tr": "Stok girişi yap ve alış maliyetlerini kaydet.",
+    "ru": "Оприходуйте товары и запишите закупочные цены."
+  },
+  "Manage products": {
+    "en": "Manage products",
+    "az": "Məhsulları idarə et",
+    "tr": "Ürünleri yönet",
+    "ru": "Управление товарами"
+  },
+  "Purchase recorded and stock updated.": {
+    "en": "Purchase recorded and stock updated.",
+    "az": "Alış qeydə alındı və stok yeniləndi.",
+    "tr": "Alış kaydedildi ve stok güncellendi.",
+    "ru": "Закупка записана, остатки обновлены."
+  },
+  "Supplier (optional)": {
+    "en": "Supplier (optional)",
+    "az": "Təchizatçı (seçimli)",
+    "tr": "Tedarikçi (isteğe bağlı)",
+    "ru": "Поставщик (необязательно)"
+  },
+  "Supplier invoice (optional)": {
+    "en": "Supplier invoice (optional)",
+    "az": "Təchizatçı qaiməsi (seçimli)",
+    "tr": "Tedarikçi faturası (isteğe bağlı)",
+    "ru": "Накладная поставщика (необязательно)"
+  },
+  "Add products from the catalogue.": {
+    "en": "Add products from the catalogue.",
+    "az": "Kataloqdan məhsul əlavə et.",
+    "tr": "Katalogdan ürün ekle.",
+    "ru": "Добавьте товары из каталога."
+  },
+  "Remove item": {
+    "en": "Remove item",
+    "az": "Məhsulu çıxar",
+    "tr": "Ürünü kaldır",
+    "ru": "Убрать товар"
+  },
+  "Total cost": {
+    "en": "Total cost",
+    "az": "Alışın yekun məbləği",
+    "tr": "Toplam alış maliyeti",
+    "ru": "Итоговая сумма закупки"
+  },
+  "Clear selection": {
+    "en": "Clear selection",
+    "az": "Seçimi təmizlə",
+    "tr": "Seçimi temizle",
+    "ru": "Очистить выбор"
+  },
+  "Could not load payments.": {
+    "en": "Could not load payments.",
+    "az": "Mədaxillər yüklənmədi.",
+    "tr": "Tahsilatlar yüklenemedi.",
+    "ru": "Не удалось загрузить платежи."
+  },
+  "Customer collections, receipt photos and payment history.": {
+    "en": "Customer collections, receipt photos and payment history.",
+    "az": "Müştəri mədaxilləri, qəbz şəkilləri və ödəniş tarixçəsi.",
+    "tr": "Müşteri tahsilatları, makbuz fotoğrafları ve ödeme geçmişi.",
+    "ru": "Платежи клиентов, фото квитанций и история оплат."
+  },
+  "No payments yet.": {
+    "en": "No payments yet.",
+    "az": "Hələ ödəniş yoxdur.",
+    "tr": "Henüz ödeme yok.",
+    "ru": "Платежей пока нет."
+  },
+  "Payment history": {
+    "en": "Payment history",
+    "az": "Ödəniş tarixçəsi",
+    "tr": "Ödeme geçmişi",
+    "ru": "История платежей"
+  },
+  "Method": {
+    "en": "Method",
+    "az": "Üsul",
+    "tr": "Yöntem",
+    "ru": "Способ"
+  },
+  "Void": {
+    "en": "Void",
+    "az": "Ləğv et",
+    "tr": "İptal et",
+    "ru": "Отменить"
+  },
+  "Choose customer": {
+    "en": "Choose customer",
+    "az": "Müştəri seç",
+    "tr": "Müşteri seç",
+    "ru": "Выберите клиента"
+  },
+  "Continue": {
+    "en": "Continue",
+    "az": "Davam et",
+    "tr": "Devam et",
+    "ru": "Продолжить"
+  },
+  "Could not load customer.": {
+    "en": "Could not load customer.",
+    "az": "Müştəri yüklənmədi.",
+    "tr": "Müşteri yüklenemedi.",
+    "ru": "Не удалось загрузить клиента."
+  },
+  "Choose a customer or enter a customer name.": {
+    "en": "Choose a customer or enter a customer name.",
+    "az": "Müştəri seç və ya yeni müştərinin adını yaz.",
+    "tr": "Müşteri seç veya yeni müşterinin adını yaz.",
+    "ru": "Выберите клиента или введите имя нового."
+  },
+  "Check quantities, prices and available stock.": {
+    "en": "Check quantities, prices and available stock.",
+    "az": "Miqdarları, qiymətləri və stok qalıqlarını yoxla.",
+    "tr": "Miktarları, fiyatları ve stokları kontrol et.",
+    "ru": "Проверьте количество, цены и остатки."
+  },
+  "Could not confirm the sale. Retry the same sale if the response was lost.": {
+    "en": "Could not confirm the sale. Retry the same sale if the response was lost.",
+    "az": "Satış təsdiqlənmədi. Cavab itməyibsə tarixçəni yoxla; təkrar cəhddə eyni məlumatları saxla.",
+    "tr": "Satış onaylanamadı. Yanıt kaybolduysa aynı bilgilerle tekrar dene.",
+    "ru": "Не удалось подтвердить продажу. При потере ответа повторите с теми же данными."
+  },
+  "Choose a customer, add products and confirm the payment.": {
+    "en": "Choose a customer, add products and confirm the payment.",
+    "az": "Müştəri seç, məhsulları əlavə et və ödənişi təsdiqlə.",
+    "tr": "Müşteri seç, ürünleri ekle ve ödemeyi onayla.",
+    "ru": "Выберите клиента, добавьте товары и подтвердите оплату."
+  },
+  "Cart ({quantity})": {
+    "en": "Cart ({quantity})",
+    "az": "Səbət ({quantity})",
+    "tr": "Sepet ({quantity})",
+    "ru": "Корзина ({quantity})"
+  },
+  "Sale recorded": {
+    "en": "Sale recorded",
+    "az": "Satış qeydə alındı",
+    "tr": "Satış kaydedildi",
+    "ru": "Продажа записана"
+  },
+  "Business (optional)": {
+    "en": "Business (optional)",
+    "az": "Biznes / mağaza (seçimli)",
+    "tr": "İşletme / mağaza (isteğe bağlı)",
+    "ru": "Компания / магазин (необязательно)"
+  },
+  "Choose location (optional)": {
+    "en": "Choose location (optional)",
+    "az": "Konum seç (seçimli)",
+    "tr": "Konum seç (isteğe bağlı)",
+    "ru": "Выбрать место (необязательно)"
+  },
+  "Your cart is empty. Add products from the catalogue.": {
+    "en": "Your cart is empty. Add products from the catalogue.",
+    "az": "Səbət boşdur. Kataloqdan məhsul əlavə et.",
+    "tr": "Sepet boş. Katalogdan ürün ekle.",
+    "ru": "Корзина пуста. Добавьте товары из каталога."
+  },
+  "Customer credit applied": {
+    "en": "Customer credit applied",
+    "az": "Müştəri krediti istifadə olunur",
+    "tr": "Müşteri alacağı kullanılıyor",
+    "ru": "Зачёт переплаты клиента"
+  },
+  "Payment at sale": {
+    "en": "Payment at sale",
+    "az": "Satış zamanı ödəniş",
+    "tr": "Satış sırasında ödeme",
+    "ru": "Оплата при продаже"
+  },
+  "No payment": {
+    "en": "No payment",
+    "az": "Ödəniş alınmır",
+    "tr": "Ödeme alınmıyor",
+    "ru": "Без нового платежа"
+  },
+  "Full payment": {
+    "en": "Full payment",
+    "az": "Tam ödəniş",
+    "tr": "Tam ödeme",
+    "ru": "Полная оплата"
+  },
+  "Partial payment": {
+    "en": "Partial payment",
+    "az": "Qismən ödəniş",
+    "tr": "Kısmi ödeme",
+    "ru": "Частичная оплата"
+  },
+  "To collect": {
+    "en": "To collect",
+    "az": "Alınacaq məbləğ",
+    "tr": "Alınacak tutar",
+    "ru": "Сумма к получению"
+  },
+  "Order note (optional)": {
+    "en": "Order note (optional)",
+    "az": "Sifariş qeydi (seçimli)",
+    "tr": "Sipariş notu (isteğe bağlı)",
+    "ru": "Примечание к заказу (необязательно)"
+  },
+  "Clear cart": {
+    "en": "Clear cart",
+    "az": "Səbəti təmizlə",
+    "tr": "Sepeti temizle",
+    "ru": "Очистить корзину"
+  },
+  "Invoice not found.": {
+    "en": "Invoice not found.",
+    "az": "Qaimə tapılmadı.",
+    "tr": "Fatura bulunamadı.",
+    "ru": "Накладная не найдена."
+  },
+  "Payment exceeds the invoice balance.": {
+    "en": "Payment exceeds the invoice balance.",
+    "az": "Ödəniş qaimənin qalıq borcunu aşır.",
+    "tr": "Ödeme faturanın kalan borcunu aşıyor.",
+    "ru": "Платёж превышает остаток по накладной."
+  },
+  "Satılmış məhsul miqdarı qalan uyğun miqdarı aşır.": {
+    "en": "Recorded paid-for quantity exceeds the available quantity.",
+    "az": "Ödənişi alınan məhsul miqdarı qalan uyğun miqdarı aşır.",
+    "tr": "Ödenen ürün miktarı kalan uygun miktarı aşıyor.",
+    "ru": "Количество оплаченных товаров превышает доступный остаток."
+  },
+  "Payment not found.": {
+    "en": "Payment not found.",
+    "az": "Ödəniş tapılmadı.",
+    "tr": "Ödeme bulunamadı.",
+    "ru": "Платёж не найден."
+  },
+  "This payment has already been voided.": {
+    "en": "This payment has already been voided.",
+    "az": "Bu ödəniş artıq ləğv edilib.",
+    "tr": "Bu ödeme zaten iptal edildi.",
+    "ru": "Этот платёж уже отменён."
+  },
+  "This payment has been refunded and cannot be voided.": {
+    "en": "This payment has been refunded and cannot be voided.",
+    "az": "Bu ödənişdən pul qaytarıldığı üçün ləğv etmək olmaz.",
+    "tr": "Bu ödemeden para iadesi yapıldığı için iptal edilemez.",
+    "ru": "По этому платежу выполнен возврат, поэтому отмена невозможна."
+  },
+  "Choose a payment method.": {
+    "en": "Choose a payment method.",
+    "az": "Ödəniş üsulu seç.",
+    "tr": "Ödeme yöntemi seç.",
+    "ru": "Выберите способ оплаты."
+  },
+  "Refund exceeds the available customer credit.": {
+    "en": "Refund exceeds the available customer credit.",
+    "az": "Qaytarılan pul müştərinin mövcud kreditini aşır.",
+    "tr": "Para iadesi müşterinin mevcut alacağını aşıyor.",
+    "ru": "Возврат превышает доступную переплату клиента."
+  },
+  "Satışın ümumi məbləği çox böyükdür.": {
+    "en": "The sale total exceeds the allowed limit.",
+    "az": "Satışın ümumi məbləği çox böyükdür.",
+    "tr": "Satışın toplam tutarı çok büyük.",
+    "ru": "Общая сумма продажи слишком велика."
+  },
+  "Ya mövcud, ya yeni müştəri göndər.": {
+    "en": "Choose either an existing customer or a new customer.",
+    "az": "Mövcud və ya yeni müştəridən yalnız birini seç.",
+    "tr": "Mevcut veya yeni müşteriden yalnızca birini seç.",
+    "ru": "Выберите либо существующего, либо нового клиента."
+  },
+  "Check the initial payment.": {
+    "en": "Check the initial payment.",
+    "az": "İlkin ödənişi yoxla.",
+    "tr": "İlk ödemeyi kontrol et.",
+    "ru": "Проверьте первоначальный платёж."
+  },
+  "Payment exceeds the remaining customer debt after credit.": {
+    "en": "Payment exceeds the remaining customer debt after credit.",
+    "az": "Ödəniş kredit çıxıldıqdan sonra qalan müştəri borcunu aşır.",
+    "tr": "Ödeme alacak düşüldükten sonra kalan müşteri borcunu aşıyor.",
+    "ru": "Платёж превышает долг клиента после зачёта переплаты."
+  },
+  "{total} results · page {page} of {pages}": {
+    "en": "{total} results · page {page} of {pages}",
+    "az": "{total} nəticə · səhifə {page}/{pages}",
+    "tr": "{total} sonuç · sayfa {page}/{pages}",
+    "ru": "Результатов: {total} · страница {page} из {pages}"
+  },
+  "CSV ixrac": {
+    "en": "Export CSV",
+    "az": "CSV ixrac",
+    "tr": "CSV dışa aktar",
+    "ru": "Экспорт CSV"
+  },
+  "Team and PINs": {
+    "en": "Team and PINs",
+    "az": "Komanda və PIN-lər",
+    "tr": "Ekip ve PIN'ler",
+    "ru": "Команда и PIN-коды"
+  },
+  "Manage access for your company. PINs are never displayed.": {
+    "en": "Manage access for your company. PINs are never displayed.",
+    "az": "Şirkətə giriş icazələrini idarə et. PIN-lər göstərilmir.",
+    "tr": "Şirket erişimini yönetin. PIN'ler gösterilmez.",
+    "ru": "Управляйте доступом к компании. PIN-коды не отображаются."
+  },
+  "Add member": {
+    "en": "Add member",
+    "az": "İşçi əlavə et",
+    "tr": "Çalışan ekle",
+    "ru": "Добавить сотрудника"
+  },
+  "Active accounts: {count} of {limit}": {
+    "en": "Active accounts: {count} of {limit}",
+    "az": "Aktiv hesablar: {count}/{limit}",
+    "tr": "Aktif hesaplar: {count}/{limit}",
+    "ru": "Активных аккаунтов: {count} из {limit}"
+  },
+  "You": {
+    "en": "You",
+    "az": "Sən",
+    "tr": "Siz",
+    "ru": "Вы"
+  },
+  "Active": {
+    "en": "Active",
+    "az": "Aktiv",
+    "tr": "Aktif",
+    "ru": "Активен"
+  },
+  "Inactive": {
+    "en": "Inactive",
+    "az": "Deaktiv",
+    "tr": "Pasif",
+    "ru": "Неактивен"
+  },
+  "Edit access": {
+    "en": "Edit access",
+    "az": "Giriş icazəsini dəyiş",
+    "tr": "Erişimi düzenle",
+    "ru": "Изменить доступ"
+  },
+  "Full name": {
+    "en": "Full name",
+    "az": "Ad və soyad",
+    "tr": "Ad soyad",
+    "ru": "Имя и фамилия"
+  },
+  "Role": {
+    "en": "Role",
+    "az": "Rol",
+    "tr": "Rol",
+    "ru": "Роль"
+  },
+  "New PIN (leave blank to keep)": {
+    "en": "New PIN (leave blank to keep)",
+    "az": "Yeni PIN (saxlamaq üçün boş qoy)",
+    "tr": "Yeni PIN (korumak için boş bırakın)",
+    "ru": "Новый PIN (оставьте пустым, чтобы сохранить)"
+  },
+  "PIN": {
+    "en": "PIN",
+    "az": "PIN",
+    "tr": "PIN",
+    "ru": "PIN"
+  },
+  "Changing access signs this member out. Updating your own account requires signing in again.": {
+    "en": "Changing access signs this member out. Updating your own account requires signing in again.",
+    "az": "Giriş icazəsi dəyişəndə işçinin sessiyası bağlanır. Öz hesabını dəyişəndə yenidən daxil olmalısan.",
+    "tr": "Erişim değişince çalışanın oturumu kapanır. Kendi hesabınızı güncellerseniz yeniden giriş gerekir.",
+    "ru": "При изменении доступа сеанс сотрудника завершается. После изменения своего аккаунта войдите заново."
+  },
+  "Could not load team.": {
+    "en": "Could not load team.",
+    "az": "Komanda yüklənmədi.",
+    "tr": "Ekip yüklenemedi.",
+    "ru": "Не удалось загрузить команду."
+  },
+  "Could not save team member.": {
+    "en": "Could not save team member.",
+    "az": "İşçi məlumatı saxlanmadı.",
+    "tr": "Çalışan kaydedilemedi.",
+    "ru": "Не удалось сохранить сотрудника."
+  },
+  "Plan and renewal": {
+    "en": "Plan and renewal",
+    "az": "Paket və yenilənmə",
+    "tr": "Paket ve yenileme",
+    "ru": "Тариф и продление"
+  },
+  "Subscription payments are separate from sales recorded in your company.": {
+    "en": "Subscription payments are separate from sales recorded in your company.",
+    "az": "Abunəlik ödənişləri şirkətdə qeyd etdiyin satışlardan ayrıdır.",
+    "tr": "Abonelik ödemeleri şirketinizde kaydedilen satışlardan ayrıdır.",
+    "ru": "Оплата подписки отделена от продаж, записанных в вашей компании."
+  },
+  "Expired subscription? Sign in with company credentials and an administrator PIN.": {
+    "en": "Expired subscription? Sign in with company credentials and an administrator PIN.",
+    "az": "Abunəlik bitib? Şirkət hesabı və admin PIN-i ilə daxil ol.",
+    "tr": "Abonelik bitti mi? Şirket hesabı ve yönetici PIN'i ile giriş yapın.",
+    "ru": "Подписка истекла? Войдите с данными компании и PIN-кодом администратора."
+  },
+  "Company email": {
+    "en": "Company email",
+    "az": "Şirkət e-poçtu",
+    "tr": "Şirket e-postası",
+    "ru": "Эл. почта компании"
+  },
+  "Company password": {
+    "en": "Company password",
+    "az": "Şirkət şifrəsi",
+    "tr": "Şirket şifresi",
+    "ru": "Пароль компании"
+  },
+  "Admin PIN": {
+    "en": "Admin PIN",
+    "az": "Admin PIN-i",
+    "tr": "Yönetici PIN'i",
+    "ru": "PIN администратора"
+  },
+  "Back to sign in": {
+    "en": "Back to sign in",
+    "az": "Girişə qayıt",
+    "tr": "Girişe dön",
+    "ru": "Вернуться ко входу"
+  },
+  "Could not sign in.": {
+    "en": "Could not sign in.",
+    "az": "Daxil olmaq mümkün olmadı.",
+    "tr": "Giriş yapılamadı.",
+    "ru": "Не удалось войти."
+  },
+  "Subscription active": {
+    "en": "Subscription active",
+    "az": "Abunəlik aktivdir",
+    "tr": "Abonelik aktif",
+    "ru": "Подписка активна"
+  },
+  "Subscription expired": {
+    "en": "Subscription expired",
+    "az": "Abunəlik bitib",
+    "tr": "Abonelik süresi doldu",
+    "ru": "Подписка истекла"
+  },
+  "Cancellation scheduled": {
+    "en": "Cancellation scheduled",
+    "az": "Ləğv planlaşdırılıb",
+    "tr": "İptal planlandı",
+    "ru": "Отмена запланирована"
+  },
+  "Current subscription price": {
+    "en": "Current subscription price",
+    "az": "Hazırkı abunəlik qiyməti",
+    "tr": "Güncel abonelik fiyatı",
+    "ru": "Текущая стоимость подписки"
+  },
+  "Manage subscription and payment method": {
+    "en": "Manage subscription and payment method",
+    "az": "Abunəliyi və ödəniş üsulunu idarə et",
+    "tr": "Aboneliği ve ödeme yöntemini yönet",
+    "ru": "Управлять подпиской и способом оплаты"
+  },
+  "Billing cycle": {
+    "en": "Billing cycle",
+    "az": "Ödəniş dövrü",
+    "tr": "Faturalama dönemi",
+    "ru": "Период оплаты"
+  },
+  "Real billing email": {
+    "en": "Real billing email",
+    "az": "Ödəniş üçün gerçək e-poçt",
+    "tr": "Ödeme için gerçek e-posta",
+    "ru": "Настоящая эл. почта для оплаты"
+  },
+  "Open secure checkout": {
+    "en": "Open secure checkout",
+    "az": "Təhlükəsiz ödəniş səhifəsini aç",
+    "tr": "Güvenli ödeme sayfasını aç",
+    "ru": "Открыть защищённую оплату"
+  },
+  "Your prepaid plan is still active. Contact support for early renewal.": {
+    "en": "Your prepaid plan is still active. Contact support for early renewal.",
+    "az": "Öncədən ödənilmiş paket aktivdir. Erkən yenilənmə üçün dəstəyə yaz.",
+    "tr": "Peşin ödenmiş paketiniz aktif. Erken yenileme için desteğe yazın.",
+    "ru": "Предоплаченный тариф ещё действует. Для раннего продления обратитесь в поддержку."
+  },
+  "Contact support to renew your plan.": {
+    "en": "Contact support to renew your plan.",
+    "az": "Paketi yeniləmək üçün dəstəyə yaz.",
+    "tr": "Paketi yenilemek için desteğe yazın.",
+    "ru": "Для продления тарифа обратитесь в поддержку."
+  },
+  "Refresh status": {
+    "en": "Refresh status",
+    "az": "Statusu yenilə",
+    "tr": "Durumu yenile",
+    "ru": "Обновить статус"
+  },
+  "Could not load subscription.": {
+    "en": "Could not load subscription.",
+    "az": "Abunəlik məlumatı yüklənmədi.",
+    "tr": "Abonelik yüklenemedi.",
+    "ru": "Не удалось загрузить подписку."
+  },
+  "Could not open billing.": {
+    "en": "Could not open billing.",
+    "az": "Ödəniş səhifəsi açılmadı.",
+    "tr": "Ödeme sayfası açılamadı.",
+    "ru": "Не удалось открыть оплату."
+  },
+  "Support": {
+    "en": "Support",
+    "az": "Dəstək",
+    "tr": "Destek",
+    "ru": "Поддержка"
+  },
+  "Privacy": {
+    "en": "Privacy",
+    "az": "Məxfilik",
+    "tr": "Gizlilik",
+    "ru": "Конфиденциальность"
+  },
+  "Terms": {
+    "en": "Terms",
+    "az": "İstifadə şərtləri",
+    "tr": "Kullanım koşulları",
+    "ru": "Условия использования"
+  },
+  "Privacy contact": {
+    "en": "Privacy contact",
+    "az": "Məxfilik üçün əlaqə",
+    "tr": "Gizlilik iletişimi",
+    "ru": "Контакт по вопросам конфиденциальности"
+  },
+  "Data region": {
+    "en": "Data region",
+    "az": "Məlumatların yerləşdiyi region",
+    "tr": "Verilerin bulunduğu bölge",
+    "ru": "Регион хранения данных"
+  },
+  "Service operator details have not been configured. Contact your provider.": {
+    "en": "Service operator details have not been configured. Contact your provider.",
+    "az": "Xidmət operatorunun məlumatları təyin edilməyib. Təchizatçınla əlaqə saxla.",
+    "tr": "Hizmet işletmecisi bilgileri ayarlanmamış. Sağlayıcınızla iletişime geçin.",
+    "ru": "Данные оператора сервиса не настроены. Свяжитесь с поставщиком."
+  },
+  "For account recovery, subscription renewal or a technical issue, contact support. Include the request ID shown with an error. Never send your password or PIN.": {
+    "en": "For account recovery, subscription renewal or a technical issue, contact support. Include the request ID shown with an error. Never send your password or PIN.",
+    "az": "Hesabın bərpası, abunəliyin yenilənməsi və ya texniki məsələ üçün dəstəyə yaz. Xəta ilə göstərilən sorğu ID-sini əlavə et. Şifrəni və PIN-i göndərmə.",
+    "tr": "Hesap kurtarma, abonelik yenileme veya teknik sorun için desteğe yazın. Hata ile gösterilen istek kimliğini ekleyin. Şifrenizi veya PIN'inizi göndermeyin.",
+    "ru": "Для восстановления доступа, продления подписки или решения технической проблемы обратитесь в поддержку. Укажите ID запроса из сообщения об ошибке. Не отправляйте пароль или PIN."
+  },
+  "Could not load service details.": {
+    "en": "Could not load service details.",
+    "az": "Xidmət məlumatları yüklənmədi.",
+    "tr": "Hizmet bilgileri yüklenemedi.",
+    "ru": "Не удалось загрузить данные сервиса."
+  },
+  "Renew subscription": {
+    "en": "Renew subscription",
+    "az": "Abunəliyi yenilə",
+    "tr": "Aboneliği yenile",
+    "ru": "Продлить подписку"
+  },
+  "We store company contacts, inventory, sales, payments and receipt images to provide the service.": {
+    "en": "We store company contacts, inventory, sales, payments and receipt images to provide the service.",
+    "az": "Xidməti göstərmək üçün şirkət kontaktları, stok, satış, ödəniş və qəbz şəkillərini saxlayırıq.",
+    "tr": "Hizmeti sunmak için şirket kişileri, stok, satış, ödeme ve makbuz görsellerini saklarız.",
+    "ru": "Для предоставления сервиса мы храним контакты компании, данные запасов, продаж, платежей и изображения квитанций."
+  },
+  "Each company controls its business records. Access is limited by company membership and role.": {
+    "en": "Each company controls its business records. Access is limited by company membership and role.",
+    "az": "Hər şirkət öz biznes qeydlərinə nəzarət edir. Giriş şirkət üzvlüyü və rol ilə məhdudlaşır.",
+    "tr": "Her şirket kendi iş kayıtlarını kontrol eder. Erişim şirket üyeliği ve rolle sınırlandırılır.",
+    "ru": "Каждая компания контролирует свои деловые записи. Доступ ограничен членством в компании и ролью."
+  },
+  "Payment card details are handled by the payment provider, not stored in this application.": {
+    "en": "Payment card details are handled by the payment provider, not stored in this application.",
+    "az": "Kart məlumatlarını ödəniş provayderi emal edir; bu tətbiqdə saxlanmır.",
+    "tr": "Kart bilgileri ödeme sağlayıcısı tarafından işlenir; bu uygulamada saklanmaz.",
+    "ru": "Данные карт обрабатывает платёжный провайдер; это приложение их не хранит."
+  },
+  "Contact the service operator for access, export or deletion requests. Backup retention and legal obligations may affect deletion timing.": {
+    "en": "Contact the service operator for access, export or deletion requests. Backup retention and legal obligations may affect deletion timing.",
+    "az": "Giriş, ixrac və silinmə sorğuları üçün xidmət operatoruna yaz. Backup saxlanması və hüquqi öhdəliklər silinmə vaxtına təsir edə bilər.",
+    "tr": "Erişim, dışa aktarma veya silme talepleri için hizmet işletmecisine yazın. Yedek saklama ve yasal yükümlülükler silme süresini etkileyebilir.",
+    "ru": "По вопросам доступа, экспорта или удаления обратитесь к оператору сервиса. Срок удаления может зависеть от резервных копий и правовых обязательств."
+  },
+  "Use the service only for business records you are authorized to manage. Keep company credentials and personal PINs private.": {
+    "en": "Use the service only for business records you are authorized to manage. Keep company credentials and personal PINs private.",
+    "az": "Xidməti yalnız idarəsinə icazən olan biznes qeydləri üçün istifadə et. Şirkət girişini və şəxsi PIN-ləri gizli saxla.",
+    "tr": "Hizmeti yalnızca yönetmeye yetkili olduğunuz iş kayıtları için kullanın. Şirket giriş bilgilerini ve kişisel PIN'leri gizli tutun.",
+    "ru": "Используйте сервис только для записей, которыми вы вправе управлять. Храните данные входа компании и личные PIN-коды в тайне."
+  },
+  "The application records inventory and receivables. It does not submit tax returns or move customer funds.": {
+    "en": "The application records inventory and receivables. It does not submit tax returns or move customer funds.",
+    "az": "Tətbiq stok və müştəri borclarını uçota alır. Vergi bəyannaməsi təqdim etmir və müştərinin pulunu köçürmür.",
+    "tr": "Uygulama stok ve alacakları kaydeder. Vergi beyannamesi göndermez veya müşteri parası aktarmaz.",
+    "ru": "Приложение ведёт учёт запасов и дебиторской задолженности. Оно не подаёт налоговые декларации и не переводит средства клиентов."
+  },
+  "Subscription price, billing cycle and applicable charges are shown before payment. Recurring billing applies only after checkout confirmation.": {
+    "en": "Subscription price, billing cycle and applicable charges are shown before payment. Recurring billing applies only after checkout confirmation.",
+    "az": "Abunəlik qiyməti, ödəniş dövrü və tətbiq olunan ödənişlər təsdiqdən əvvəl göstərilir. Dövri ödəniş yalnız checkout təsdiqindən sonra tətbiq olunur.",
+    "tr": "Abonelik fiyatı, ödeme dönemi ve geçerli ücretler ödemeden önce gösterilir. Düzenli faturalama yalnızca ödeme onayından sonra uygulanır.",
+    "ru": "Цена подписки, период оплаты и применимые сборы указываются до оплаты. Регулярные списания действуют только после подтверждения заказа."
+  },
+  "Manage cancellation through the subscription portal or contact support. Contact the operator for refund requests and service questions.": {
+    "en": "Manage cancellation through the subscription portal or contact support. Contact the operator for refund requests and service questions.",
+    "az": "Ləğvi abunəlik portalında idarə et və ya dəstəyə yaz. Pul qaytarılması və xidmət sualları üçün operatorla əlaqə saxla.",
+    "tr": "İptali abonelik portalından yönetin veya desteğe yazın. İade talepleri ve hizmet soruları için işletmeciyle iletişime geçin.",
+    "ru": "Управляйте отменой через портал подписки или поддержку. Для возврата средств и вопросов о сервисе обратитесь к оператору."
+  },
+  "This page could not be opened.": {
+    "en": "This page could not be opened.",
+    "az": "Səhifəni açmaq mümkün olmadı.",
+    "tr": "Bu sayfa açılamadı.",
+    "ru": "Не удалось открыть страницу."
+  },
+  "Reload the page. If the problem continues, contact support.": {
+    "en": "Reload the page. If the problem continues, contact support.",
+    "az": "Səhifəni yenilə. Problem davam edərsə dəstəyə yaz.",
+    "tr": "Sayfayı yenileyin. Sorun sürerse desteğe yazın.",
+    "ru": "Обновите страницу. Если проблема сохраняется, обратитесь в поддержку."
+  },
+  "Reload": {
+    "en": "Reload",
+    "az": "Yenilə",
+    "tr": "Yenile",
+    "ru": "Обновить"
+  },
+  "Reference: {id}": {
+    "en": "Reference: {id}",
+    "az": "İstinad: {id}",
+    "tr": "Referans: {id}",
+    "ru": "Код обращения: {id}"
+  },
+  "Administrator sign-in is required.": {
+    "en": "Administrator sign-in is required.",
+    "az": "Admin girişi tələb olunur.",
+    "tr": "Yönetici girişi gereklidir.",
+    "ru": "Требуется вход администратора."
+  },
+  "Company credentials or admin PIN are incorrect.": {
+    "en": "Company credentials or admin PIN are incorrect.",
+    "az": "Şirkət girişi və ya admin PIN-i yanlışdır.",
+    "tr": "Şirket bilgileri veya yönetici PIN'i yanlış.",
+    "ru": "Неверные данные компании или PIN администратора."
+  },
+  "Enter company email, password and admin PIN.": {
+    "en": "Enter company email, password and admin PIN.",
+    "az": "Şirkət e-poçtu, şifrə və admin PIN-ini daxil et.",
+    "tr": "Şirket e-postasını, şifresini ve yönetici PIN'ini girin.",
+    "ru": "Введите эл. почту компании, пароль и PIN администратора."
+  },
+  "Contact support for this plan.": {
+    "en": "Contact support for this plan.",
+    "az": "Bu paket üçün dəstəyə yaz.",
+    "tr": "Bu paket için desteğe yazın.",
+    "ru": "По этому тарифу обратитесь в поддержку."
+  },
+  "Choose a billing cycle and a real billing email.": {
+    "en": "Choose a billing cycle and a real billing email.",
+    "az": "Ödəniş dövrünü və gerçək e-poçtu seç.",
+    "tr": "Ödeme dönemi ve gerçek e-posta seçin.",
+    "ru": "Выберите период оплаты и настоящую эл. почту."
+  },
+  "Manage the existing subscription instead.": {
+    "en": "Manage the existing subscription instead.",
+    "az": "Mövcud abunəliyi idarə et.",
+    "tr": "Mevcut aboneliği yönetin.",
+    "ru": "Управляйте существующей подпиской."
+  },
+  "Payment is being confirmed. Refresh your subscription status.": {
+    "en": "Payment is being confirmed. Refresh your subscription status.",
+    "az": "Ödəniş təsdiqlənir. Abunəlik statusunu yenilə.",
+    "tr": "Ödeme onaylanıyor. Abonelik durumunu yenileyin.",
+    "ru": "Платёж подтверждается. Обновите статус подписки."
+  },
+  "Checkout confirmation is pending. Contact support before starting another payment.": {
+    "en": "Checkout confirmation is pending. Contact support before starting another payment.",
+    "az": "Checkout təsdiqi gözlənilir. Yeni ödənişdən əvvəl dəstəyə yaz.",
+    "tr": "Ödeme onayı bekleniyor. Yeni ödeme başlatmadan önce desteğe yazın.",
+    "ru": "Подтверждение оплаты ожидается. Перед новой оплатой обратитесь в поддержку."
+  },
+  "Billing provider could not be reached.": {
+    "en": "Billing provider could not be reached.",
+    "az": "Ödəniş provayderi ilə əlaqə qurulmadı.",
+    "tr": "Ödeme sağlayıcısına ulaşılamadı.",
+    "ru": "Не удалось связаться с платёжным провайдером."
+  },
+  "Billing provider rejected the request.": {
+    "en": "Billing provider rejected the request.",
+    "az": "Ödəniş provayderi sorğunu qəbul etmədi.",
+    "tr": "Ödeme sağlayıcısı isteği reddetti.",
+    "ru": "Платёжный провайдер отклонил запрос."
+  },
+  "Billing price configuration must be reviewed.": {
+    "en": "Billing price configuration must be reviewed.",
+    "az": "Abunəlik qiyməti konfiqurasiyası yoxlanmalıdır.",
+    "tr": "Abonelik fiyat ayarları kontrol edilmelidir.",
+    "ru": "Необходимо проверить настройки стоимости подписки."
+  },
+  "active": {
+    "en": "active",
+    "az": "Aktiv",
+    "tr": "Aktif",
+    "ru": "Активна"
+  },
+  "manual": {
+    "en": "manual",
+    "az": "Əllə idarə olunur",
+    "tr": "Elle yönetiliyor",
+    "ru": "Ручное управление"
+  },
+  "past_due": {
+    "en": "past_due",
+    "az": "Ödəniş gecikib",
+    "tr": "Ödeme gecikmiş",
+    "ru": "Платёж просрочен"
+  },
+  "canceled": {
+    "en": "canceled",
+    "az": "Ləğv edilib",
+    "tr": "İptal edildi",
+    "ru": "Отменена"
+  },
+  "paused": {
+    "en": "paused",
+    "az": "Dayandırılıb",
+    "tr": "Duraklatıldı",
+    "ru": "Приостановлена"
+  },
+  "trialing": {
+    "en": "trialing",
+    "az": "Sınaq mərhələsində",
+    "tr": "Deneme süresinde",
+    "ru": "Пробный период"
+  },
+  "Name": {
+    "en": "Name",
+    "az": "Ad",
+    "tr": "Ad",
+    "ru": "Название"
+  },
+  "Secure checkout": {
+    "en": "Secure checkout",
+    "az": "Təhlükəsiz ödəniş",
+    "tr": "Güvenli ödeme",
+    "ru": "Защищённая оплата"
+  },
+  "Checkout is not available. Contact support.": {
+    "en": "Checkout is not available. Contact support.",
+    "az": "Ödəniş səhifəsi əlçatan deyil. Dəstəyə yaz.",
+    "tr": "Ödeme sayfası kullanılamıyor. Desteğe yazın.",
+    "ru": "Страница оплаты недоступна. Обратитесь в поддержку."
+  },
+  "Open checkout from your subscription page.": {
+    "en": "Open checkout from your subscription page.",
+    "az": "Ödənişi abunəlik səhifəsindən aç.",
+    "tr": "Ödemeyi abonelik sayfasından açın.",
+    "ru": "Откройте оплату со страницы подписки."
+  },
+  "Checkout opens in a secure payment window. Subscription access is confirmed by the server.": {
+    "en": "Checkout opens in a secure payment window. Subscription access is confirmed by the server.",
+    "az": "Ödəniş təhlükəsiz pəncərədə açılır. Abunəlik server təsdiqindən sonra aktivləşir.",
+    "tr": "Ödeme güvenli pencerede açılır. Abonelik sunucu onayından sonra etkinleşir.",
+    "ru": "Оплата откроется в защищённом окне. Доступ к подписке подтверждается сервером."
+  },
+  "Refresh subscription status": {
+    "en": "Refresh subscription status",
+    "az": "Abunəlik statusunu yenilə",
+    "tr": "Abonelik durumunu yenile",
+    "ru": "Обновить статус подписки"
+  }
+}

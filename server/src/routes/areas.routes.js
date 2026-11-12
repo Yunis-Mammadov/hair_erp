@@ -1,3 +1,4 @@
+const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth } = require("../middleware/auth.middleware");
@@ -17,7 +18,7 @@ router.get("/", requireAuth, async (req, res) => {
 
     return res.json(areas);
   } catch (error) {
-    console.error("GET /areas error:", error);
+    log("GET /areas error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
     return res.status(500).json({ message: "Ərazilər gətirilə bilmədi" });
   }
 });

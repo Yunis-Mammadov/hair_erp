@@ -169,6 +169,7 @@ router.post(
     }
   },
 );
+router.post('/logout',requireAuth,async(req,res,next)=>{try{await platformPrisma.user.update({where:{id:req.user.id},data:{authVersion:{increment:1}}});res.json({ok:true});}catch(error){next(error);}});
 router.get("/me", requireAuth, (req, res) => res.json(publicUser(req)));
 router.post("/setup-admin", (_req, res) =>
   res

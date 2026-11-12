@@ -1,364 +1,350 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  Alert,
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Skeleton,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  TextField,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
-import { useTheme } from "@mui/material/styles";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
-import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
-import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
+import { amountValue } from "../lib/money-input.mjs";
+import { useI18n } from "../i18n/useI18n";
+import { t } from "../i18n/runtime";
+import { useEffect, useState } from "react";
+import { Alert, Box, Button, Chip, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Stack, TableHead, TableBody, TableRow, TableCell, TextField, Typography } from "@mui/material";
+import { useAuth } from "../features/auth/useAuth";
 import { api } from "../lib/api";
-
-function formatMoney(value) {
-  return `${Number(value || 0).toFixed(2)} ₼`;
-}
-
-function formatDate(dateString) {
-  if (!dateString) return "-";
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return "-";
-  return date.toLocaleString("az-AZ");
-}
-
-function getStatusLabel(status) {
-  if (status === "OUT") return "Bitib";
-  if (status === "LOW") return "Az qalıb";
-  return "Normal";
-}
-
-function getStatusColor(status) {
-  if (status === "OUT") return "error";
-  if (status === "LOW") return "warning";
-  return "success";
-}
-
+import { PageLayout, PageHeader, PageCard, DataTable, RecordDate } from "../components/WorkspaceUI";
+import { RecordPager, ExportButton, ImportButton } from "../components/RecordsTools";
 export default function StockPage() {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const [categories, setCategories] = useState([]);
-  const [items, setItems] = useState([]);
-  const [stats, setStats] = useState({
-    totalProducts: 0,
-    totalQuantity: 0,
-    outOfStock: 0,
-    lowStock: 0,
-  });
-
-  const [search, setSearch] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [status, setStatus] = useState("ALL");
-
-  async function fetchCategories() {
-    const res = await api.get("/catalog/categories");
-    setCategories(res.data?.categories || []);
-  }
-
-  async function fetchStock() {
+  useI18n();
+  const {
+      user
+    } = useAuth(),
+    admin = user?.role === "ADMIN",
+    canCount = admin || user?.role === "WAREHOUSE";
+  const [filters, setFilters] = useState({
+      search: "",
+      categoryId: "",
+      status: "ALL",
+      archived: false
+    }),
+    [page, setPage] = useState(1),
+    [reload, setReload] = useState(0),
+    [data, setData] = useState(null),
+    [categories, setCategories] = useState([]),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const [edit, setEdit] = useState(null),
+    [count, setCount] = useState(null),
+    [history, setHistory] = useState(null),
+    [historyPage, setHistoryPage] = useState(1),
+    [movements, setMovements] = useState(null),
+    [saving, setSaving] = useState(false),
+    [dialogError, setDialogError] = useState("");
+  useEffect(() => {
+    api.get("/catalog/categories").then(r => setCategories(r.data.categories || [])).catch(() => setError(t("Kateqoriyalar yüklənmədi.")));
+  }, [reload]);
+  useEffect(() => {
+    let active = true;
+    const timer = setTimeout(async () => {
+      setBusy(true);
+      try {
+        const {
+          data
+        } = await api.get("/stock", {
+          params: {
+            ...filters,
+            page,
+            limit: 25
+          }
+        });
+        if (active) {
+          setData(data);
+          if (page > Math.max(data.pagination.totalPages, 1)) setPage(Math.max(data.pagination.totalPages, 1));
+          setError("");
+        }
+      } catch (e) {
+        if (active) setError(e.response?.data?.message || t("Stok yüklənmədi."));
+      } finally {
+        if (active) setBusy(false);
+      }
+    }, 250);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [filters, page, reload]);
+  useEffect(() => {
+    if (!history) return;
+    let active = true;
+    setMovements(null);
+    api.get(`/stock/${history.productId}/movements`, {
+      params: {
+        page: historyPage,
+        limit: 20
+      }
+    }).then(r => {
+      if (active) setMovements(r.data);
+    }).catch(() => {
+      if (active) setDialogError(t("Tarixçə yüklənmədi."));
+    });
+    return () => {
+      active = false;
+    };
+  }, [history, historyPage]);
+  const refresh = () => setReload(v => v + 1);
+  const filter = (key, value) => {
+    setFilters(p => ({
+      ...p,
+      [key]: value
+    }));
+    setPage(1);
+  };
+  async function save(fn) {
+    setSaving(true);
+    setDialogError("");
     try {
-      setLoading(true);
-      setError("");
-
-      const res = await api.get("/stock", {
-        params: {
-          search: search.trim() || undefined,
-          categoryId: categoryId || undefined,
-          status,
-        },
-      });
-
-      setItems(res.data?.items || []);
-      setStats(
-        res.data?.stats || {
-          totalProducts: 0,
-          totalQuantity: 0,
-          outOfStock: 0,
-          lowStock: 0,
-        },
-      );
-    } catch (err) {
-      console.error(err);
-      setError(err?.response?.data?.message || "Stok məlumatı yüklənmədi");
+      await fn();
+      setEdit(null);
+      setCount(null);
+      refresh();
+    } catch (e) {
+      setDialogError(e.response?.data?.message || t("Əməliyyat alınmadı."));
+      if (!edit && !count) setError(e.response?.data?.message || t("Əməliyyat alınmadı."));
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   }
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    fetchStock();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryId, status]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchStock();
-    }, 350);
-
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
-
-  const statCards = useMemo(
-    () => [
-      {
-        title: "Məhsul növü",
-        value: stats.totalProducts,
-        icon: <CategoryOutlinedIcon color="primary" />,
-      },
-      {
-        title: "Toplam stok",
-        value: stats.totalQuantity,
-        icon: <Inventory2OutlinedIcon color="success" />,
-      },
-      {
-        title: "Bitib",
-        value: stats.outOfStock,
-        icon: <CancelOutlinedIcon color="error" />,
-      },
-      {
-        title: "Az qalıb",
-        value: stats.lowStock,
-        icon: <WarningAmberOutlinedIcon color="warning" />,
-      },
-    ],
-    [stats],
-  );
-
-  return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: 1600, mx: "auto" }}>
-      <Card sx={{ borderRadius: 4, mb: 2 }}>
-        <CardContent>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 900, letterSpacing: -0.6, mb: 0.5 }}
-          >
-            Anbar qalığı
-          </Typography>
-
-          <Typography sx={{ opacity: 0.75 }}>
-            Alış zamanı əlavə olunan məhsulların hazırkı stok vəziyyəti
-          </Typography>
-        </CardContent>
-      </Card>
-
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        {statCards.map((card) => (
-          <Grid item xs={12} sm={6} lg={3} key={card.title}>
-            <Paper variant="outlined" sx={{ p: 2, borderRadius: 4 }}>
-              <Stack direction="row" spacing={1.2} alignItems="center">
-                {card.icon}
-                <Box>
-                  <Typography sx={{ fontSize: 13, opacity: 0.75 }}>
-                    {card.title}
-                  </Typography>
-                  <Typography sx={{ fontWeight: 900, fontSize: 28 }}>
-                    {card.value}
-                  </Typography>
-                </Box>
-              </Stack>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-
-      <Card sx={{ borderRadius: 4, mb: 2 }}>
-        <CardContent>
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={1.5}
-            alignItems={{ xs: "stretch", md: "center" }}
-          >
-            <TextField
-              fullWidth
-              label="Məhsul axtar"
-              placeholder="Məs: 5.00, keratin və s."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <FormControl sx={{ minWidth: { xs: "100%", md: 220 } }}>
-              <InputLabel>Kateqoriya</InputLabel>
-              <Select
-                value={categoryId}
-                label="Kateqoriya"
-                onChange={(e) => setCategoryId(e.target.value)}
-              >
-                <MenuItem value="">Hamısı</MenuItem>
-                {categories.map((cat) => (
-                  <MenuItem key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <FormControl sx={{ minWidth: { xs: "100%", md: 220 } }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={status}
-                label="Status"
-                onChange={(e) => setStatus(e.target.value)}
-              >
-                <MenuItem value="ALL">Hamısı</MenuItem>
-                <MenuItem value="IN_STOCK">Stokda var</MenuItem>
-                <MenuItem value="LOW">Az qalıb</MenuItem>
-                <MenuItem value="OUT">Bitib</MenuItem>
-              </Select>
-            </FormControl>
-          </Stack>
-        </CardContent>
-      </Card>
-
-      <Card sx={{ borderRadius: 4 }}>
-        <CardContent>
-          <Typography sx={{ fontWeight: 900, mb: 1.5 }}>
-            Stok siyahısı
-          </Typography>
-
-          <Divider sx={{ mb: 2 }} />
-
-          {loading ? (
-            <Stack spacing={1}>
-              <Skeleton height={60} />
-              <Skeleton height={60} />
-              <Skeleton height={60} />
-              <Skeleton height={60} />
-            </Stack>
-          ) : error ? (
-            <Alert severity="error">{error}</Alert>
-          ) : items.length === 0 ? (
-            <Alert severity="info">Uyğun stok tapılmadı.</Alert>
-          ) : isMobile ? (
-            <Stack spacing={1.2}>
-              {items.map((item) => (
-                <Paper
-                  key={item.productId}
-                  variant="outlined"
-                  sx={{ p: 1.5, borderRadius: 3 }}
-                >
-                  <Stack spacing={1}>
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="flex-start"
-                      spacing={1}
-                    >
-                      <Box sx={{ minWidth: 0 }}>
-                        <Typography
-                          sx={{
-                            fontWeight: 900,
-                            whiteSpace: "normal",
-                            wordBreak: "break-word",
-                          }}
-                        >
-                          {item.productName}
-                        </Typography>
-                        <Typography sx={{ fontSize: 12, opacity: 0.75 }}>
-                          {item.category?.name || "-"}
-                        </Typography>
-                      </Box>
-
-                      <Chip
-                        label={getStatusLabel(item.status)}
-                        color={getStatusColor(item.status)}
-                        size="small"
-                        variant="outlined"
-                      />
-                    </Stack>
-
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                      <Chip
-                        label={`Stok: ${item.quantity}`}
-                        color="primary"
-                        size="small"
-                      />
-                      <Chip
-                        label={`Satış: ${formatMoney(item.salePrice)}`}
-                        color="success"
-                        size="small"
-                        variant="outlined"
-                      />
-                    </Stack>
-
-                    <Typography sx={{ fontSize: 12, opacity: 0.7 }}>
-                      Son yenilənmə: {formatDate(item.updatedAt)}
-                    </Typography>
+  return <PageLayout>
+      <PageHeader title={t("Məhsullar və stok")} description={t("Məhsul kataloqu, qalıqlar və stok hərəkətlərinin tarixçəsi.")} actions={<>
+            {admin && <>
+                <ExportButton kind="products" />
+                <ImportButton kind="products" onDone={refresh} />
+                <Button variant="contained" onClick={() => {
+          setDialogError("");
+          setEdit({
+            name: "",
+            categoryId: categories[0]?.id || "",
+            sku: "",
+            barcode: "",
+            salePrice: "0",
+            quantity: "0"
+          });
+        }}>{t("Məhsul əlavə et")}</Button>
+              </>}
+            <Button onClick={refresh}>{t("Yenilə")}</Button>
+          </>} />
+      {error && <Alert severity="error" sx={{
+      mb: 2
+    }}>
+          {error}
+        </Alert>}
+      <Stack direction="row" spacing={2} flexWrap="wrap" sx={{
+      mb: 2
+    }}>
+        {[[t("Məhsul"), data?.stats.totalProducts], [t("Ümumi qalıq"), data?.stats.totalQuantity], [t("Az qalıb"), data?.stats.lowStock], [t("Bitib"), data?.stats.outOfStock]].map(([label, value]) => <PageCard key={label} sx={{
+        p: 2,
+        minWidth: 130
+      }}>
+            <Typography variant="caption">{label}</Typography>
+            <Typography variant="h5">{value ?? "—"}</Typography>
+          </PageCard>)}
+      </Stack>
+      <PageCard sx={{
+      p: 2,
+      mb: 2
+    }}>
+        <Stack direction={{
+        xs: "column",
+        md: "row"
+      }} spacing={1.5}>
+          <TextField fullWidth label={t("Ad, SKU və ya barkod")} value={filters.search} onChange={e => filter("search", e.target.value)} />
+          <TextField select label={t("Kateqoriya")} value={filters.categoryId} onChange={e => filter("categoryId", e.target.value)} sx={{
+          minWidth: 180
+        }}>
+            <MenuItem value="">{t("Hamısı")}</MenuItem>
+            {categories.map(c => <MenuItem key={c.id} value={c.id}>
+                {c.name}
+              </MenuItem>)}
+          </TextField>
+          <TextField select label={t("Stok")} value={filters.status} onChange={e => filter("status", e.target.value)} sx={{
+          minWidth: 140
+        }}>
+            {[["ALL", t("Hamısı")], ["IN_STOCK", "Stokda var"], ["LOW", t("Az qalıb")], ["OUT", "Bitib"]].map(([value, label]) => <MenuItem key={value} value={value}>
+                {label}
+              </MenuItem>)}
+          </TextField>
+          <TextField select label={t("Kataloq")} value={String(filters.archived)} onChange={e => filter("archived", e.target.value === "true")} sx={{
+          minWidth: 140
+        }}>
+            <MenuItem value="false">{t("Aktiv")}</MenuItem>
+            <MenuItem value="true">{t("Arxiv")}</MenuItem>
+          </TextField>
+        </Stack>
+      </PageCard>
+      <PageCard>
+        <DataTable label={t("Məhsullar və stok")} minWidth={760}>
+          <TableHead>
+            <TableRow>
+              {[t("Məhsul"), "SKU / barkod", t("Qalıq"), t("Qiymət"), t("Əməliyyat")].map(h => <TableCell key={h}>{h}</TableCell>)}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {(data?.items || []).map(p => <TableRow key={p.productId}>
+                <TableCell>
+                  <Typography fontWeight={500}>{p.productName}</Typography>
+                  <Typography variant="caption">{p.category?.name}</Typography>
+                </TableCell>
+                <TableCell>
+                  {p.sku || "—"}
+                  <br />
+                  {p.barcode || "—"}
+                </TableCell>
+                <TableCell>
+                  <Chip size="small" label={p.quantity} color={p.quantity === 0 ? "default" : p.quantity <= 5 ? "warning" : "success"} />
+                </TableCell>
+                <TableCell>{amountValue(p.salePrice).toFixed(2)}</TableCell>
+                <TableCell>
+                  <Stack direction="row" flexWrap="wrap">
+                    <Button onClick={() => {
+                  setDialogError("");
+                  setHistoryPage(1);
+                  setHistory(p);
+                }}>{t("Tarixçə")}</Button>
+                    {canCount && !p.archivedAt && <Button onClick={() => {
+                  setDialogError("");
+                  setCount({
+                    ...p,
+                    quantity: String(p.quantity),
+                    reason: ""
+                  });
+                }}>{t("Sayım")}</Button>}
+                    {admin && <>
+                        <Button onClick={() => {
+                    setDialogError("");
+                    setEdit({
+                      id: p.productId,
+                      name: p.productName,
+                      categoryId: p.category.id,
+                      sku: p.sku || "",
+                      barcode: p.barcode || "",
+                      salePrice: String(p.salePrice)
+                    });
+                  }}>{t("Dəyiş")}</Button>
+                        <Button disabled={saving || !p.archivedAt && p.quantity !== 0} onClick={() => save(() => api.patch(`/catalog/admin/products/${p.productId}`, {
+                    archived: !p.archivedAt
+                  }))}>
+                          {p.archivedAt ? t("Bərpa et") : t("Arxivlə")}
+                        </Button>
+                      </>}
                   </Stack>
-                </Paper>
-              ))}
-            </Stack>
-          ) : (
-            <Box sx={{ overflowX: "auto" }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 900 }}>Məhsul</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>Kateqoriya</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>Stok</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>
-                      Satış qiyməti
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>
-                      Son yenilənmə
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-
-                <TableBody>
-                  {items.map((item) => (
-                    <TableRow key={item.productId} hover>
-                      <TableCell sx={{ fontWeight: 800 }}>
-                        {item.productName}
-                      </TableCell>
-                      <TableCell>{item.category?.name || "-"}</TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell>{formatMoney(item.salePrice)}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={getStatusLabel(item.status)}
-                          color={getStatusColor(item.status)}
-                          size="small"
-                          variant="outlined"
-                        />
-                      </TableCell>
-                      <TableCell>{formatDate(item.updatedAt)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Box>
-          )}
-        </CardContent>
-      </Card>
-    </Box>
-  );
+                </TableCell>
+              </TableRow>)}
+          </TableBody>
+        </DataTable>
+        {!busy && data?.items.length === 0 && <Typography sx={{
+        p: 3
+      }}>{t("Məhsul tapılmadı.")}</Typography>}
+        <RecordPager pagination={data?.pagination} onChange={setPage} disabled={busy} />
+      </PageCard>
+      <Dialog open={!!edit} onClose={() => !saving && setEdit(null)} fullWidth maxWidth="sm">
+        <DialogTitle>{edit?.id ? t("Məhsulu dəyiş") : t("Yeni məhsul")}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{
+          pt: 1
+        }}>
+            {dialogError && <Alert severity="error">{dialogError}</Alert>}
+            {edit && <>
+                <TextField label={t("Məhsul adı")} value={edit.name} onChange={e => setEdit({
+              ...edit,
+              name: e.target.value
+            })} />
+                <TextField select label={t("Kateqoriya")} value={edit.categoryId} onChange={e => setEdit({
+              ...edit,
+              categoryId: e.target.value
+            })}>
+                  {categories.map(c => <MenuItem key={c.id} value={c.id}>
+                      {c.name}
+                    </MenuItem>)}
+                </TextField>
+                {["sku", "barcode", "salePrice", ...(!edit.id ? ["quantity"] : [])].map(key => <TextField key={key} label={{
+              sku: "SKU",
+              barcode: "Barkod",
+              salePrice: t("Satış qiyməti"),
+              quantity: t("İlkin qalıq")
+            }[key]} value={edit[key]} onChange={e => setEdit({
+              ...edit,
+              [key]: e.target.value
+            })} />)}
+              </>}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button disabled={saving} onClick={() => setEdit(null)}>{t("Ləğv et")}</Button>
+          <Button disabled={saving || !edit?.name || !edit?.categoryId} variant="contained" onClick={() => save(() => edit.id ? api.patch(`/catalog/admin/products/${edit.id}`, {
+          name: edit.name,
+          categoryId: edit.categoryId,
+          sku: edit.sku,
+          barcode: edit.barcode,
+          salePrice: edit.salePrice
+        }) : api.post("/catalog/admin/products", edit))}>{t("Saxla")}</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={!!count} onClose={() => !saving && setCount(null)} fullWidth maxWidth="sm">
+        <DialogTitle>{t("Stok sayımı ·")}{count?.productName}</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{
+          pt: 1
+        }}>
+            {dialogError && <Alert severity="error">{dialogError}</Alert>}
+            <Alert severity="info">{t("Yeni faktiki qalığı yaz. Bu əməliyyatın səbəbi və hesabın adı tarixçədə saxlanacaq.")}</Alert>
+            <TextField label={t("Faktiki qalıq")} value={count?.quantity || ""} onChange={e => setCount({
+            ...count,
+            quantity: e.target.value
+          })} />
+            <TextField label={t("Düzəlişin səbəbi")} value={count?.reason || ""} onChange={e => setCount({
+            ...count,
+            reason: e.target.value
+          })} />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button disabled={saving} onClick={() => setCount(null)}>{t("Ləğv et")}</Button>
+          <Button variant="contained" disabled={saving || !count?.reason?.trim()} onClick={() => save(() => api.patch(`/stock/${count.productId}`, {
+          quantity: count.quantity,
+          expectedVersion: count.version,
+          reason: count.reason
+        }))}>{t("Sayımı saxla")}</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={!!history} onClose={() => setHistory(null)} fullWidth maxWidth="md">
+        <DialogTitle>{t("Stok tarixçəsi ·")}{history?.productName}</DialogTitle>
+        <DialogContent>
+          {dialogError && <Alert severity="error">{dialogError}</Alert>}
+          <DataTable minWidth={700}>
+            <TableHead>
+              <TableRow>
+                {["Tarix", t("Əməliyyat / səbəb"), t("İstifadəçi"), t("Əvvəl"), t("Dəyişiklik"), "Sonra"].map(h => <TableCell key={h}>{h}</TableCell>)}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {movements?.movements.map(m => <TableRow key={m.id}>
+                  <TableCell>
+                    <RecordDate value={m.createdAt} />
+                  </TableCell>
+                  <TableCell>
+                    {m.kind}
+                    <Typography variant="caption" display="block">
+                      {m.reason}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{m.actorName}</TableCell>
+                  <TableCell>{m.before}</TableCell>
+                  <TableCell>
+                    {m.delta > 0 ? "+" : ""}
+                    {m.delta}
+                  </TableCell>
+                  <TableCell>{m.after}</TableCell>
+                </TableRow>)}
+            </TableBody>
+          </DataTable>
+          <RecordPager pagination={movements?.pagination} onChange={setHistoryPage} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setHistory(null)}>{t("Bağla")}</Button>
+        </DialogActions>
+      </Dialog>
+    </PageLayout>;
 }

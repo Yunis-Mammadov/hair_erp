@@ -1,17 +1,8 @@
+import { amountValue } from "../lib/money-input.mjs";
+import { useI18n } from "../i18n/useI18n";
+import { formatDate as localeDate, formatMoney as localeMoney, t } from "../i18n/runtime";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  CircularProgress,
-  Divider,
-  Snackbar,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, Card, CardContent, Chip, CircularProgress, Divider, Snackbar, Stack, Typography } from "@mui/material";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import StopRoundedIcon from "@mui/icons-material/StopRounded";
 import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
@@ -19,21 +10,16 @@ import LocalShippingRoundedIcon from "@mui/icons-material/LocalShippingRounded";
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import RoomRoundedIcon from "@mui/icons-material/RoomRounded";
 import PersonPinCircleRoundedIcon from "@mui/icons-material/PersonPinCircleRounded";
-
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
 import { api } from "../lib/api";
-
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
 });
-
 const customerIcon = new L.DivIcon({
   className: "custom-live-marker",
   html: `
@@ -47,9 +33,8 @@ const customerIcon = new L.DivIcon({
     "></div>
   `,
   iconSize: [18, 18],
-  iconAnchor: [9, 9],
+  iconAnchor: [9, 9]
 });
-
 const driverIcon = new L.DivIcon({
   className: "custom-live-marker",
   html: `
@@ -63,15 +48,16 @@ const driverIcon = new L.DivIcon({
     "></div>
   `,
   iconSize: [20, 20],
-  iconAnchor: [10, 10],
+  iconAnchor: [10, 10]
 });
-
-function FitBounds({ orders, sessions }) {
+function FitBounds({
+  orders,
+  sessions
+}) {
+  useI18n();
   const map = useMap();
-
   useEffect(() => {
     const points = [];
-
     for (const order of orders || []) {
       const lat = Number(order?.customer?.lat);
       const lng = Number(order?.customer?.lng);
@@ -79,7 +65,6 @@ function FitBounds({ orders, sessions }) {
         points.push([lat, lng]);
       }
     }
-
     for (const session of sessions || []) {
       const lat = Number(session?.lat);
       const lng = Number(session?.lng);
@@ -87,37 +72,32 @@ function FitBounds({ orders, sessions }) {
         points.push([lat, lng]);
       }
     }
-
     if (points.length === 1) {
       map.setView(points[0], 14);
       return;
     }
-
     if (points.length > 1) {
-      map.fitBounds(points, { padding: [50, 50] });
+      map.fitBounds(points, {
+        padding: [50, 50]
+      });
     }
   }, [map, orders, sessions]);
-
   return null;
 }
-
 function formatTime(value) {
-  if (!value) return "—";
-  return new Date(value).toLocaleString("az-AZ");
+  return localeDate(value, true);
 }
-
 function getOrderAmount(order) {
   return (order.items || []).reduce((sum, item) => {
     if (item.isGift) return sum;
-    return sum + Number(item.quantity || 0) * Number(item.unitPrice || 0);
+    return sum + Number(item.quantity || 0) * amountValue(item.unitPrice || 0);
   }, 0);
 }
-
-function formatMoney(value) {
-  return `${Number(value || 0).toFixed(2)} ₼`;
+function formatMoney(value, currency) {
+  return localeMoney(value, currency);
 }
-
 export default function LiveLocationPage() {
+  useI18n();
   const [orders, setOrders] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -126,56 +106,41 @@ export default function LiveLocationPage() {
   const [toast, setToast] = useState({
     open: false,
     type: "success",
-    msg: "",
+    msg: ""
   });
-
   const watchIdRef = useRef(null);
   const currentUserRef = useRef(null);
-
   useEffect(() => {
     try {
       const raw = localStorage.getItem("user");
       if (raw) {
         currentUserRef.current = JSON.parse(raw);
       }
-    } catch (e) {
+    } catch {
       currentUserRef.current = null;
     }
   }, []);
-
   const isDriver = currentUserRef.current?.role === "DRIVER";
   const isAdmin = currentUserRef.current?.role === "ADMIN";
-
   async function fetchAll() {
     try {
-      const [ordersRes, activeRes] = await Promise.all([
-        api.get("/live-location/orders"),
-        api.get("/live-location/active"),
-      ]);
-
+      const [ordersRes, activeRes] = await Promise.all([api.get("/live-location/orders"), api.get("/live-location/active")]);
       setOrders(ordersRes.data?.orders || []);
       setSessions(activeRes.data?.sessions || []);
-
       const myUserId = currentUserRef.current?.id;
-      const mySession = (activeRes.data?.sessions || []).find(
-        (s) => s.driver?.id === myUserId && s.isActive,
-      );
-
+      const mySession = (activeRes.data?.sessions || []).find(s => s.driver?.id === myUserId && s.isActive);
       setIsSharing(!!mySession);
     } catch (e) {
       console.error(e);
       setToast({
         open: true,
         type: "error",
-        msg:
-          e?.response?.data?.message || "Canlı location məlumatları alınmadı",
+        msg: e?.response?.data?.message || t("Canlı location məlumatları alınmadı")
       });
     }
   }
-
   useEffect(() => {
     let mounted = true;
-
     (async () => {
       try {
         setLoading(true);
@@ -184,518 +149,431 @@ export default function LiveLocationPage() {
         if (mounted) setLoading(false);
       }
     })();
-
     const interval = setInterval(() => {
       fetchAll();
     }, 5000);
-
     return () => {
       mounted = false;
       clearInterval(interval);
     };
   }, []);
-
   async function startLiveSharing() {
     if (!navigator.geolocation) {
       setToast({
         open: true,
         type: "error",
-        msg: "Bu cihazda geolocation dəstəyi yoxdur",
+        msg: t("Bu cihazda geolocation dəstəyi yoxdur")
       });
       return;
     }
-
     try {
       setBusy(true);
-
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-
-            await api.post("/live-location/start", { lat, lng });
-            setIsSharing(true);
-
-            setToast({
-              open: true,
-              type: "success",
-              msg: "Canlı paylaşım başladı",
-            });
-
-            if (watchIdRef.current !== null) {
-              navigator.geolocation.clearWatch(watchIdRef.current);
-            }
-
-            watchIdRef.current = navigator.geolocation.watchPosition(
-              async (pos) => {
-                const nextLat = pos.coords.latitude;
-                const nextLng = pos.coords.longitude;
-
-                try {
-                  await api.patch("/live-location/update", {
-                    lat: nextLat,
-                    lng: nextLng,
-                  });
-                } catch (err) {
-                  console.error("watchPosition update error:", err);
-                }
-              },
-              (geoErr) => {
-                console.error("watchPosition error:", geoErr);
-              },
-              {
-                enableHighAccuracy: true,
-                maximumAge: 5000,
-                timeout: 10000,
-              },
-            );
-
-            await fetchAll();
-          } catch (e) {
-            console.error(e);
-            setToast({
-              open: true,
-              type: "error",
-              msg: e?.response?.data?.message || "Canlı paylaşım başlatılmadı",
-            });
-          } finally {
-            setBusy(false);
+      navigator.geolocation.getCurrentPosition(async position => {
+        try {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          await api.post("/live-location/start", {
+            lat,
+            lng
+          });
+          setIsSharing(true);
+          setToast({
+            open: true,
+            type: "success",
+            msg: t("Canlı paylaşım başladı")
+          });
+          if (watchIdRef.current !== null) {
+            navigator.geolocation.clearWatch(watchIdRef.current);
           }
-        },
-        (error) => {
-          console.error(error);
-          setBusy(false);
+          watchIdRef.current = navigator.geolocation.watchPosition(async pos => {
+            const nextLat = pos.coords.latitude;
+            const nextLng = pos.coords.longitude;
+            try {
+              await api.patch("/live-location/update", {
+                lat: nextLat,
+                lng: nextLng
+              });
+            } catch (err) {
+              console.error("watchPosition update error:", err);
+            }
+          }, geoErr => {
+            console.error("watchPosition error:", geoErr);
+          }, {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 10000
+          });
+          await fetchAll();
+        } catch (e) {
+          console.error(e);
           setToast({
             open: true,
             type: "error",
-            msg: "Konum icazəsi verilmədi",
+            msg: e?.response?.data?.message || t("Canlı paylaşım başlatılmadı")
           });
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        },
-      );
+        } finally {
+          setBusy(false);
+        }
+      }, error => {
+        console.error(error);
+        setBusy(false);
+        setToast({
+          open: true,
+          type: "error",
+          msg: t("Konum icazəsi verilmədi")
+        });
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
     } catch (e) {
       console.error(e);
       setBusy(false);
       setToast({
         open: true,
         type: "error",
-        msg: "Canlı paylaşım başladılmadı",
+        msg: t("Canlı paylaşım başladılmadı")
       });
     }
   }
-
   async function stopLiveSharing() {
     try {
       setBusy(true);
-
       if (watchIdRef.current !== null) {
         navigator.geolocation.clearWatch(watchIdRef.current);
         watchIdRef.current = null;
       }
-
       await api.post("/live-location/stop");
       setIsSharing(false);
-
       setToast({
         open: true,
         type: "success",
-        msg: "Canlı paylaşım dayandırıldı",
+        msg: t("Canlı paylaşım dayandırıldı")
       });
-
       await fetchAll();
     } catch (e) {
       console.error(e);
       setToast({
         open: true,
         type: "error",
-        msg: e?.response?.data?.message || "Canlı paylaşım dayandırılmadı",
+        msg: e?.response?.data?.message || t("Canlı paylaşım dayandırılmadı")
       });
     } finally {
       setBusy(false);
     }
   }
-
   const totalAmount = useMemo(() => {
     return orders.reduce((sum, order) => sum + getOrderAmount(order), 0);
   }, [orders]);
-
   const mapCenter = useMemo(() => {
-    const firstOrder = orders.find(
-      (o) =>
-        Number.isFinite(Number(o?.customer?.lat)) &&
-        Number.isFinite(Number(o?.customer?.lng)),
-    );
-
+    const firstOrder = orders.find(o => Number.isFinite(Number(o?.customer?.lat)) && Number.isFinite(Number(o?.customer?.lng)));
     if (firstOrder) {
       return [Number(firstOrder.customer.lat), Number(firstOrder.customer.lng)];
     }
-
-    const firstSession = sessions.find(
-      (s) => Number.isFinite(Number(s?.lat)) && Number.isFinite(Number(s?.lng)),
-    );
-
+    const firstSession = sessions.find(s => Number.isFinite(Number(s?.lat)) && Number.isFinite(Number(s?.lng)));
     if (firstSession) {
       return [Number(firstSession.lat), Number(firstSession.lng)];
     }
-
     return [40.4093, 49.8671];
   }, [orders, sessions]);
-
   if (loading) {
-    return (
-      <Box sx={{ p: 4, display: "flex", justifyContent: "center" }}>
+    return <Box sx={{
+      p: 4,
+      display: "flex",
+      justifyContent: "center"
+    }}>
         <CircularProgress />
-      </Box>
-    );
+      </Box>;
   }
-
-  return (
-    <Box sx={{ p: { xs: 1.5, sm: 2, md: 3 }, maxWidth: 1700, mx: "auto" }}>
-      <Card
-        sx={{
-          borderRadius: 4,
-          mb: 2,
-          border: "1px solid",
-          borderColor: "divider",
-          boxShadow: "0 14px 36px rgba(0,0,0,0.22)",
-          overflow: "hidden",
-        }}
-      >
-        <Box
-          sx={{
-            px: 2.5,
-            py: 2,
-            background:
-              "linear-gradient(90deg, rgba(25,118,210,.12) 0%, rgba(34,197,94,.12) 100%)",
-            borderBottom: "1px solid",
-            borderColor: "divider",
-          }}
-        >
-          <Stack
-            direction={{ xs: "column", lg: "row" }}
-            justifyContent="space-between"
-            alignItems={{ xs: "flex-start", lg: "center" }}
-            spacing={2}
-          >
+  return <Box sx={{
+    p: {
+      xs: 1.5,
+      sm: 2,
+      md: 3
+    },
+    maxWidth: 1700,
+    mx: "auto"
+  }}>
+      <Card sx={{
+      borderRadius: 4,
+      mb: 2,
+      border: "1px solid",
+      borderColor: "divider",
+      boxShadow: "0 14px 36px rgba(0,0,0,0.22)",
+      overflow: "hidden"
+    }}>
+        <Box sx={{
+        px: 2.5,
+        py: 2,
+        background: "linear-gradient(90deg, rgba(25,118,210,.12) 0%, rgba(34,197,94,.12) 100%)",
+        borderBottom: "1px solid",
+        borderColor: "divider"
+      }}>
+          <Stack direction={{
+          xs: "column",
+          lg: "row"
+        }} justifyContent="space-between" alignItems={{
+          xs: "flex-start",
+          lg: "center"
+        }} spacing={2}>
             <Box>
               <Stack direction="row" spacing={1} alignItems="center">
                 <LocationOnRoundedIcon />
-                <Typography
-                  variant="h4"
-                  sx={{
-                    fontWeight: 900,
-                    letterSpacing: -0.6,
-                    fontSize: { xs: 28, md: 34 },
-                  }}
-                >
-                  Canlı Location
-                </Typography>
+                <Typography variant="h4" sx={{
+                fontWeight: 900,
+                letterSpacing: -0.6,
+                fontSize: {
+                  xs: 28,
+                  md: 34
+                }
+              }}>{t("Canlı Location")}</Typography>
               </Stack>
 
-              <Typography sx={{ opacity: 0.82, mt: 0.7 }}>
-                Bortda olan sifariş nöqtələri və sürücünün canlı konumu
-              </Typography>
+              <Typography sx={{
+              opacity: 0.82,
+              mt: 0.7
+            }}>{t("Bortda olan sifariş nöqtələri və sürücünün canlı konumu")}</Typography>
             </Box>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.2}>
-              <Button
-                variant="outlined"
-                startIcon={<RefreshRoundedIcon />}
-                onClick={fetchAll}
-                sx={{
-                  borderRadius: 3,
-                  textTransform: "none",
-                  fontWeight: 900,
-                  minWidth: 130,
-                }}
-              >
-                Yenilə
-              </Button>
+            <Stack direction={{
+            xs: "column",
+            sm: "row"
+          }} spacing={1.2}>
+              <Button variant="outlined" startIcon={<RefreshRoundedIcon />} onClick={fetchAll} sx={{
+              borderRadius: 3,
+              textTransform: "none",
+              fontWeight: 900,
+              minWidth: 130
+            }}>{t("Yenilə")}</Button>
 
-              {isDriver && !isSharing && (
-                <Button
-                  variant="contained"
-                  startIcon={<PlayArrowRoundedIcon />}
-                  onClick={startLiveSharing}
-                  disabled={busy}
-                  sx={{
-                    borderRadius: 3,
-                    textTransform: "none",
-                    fontWeight: 900,
-                    minWidth: 180,
-                  }}
-                >
-                  Çatdırılmaya başla
-                </Button>
-              )}
+              {isDriver && !isSharing && <Button variant="contained" startIcon={<PlayArrowRoundedIcon />} onClick={startLiveSharing} disabled={busy} sx={{
+              borderRadius: 3,
+              textTransform: "none",
+              fontWeight: 900,
+              minWidth: 180
+            }}>{t("Çatdırılmaya başla")}</Button>}
 
-              {isDriver && isSharing && (
-                <Button
-                  color="error"
-                  variant="contained"
-                  startIcon={<StopRoundedIcon />}
-                  onClick={stopLiveSharing}
-                  disabled={busy}
-                  sx={{
-                    borderRadius: 3,
-                    textTransform: "none",
-                    fontWeight: 900,
-                    minWidth: 190,
-                  }}
-                >
-                  Canlı paylaşımı dayandır
-                </Button>
-              )}
+              {isDriver && isSharing && <Button color="error" variant="contained" startIcon={<StopRoundedIcon />} onClick={stopLiveSharing} disabled={busy} sx={{
+              borderRadius: 3,
+              textTransform: "none",
+              fontWeight: 900,
+              minWidth: 190
+            }}>{t("Canlı paylaşımı dayandır")}</Button>}
             </Stack>
           </Stack>
         </Box>
 
-        <CardContent sx={{ p: 2 }}>
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={1.2}
-            useFlexGap
-            flexWrap="wrap"
-            sx={{ mb: 2 }}
-          >
-            <Chip
-              icon={<RoomRoundedIcon />}
-              label={`Bortda sifariş: ${orders.length}`}
-              color="warning"
-              sx={{ borderRadius: 999, fontWeight: 900 }}
-            />
-            <Chip
-              icon={<PersonPinCircleRoundedIcon />}
-              label={`Aktiv sürücü: ${sessions.length}`}
-              color="success"
-              sx={{ borderRadius: 999, fontWeight: 900 }}
-            />
-            <Chip
-              icon={<LocalShippingRoundedIcon />}
-              label={`Toplam məbləğ: ${formatMoney(totalAmount)}`}
-              color="primary"
-              variant="outlined"
-              sx={{ borderRadius: 999, fontWeight: 900 }}
-            />
-            <Chip
-              label={
-                isSharing
-                  ? "Canlı paylaşım aktivdir"
-                  : "Canlı paylaşım passivdir"
-              }
-              color={isSharing ? "success" : "default"}
-              variant={isSharing ? "filled" : "outlined"}
-              sx={{ borderRadius: 999, fontWeight: 900 }}
-            />
+        <CardContent sx={{
+        p: 2
+      }}>
+          <Stack direction={{
+          xs: "column",
+          md: "row"
+        }} spacing={1.2} useFlexGap flexWrap="wrap" sx={{
+          mb: 2
+        }}>
+            <Chip icon={<RoomRoundedIcon />} label={t("Bortda sifariş: {value0}", {
+            value0: orders.length
+          })} color="warning" sx={{
+            borderRadius: 999,
+            fontWeight: 900
+          }} />
+            <Chip icon={<PersonPinCircleRoundedIcon />} label={t("Aktiv sürücü: {value0}", {
+            value0: sessions.length
+          })} color="success" sx={{
+            borderRadius: 999,
+            fontWeight: 900
+          }} />
+            <Chip icon={<LocalShippingRoundedIcon />} label={t("Toplam məbləğ: {value0}", {
+            value0: formatMoney(totalAmount)
+          })} color="primary" variant="outlined" sx={{
+            borderRadius: 999,
+            fontWeight: 900
+          }} />
+            <Chip label={isSharing ? t("Canlı paylaşım aktivdir") : t("Canlı paylaşım passivdir")} color={isSharing ? "success" : "default"} variant={isSharing ? "filled" : "outlined"} sx={{
+            borderRadius: 999,
+            fontWeight: 900
+          }} />
           </Stack>
 
-          <Box
-            sx={{
-              borderRadius: 4,
-              overflow: "hidden",
-              border: "1px solid",
-              borderColor: "divider",
-              height: { xs: 430, md: 600 },
-              mb: 2,
-            }}
-          >
-            <MapContainer
-              center={mapCenter}
-              zoom={13}
-              style={{ height: "100%", width: "100%" }}
-            >
-              <TileLayer
-                attribution="&copy; OpenStreetMap contributors"
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+          <Box sx={{
+          borderRadius: 4,
+          overflow: "hidden",
+          border: "1px solid",
+          borderColor: "divider",
+          height: {
+            xs: 430,
+            md: 600
+          },
+          mb: 2
+        }}>
+            <MapContainer center={mapCenter} zoom={13} style={{
+            height: "100%",
+            width: "100%"
+          }}>
+              <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
               <FitBounds orders={orders} sessions={sessions} />
 
-              {orders.map((order) => {
-                const lat = Number(order?.customer?.lat);
-                const lng = Number(order?.customer?.lng);
-
-                if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
-                return (
-                  <Marker
-                    key={`order-${order.id}`}
-                    position={[lat, lng]}
-                    icon={customerIcon}
-                  >
+              {orders.map(order => {
+              const lat = Number(order?.customer?.lat);
+              const lng = Number(order?.customer?.lng);
+              if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+              return <Marker key={t("order-{value0}", {
+                value0: order.id
+              })} position={[lat, lng]} icon={customerIcon}>
                     <Popup>
-                      <strong>{order.customer?.name || "Müştəri"}</strong>
-                      <br />
-                      Salon: {order.customer?.salon || "—"}
-                      <br />
-                      Ərazi: {order.area?.name || "—"}
-                      <br />
-                      Məbləğ: {formatMoney(getOrderAmount(order))}
+                      <strong>{order.customer?.name || t("Müştəri")}</strong>
+                      <br />{t("Salon:")}{order.customer?.salon || "—"}
+                      <br />{t("Ərazi:")}{order.area?.name || "—"}
+                      <br />{t("Məbləğ:")}{formatMoney(getOrderAmount(order))}
                     </Popup>
-                  </Marker>
-                );
-              })}
+                  </Marker>;
+            })}
 
-              {sessions.map((session) => {
-                const lat = Number(session?.lat);
-                const lng = Number(session?.lng);
-
-                if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
-                return (
-                  <Marker
-                    key={`session-${session.id}`}
-                    position={[lat, lng]}
-                    icon={driverIcon}
-                  >
+              {sessions.map(session => {
+              const lat = Number(session?.lat);
+              const lng = Number(session?.lng);
+              if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+              return <Marker key={t("session-{value0}", {
+                value0: session.id
+              })} position={[lat, lng]} icon={driverIcon}>
                     <Popup>
                       <strong>{session.driver?.fullName || "Sürücü"}</strong>
-                      <br />
-                      Status: canlı paylaşım aktivdir
-                      <br />
-                      Son yenilənmə: {formatTime(session.updatedAt)}
+                      <br />{t("Status: canlı paylaşım aktivdir")}<br />{t("Son yenilənmə:")}{formatTime(session.updatedAt)}
                     </Popup>
-                  </Marker>
-                );
-              })}
+                  </Marker>;
+            })}
             </MapContainer>
           </Box>
 
-          <Divider sx={{ mb: 2 }} />
+          <Divider sx={{
+          mb: 2
+        }} />
 
           <Stack spacing={1.5}>
-            <Typography sx={{ fontWeight: 900, fontSize: 18 }}>
-              Bortda olan sifariş nöqtələri
-            </Typography>
+            <Typography sx={{
+            fontWeight: 900,
+            fontSize: 18
+          }}>{t("Bortda olan sifariş nöqtələri")}</Typography>
 
-            {orders.length === 0 ? (
-              <Typography sx={{ opacity: 0.75 }}>
-                Hazırda “Bortda” statusunda sifariş yoxdur.
-              </Typography>
-            ) : (
-              <Stack spacing={1.2}>
-                {orders.map((order) => (
-                  <Card
-                    key={order.id}
-                    variant="outlined"
-                    sx={{
-                      borderRadius: 3,
-                      borderColor: "divider",
-                    }}
-                  >
-                    <CardContent sx={{ p: 1.6 }}>
-                      <Stack
-                        direction={{ xs: "column", lg: "row" }}
-                        justifyContent="space-between"
-                        spacing={1.2}
-                      >
+            {orders.length === 0 ? <Typography sx={{
+            opacity: 0.75
+          }}>{t("Hazırda “Bortda” statusunda sifariş yoxdur.")}</Typography> : <Stack spacing={1.2}>
+                {orders.map(order => <Card key={order.id} variant="outlined" sx={{
+              borderRadius: 3,
+              borderColor: "divider"
+            }}>
+                    <CardContent sx={{
+                p: 1.6
+              }}>
+                      <Stack direction={{
+                  xs: "column",
+                  lg: "row"
+                }} justifyContent="space-between" spacing={1.2}>
                         <Stack spacing={0.5}>
-                          <Typography sx={{ fontWeight: 900 }}>
-                            {order.customer?.name || "Müştəri"} —{" "}
+                          <Typography sx={{
+                      fontWeight: 900
+                    }}>
+                            {order.customer?.name || t("Müştəri")} —{" "}
                             {order.customer?.salon || "—"}
                           </Typography>
-                          <Typography sx={{ opacity: 0.8 }}>
-                            Ərazi: {order.area?.name || "—"}
+                          <Typography sx={{
+                      opacity: 0.8
+                    }}>{t("Ərazi:")}{order.area?.name || "—"}
                           </Typography>
-                          <Typography sx={{ opacity: 0.8 }}>
-                            Ünvan: {order.customer?.address || "—"}
+                          <Typography sx={{
+                      opacity: 0.8
+                    }}>{t("Ünvan:")}{order.customer?.address || "—"}
                           </Typography>
                         </Stack>
 
-                        <Stack
-                          direction={{ xs: "column", sm: "row" }}
-                          spacing={1}
-                          alignItems={{ xs: "flex-start", sm: "center" }}
-                        >
-                          <Chip
-                            label={formatMoney(getOrderAmount(order))}
-                            color="success"
-                            variant="outlined"
-                            sx={{ borderRadius: 999, fontWeight: 900 }}
-                          />
-                          <Chip
-                            label={`${order.items?.length || 0} məhsul`}
-                            color="primary"
-                            variant="outlined"
-                            sx={{ borderRadius: 999, fontWeight: 900 }}
-                          />
+                        <Stack direction={{
+                    xs: "column",
+                    sm: "row"
+                  }} spacing={1} alignItems={{
+                    xs: "flex-start",
+                    sm: "center"
+                  }}>
+                          <Chip label={formatMoney(getOrderAmount(order))} color="success" variant="outlined" sx={{
+                      borderRadius: 999,
+                      fontWeight: 900
+                    }} />
+                          <Chip label={t("{value0} məhsul", {
+                      value0: order.items?.length || 0
+                    })} color="primary" variant="outlined" sx={{
+                      borderRadius: 999,
+                      fontWeight: 900
+                    }} />
                         </Stack>
                       </Stack>
                     </CardContent>
-                  </Card>
-                ))}
-              </Stack>
-            )}
+                  </Card>)}
+              </Stack>}
           </Stack>
 
-          {isAdmin && sessions.length > 0 && (
-            <>
-              <Divider sx={{ my: 2 }} />
+          {isAdmin && sessions.length > 0 && <>
+              <Divider sx={{
+            my: 2
+          }} />
               <Stack spacing={1.2}>
-                <Typography sx={{ fontWeight: 900, fontSize: 18 }}>
-                  Aktiv sürücülər
-                </Typography>
+                <Typography sx={{
+              fontWeight: 900,
+              fontSize: 18
+            }}>{t("Aktiv sürücülər")}</Typography>
 
-                {sessions.map((session) => (
-                  <Card
-                    key={session.id}
-                    variant="outlined"
-                    sx={{ borderRadius: 3 }}
-                  >
-                    <CardContent sx={{ p: 1.6 }}>
-                      <Stack
-                        direction={{ xs: "column", md: "row" }}
-                        justifyContent="space-between"
-                        spacing={1}
-                      >
+                {sessions.map(session => <Card key={session.id} variant="outlined" sx={{
+              borderRadius: 3
+            }}>
+                    <CardContent sx={{
+                p: 1.6
+              }}>
+                      <Stack direction={{
+                  xs: "column",
+                  md: "row"
+                }} justifyContent="space-between" spacing={1}>
                         <Box>
-                          <Typography sx={{ fontWeight: 900 }}>
+                          <Typography sx={{
+                      fontWeight: 900
+                    }}>
                             {session.driver?.fullName || "Sürücü"}
                           </Typography>
-                          <Typography sx={{ opacity: 0.8 }}>
-                            Başlama vaxtı: {formatTime(session.startedAt)}
+                          <Typography sx={{
+                      opacity: 0.8
+                    }}>{t("Başlama vaxtı:")}{formatTime(session.startedAt)}
                           </Typography>
-                          <Typography sx={{ opacity: 0.8 }}>
-                            Son yenilənmə: {formatTime(session.updatedAt)}
+                          <Typography sx={{
+                      opacity: 0.8
+                    }}>{t("Son yenilənmə:")}{formatTime(session.updatedAt)}
                           </Typography>
                         </Box>
 
-                        <Chip
-                          label={`Lat: ${Number(session.lat).toFixed(5)} / Lng: ${Number(
-                            session.lng,
-                          ).toFixed(5)}`}
-                          color="success"
-                          variant="outlined"
-                          sx={{ borderRadius: 999, fontWeight: 900 }}
-                        />
+                        <Chip label={t("Lat: {value0} / Lng: {value1}", {
+                    value0: Number(session.lat).toFixed(5),
+                    value1: Number(session.lng).toFixed(5)
+                  })} color="success" variant="outlined" sx={{
+                    borderRadius: 999,
+                    fontWeight: 900
+                  }} />
                       </Stack>
                     </CardContent>
-                  </Card>
-                ))}
+                  </Card>)}
               </Stack>
-            </>
-          )}
+            </>}
         </CardContent>
       </Card>
 
-      <Snackbar
-        open={toast.open}
-        autoHideDuration={3000}
-        onClose={() => setToast((p) => ({ ...p, open: false }))}
-      >
-        <Alert
-          severity={toast.type}
-          variant="filled"
-          onClose={() => setToast((p) => ({ ...p, open: false }))}
-        >
+      <Snackbar open={toast.open} autoHideDuration={3000} onClose={() => setToast(p => ({
+      ...p,
+      open: false
+    }))}>
+        <Alert severity={toast.type} variant="filled" onClose={() => setToast(p => ({
+        ...p,
+        open: false
+      }))}>
           {toast.msg}
         </Alert>
       </Snackbar>
-    </Box>
-  );
+    </Box>;
 }

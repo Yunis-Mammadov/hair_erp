@@ -7,6 +7,8 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const logout = useCallback(() => {
+    const token = localStorage.getItem("token");
+    if (token) api.post("/auth/logout", {}, {headers:{Authorization:`Bearer ${token}`}}).catch(() => {});
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
@@ -40,7 +42,7 @@ export default function AuthProvider({ children }) {
         if (
           !cancelled &&
           localStorage.getItem("token") === token &&
-          [401, 403].includes(error?.response?.status)
+          (error?.response?.status === 401 || error?.response?.data?.code === "SUBSCRIPTION_INACTIVE")
         )
           logout();
       } finally {
@@ -49,6 +51,11 @@ export default function AuthProvider({ children }) {
       }
     }
     refresh();
+    const expired = () => { localStorage.removeItem("token"); localStorage.removeItem("user"); setUser(null); };
+    const storage = event => { if (event.key === "token") refresh(); };
+    window.addEventListener("z-index-session-expired", expired);
+    window.addEventListener("z-index-workspace-changed", refresh);
+    window.addEventListener("storage", storage);
     const focus = () => refresh();
     const visibility = () => {
       if (document.visibilityState === "visible") refresh();
@@ -58,6 +65,9 @@ export default function AuthProvider({ children }) {
     const timer = window.setInterval(refresh, 60000);
     return () => {
       cancelled = true;
+      window.removeEventListener("z-index-session-expired", expired);
+      window.removeEventListener("z-index-workspace-changed", refresh);
+      window.removeEventListener("storage", storage);
       window.removeEventListener("focus", focus);
       document.removeEventListener("visibilitychange", visibility);
       window.clearInterval(timer);
