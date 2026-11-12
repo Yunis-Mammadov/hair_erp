@@ -1,3 +1,4 @@
+const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
@@ -295,7 +296,7 @@ router.get(
         deliveredAreaSummary,
       });
     } catch (error) {
-      console.error("GET /delivery error:", error);
+      log("GET /delivery error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       return res
         .status(500)
         .json({ message: "Çatdırılma məlumatları alınmadı" });
@@ -357,7 +358,7 @@ router.patch(
 
       return res.json({ order: updatedOrder });
     } catch (error) {
-      console.error("PATCH /delivery/:orderId/status error:", error);
+      log("PATCH /delivery/:orderId/status error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       return res.status(500).json({ message: "Status yenilənmədi" });
     }
   },

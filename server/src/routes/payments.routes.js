@@ -1,3 +1,5 @@
+const {log}=require("../ops/runtime");
+const W = require("../workspace-core");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
@@ -5,6 +7,8 @@ const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 const { normalizeUploadUrl } = require("../upload-access");
 const { hasFeature } = require("../config/plans");
 
+const F = require("../financial-core");
+const R = require("../records-core");
 const router = express.Router();
 
 // GET /payments
@@ -22,6 +26,8 @@ router.get(
       } = req.query;
 
       const where = {};
+      if (req.query.customerId) where.customerId=F.id(req.query.customerId);
+      const page=R.page(req.query);
 
       if (
         hasFeature(req.company, "customerAssignments") &&
@@ -54,34 +60,11 @@ router.get(
         };
       }
 
-      if (startDate || endDate) {
-        where.createdAt = {};
+      if (startDate || endDate) where.createdAt = W.dateRange(startDate, endDate, req.company.timezone);
 
-        if (startDate) {
-          const start = new Date(startDate);
-          if (!isNaN(start.getTime())) {
-            where.createdAt.gte = start;
-          }
-        }
-
-        if (endDate) {
-          const end = new Date(endDate);
-          if (!isNaN(end.getTime())) {
-            end.setHours(23, 59, 59, 999);
-            where.createdAt.lte = end;
-          }
-        }
-
-        if (
-          where.createdAt &&
-          where.createdAt.gte === undefined &&
-          where.createdAt.lte === undefined
-        ) {
-          delete where.createdAt;
-        }
-      }
-
+      const total=await prisma.payment.count({where});
       const payments = await prisma.payment.findMany({
+        skip:page.skip,take:page.take,
         where,
         include: {
           customer: {
@@ -115,127 +98,136 @@ router.get(
         },
       });
 
-      return res.json({ payments });
+      return res.json({ payments, pagination:R.pagination(page,total) });
     } catch (error) {
-      console.error("GET_PAYMENTS_ERROR:", error);
-      return res.status(500).json({ message: "Mədaxillər alınmadı" });
+      log("GET_PAYMENTS_ERROR:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
+      return F.errorResponse(res, error);
     }
   },
 );
 
-// POST /payments
+// POST /payments — exact money, customer lock, bounded sold-items and persistent retries.
 router.post(
   "/",
   requireAuth,
   requireRole("ADMIN", "EXPEDITOR"),
   async (req, res) => {
     try {
-      const {
-        customerId,
-        amount,
-        note,
-        paymentType,
-        date,
-        imageUrl,
-        soldItems = [],
-      } = req.body;
-
-      if (!customerId || typeof customerId !== "string") {
-        return res.status(400).json({ message: "customerId tələb olunur" });
-      }
-
-      const numericAmount = Number(amount);
-
-      if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-        return res.status(400).json({ message: "Məbləğ düzgün deyil" });
-      }
-
-      if (!Array.isArray(soldItems)) {
-        return res.status(400).json({ message: "soldItems düzgün deyil" });
-      }
-
-      const customer = await prisma.customer.findUnique({
-        where: { id: customerId },
-        select: {
-          id: true,
-          assignedExpeditorId: true,
-        },
-      });
-
-      if (!customer) {
-        return res.status(404).json({ message: "Müştəri tapılmadı" });
-      }
-
+      const b = req.body || {};
+      if (b.soldItems !== undefined && !Array.isArray(b.soldItems))
+        throw F.fail(400, "soldItems siyahı olmalıdır.");
+      const input = {
+        customerId: F.id(b.customerId),
+        ...(b.orderId ? {orderId:F.id(b.orderId)} : {}),
+        amount: F.money(b.amount),
+        note: F.text(b.note),
+        paymentType: F.text(b.paymentType, 100),
+        date: b.date || null,
+        imageUrl: b.imageUrl
+          ? normalizeUploadUrl(b.imageUrl, req.company)
+          : null,
+        soldItems: (b.soldItems || []).length ? F.combine(b.soldItems) : [],
+      };
+      input.soldItems = input.soldItems.map((item) => ({
+        ...item,
+        note: F.text(
+          (b.soldItems || [])
+            .filter((x) => x.productId === item.productId)
+            .map((x) => F.text(x.note, 300))
+            .filter(Boolean)
+            .join(" | "),
+          1000,
+        ),
+      }));
       if (
-        hasFeature(req.company, "customerAssignments") &&
-        req.user.role === "EXPEDITOR" &&
-        customer.assignedExpeditorId !== req.user.userId
-      ) {
-        return res.status(403).json({
-          message: "Bu müştəri üçün mədaxil əlavə etməyə icazən yoxdur",
-        });
-      }
-
-      const normalizedSoldItems = soldItems
-        .map((item) => ({
-          productId: item.productId,
-          quantity: Number(item.quantity || 0),
-          note: item.note ? String(item.note).trim() : null,
-        }))
-        .filter((item) => item.productId && item.quantity > 0);
-
-      const payment = await prisma.payment.create({
-        data: {
-          customerId,
-          amount: numericAmount,
-          paymentType: paymentType ? String(paymentType).trim() : null,
-          paymentDate: date ? new Date(date) : new Date(),
-          imageUrl: imageUrl ? normalizeUploadUrl(imageUrl, req.company) : null,
-          note: note ? String(note).trim() : null,
-          createdById: req.user.userId,
-          soldItems: {
-            create: normalizedSoldItems.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              note: item.note,
-            })),
+        input.date &&
+        (typeof input.date !== "string" ||
+          !Number.isFinite(new Date(input.date).getTime()))
+      )
+        throw F.fail(400, "Ödəniş tarixi yanlışdır.");
+      const result = await F.mutate(req, "payment", input, async (tx) => {
+        await F.lockCustomer(tx, input.customerId, req);
+        if (input.orderId) {
+          if (!await tx.order.findFirst({where:{id:input.orderId,customerId:input.customerId},select:{id:true}})) throw F.fail(404,"Invoice not found.");
+          const invoice=(await R.orderFinancials(tx,input.customerId)).get(input.orderId);
+          if(F.minor(input.amount)>F.minor(invoice.remainingDebt))throw F.fail(409,"Payment exceeds the invoice balance.","PAYMENT_LIMIT");
+        }
+        const balance = await F.account(tx, input.customerId);
+        if (F.minor(input.amount) > F.minor(balance.debt))
+          throw F.fail(
+            409,
+            `Ödəniş qalan borcu aşır. Qalan borc ${balance.debt.toFixed(2)}-dir.`,
+            "PAYMENT_LIMIT",
+          );
+        for (const item of input.soldItems) {
+          const available = await F.returnable(
+            tx,
+            input.customerId,
+            item.productId,
+          );
+          if (item.quantity > available.available)
+            throw F.fail(
+              409,
+              "Satılmış məhsul miqdarı qalan uyğun miqdarı aşır.",
+              "SOLD_ITEM_LIMIT",
+            );
+        }
+        const payment = await tx.payment.create({
+          data: {
+            customerId: input.customerId,
+            orderId: input.orderId || null,
+            amount: input.amount,
+            note: input.note,
+            paymentType: input.paymentType,
+            paymentDate: input.date ? (/^\d{4}-\d{2}-\d{2}$/.test(input.date) ? W.zonedDay(input.date, req.company.timezone) : new Date(input.date)) : new Date(),
+            imageUrl: input.imageUrl,
+            createdById: req.user.id,
+            soldItems: { create: input.soldItems },
           },
-        },
-        include: {
-          customer: {
-            include: {
-              assignedExpeditor: {
-                select: {
-                  id: true,
-                  fullName: true,
-                  role: true,
+          include: {
+            customer: {
+              include: {
+                assignedExpeditor: {
+                  select: { id: true, fullName: true, role: true },
                 },
               },
             },
+            createdBy: { select: { id: true, fullName: true, role: true } },
+            soldItems: { include: { product: true } },
           },
-          createdBy: {
-            select: {
-              id: true,
-              fullName: true,
-              role: true,
-            },
-          },
-          soldItems: {
-            include: {
-              product: true,
-            },
-          },
-        },
+        });
+        return { payment, summary: await F.account(tx, input.customerId) };
       });
-
-      return res.status(201).json({ payment });
+      return res.status(result.replayed ? 200 : 201).json(result);
     } catch (error) {
-      console.error("CREATE_PAYMENT_ERROR:", error);
-      return res
-        .status(error.statusCode || 500)
-        .json({ message: error.message || "Mədaxil əlavə edilə bilmədi" });
+      return F.errorResponse(res, error);
     }
   },
 );
-
+router.post("/:id/void", requireAuth, requireRole("ADMIN"), R.route(async(req,res)=>{
+ const input={paymentId:F.id(req.params.id),reason:F.text(req.body?.reason,300)};
+ if(!input.reason || input.reason.length<3)throw F.fail(400,"Enter a reason of at least three characters.","REASON_REQUIRED");
+ const result=await F.mutate(req,"void-payment:"+input.paymentId,input,async tx=>{
+  const payment=await tx.payment.findUnique({where:{id:input.paymentId}});
+  if(!payment)throw F.fail(404,"Payment not found.");
+  await F.lockCustomer(tx,payment.customerId,req);
+  if(payment.voidedAt)throw F.fail(409,"This payment has already been voided.","ALREADY_VOIDED");
+  const balance=await F.account(tx,payment.customerId);
+  if(F.minor(balance.paymentTotal)-F.minor(payment.amount)<F.minor(balance.refundTotal))throw F.fail(409,"This payment has been refunded and cannot be voided.","REFUNDED_PAYMENT");
+  const updated=await tx.payment.update({where:{id:payment.id},data:{voidedAt:new Date(),voidedById:req.user.id,voidReason:input.reason}});
+  return {payment:updated,summary:await F.account(tx,payment.customerId)};
+ });res.json(result);
+}));
+router.post("/refunds", requireAuth, requireRole("ADMIN"), R.route(async(req,res)=>{
+ const input={customerId:F.id(req.body?.customerId),amount:F.money(req.body?.amount),method:F.text(req.body?.method,20)||"CASH",note:F.text(req.body?.note,300)};
+ if(!["CASH","BANK","CARD"].includes(input.method))throw F.fail(400,"Choose a payment method.");
+ if(!input.note || input.note.length<3)throw F.fail(400,"Enter a reason of at least three characters.","REASON_REQUIRED");
+ const result=await F.mutate(req,"customer-refund",input,async tx=>{
+  await F.lockCustomer(tx,input.customerId,req);
+  const balance=await F.account(tx,input.customerId);
+  if(F.minor(input.amount)>F.minor(balance.credit))throw F.fail(409,"Refund exceeds the available customer credit.","REFUND_LIMIT");
+  const refund=await tx.customerRefund.create({data:{...input,createdById:req.user.id}});
+  return {refund,summary:await F.account(tx,input.customerId)};
+ });res.status(result.replayed?200:201).json(result);
+}));
 module.exports = router;

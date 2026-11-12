@@ -1,0 +1,11 @@
+BEGIN;
+CREATE TABLE "BillingAccount" ("companyId" TEXT PRIMARY KEY,"customerId" TEXT,"subscriptionId" TEXT,status TEXT NOT NULL DEFAULT 'manual',"lastEventAt" TIMESTAMP(3),"cancelAt" TIMESTAMP(3),"billingEmail" TEXT,CONSTRAINT "BillingAccount_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"(id) ON DELETE RESTRICT ON UPDATE CASCADE);
+CREATE UNIQUE INDEX "BillingAccount_customerId_key" ON "BillingAccount"("customerId");
+CREATE UNIQUE INDEX "BillingAccount_subscriptionId_key" ON "BillingAccount"("subscriptionId");
+CREATE TABLE "BillingCheckout" (id TEXT PRIMARY KEY,"activeKey" TEXT,"companyId" TEXT NOT NULL,cycle TEXT NOT NULL,email TEXT NOT NULL,"transactionId" TEXT,"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,CONSTRAINT "BillingCheckout_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"(id) ON DELETE RESTRICT ON UPDATE CASCADE);
+CREATE UNIQUE INDEX "BillingCheckout_activeKey_key" ON "BillingCheckout"("activeKey");
+CREATE UNIQUE INDEX "BillingCheckout_transactionId_key" ON "BillingCheckout"("transactionId");
+CREATE INDEX "BillingCheckout_companyId_createdAt_idx" ON "BillingCheckout"("companyId","createdAt");
+CREATE TABLE "BillingEvent" (id TEXT PRIMARY KEY,type TEXT NOT NULL,"occurredAt" TIMESTAMP(3) NOT NULL,payload JSONB NOT NULL,state TEXT NOT NULL DEFAULT 'pending',attempts INTEGER NOT NULL DEFAULT 0,"lastError" TEXT,"processedAt" TIMESTAMP(3),"createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE INDEX "BillingEvent_state_createdAt_idx" ON "BillingEvent"(state,"createdAt");
+COMMIT;

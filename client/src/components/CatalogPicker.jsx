@@ -1,0 +1,16 @@
+import {useEffect,useState} from 'react';
+import {Alert,Box,Button,Chip,MenuItem,Stack,TextField,Typography} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import {api} from '../lib/api';
+import {RecordPager} from './RecordsTools';
+import {useI18n} from '../i18n/useI18n';
+export default function CatalogPicker({onAdd,canGift=false,requireStock=true,reload=0,disabled=false}){
+ const {t,money}=useI18n();const [search,setSearch]=useState(''),[category,setCategory]=useState(''),[categories,setCategories]=useState([]),[page,setPage]=useState(1),[data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ useEffect(()=>{let active=true;api.get('/catalog/categories').then(r=>{if(active)setCategories(r.data.categories||[]);}).catch(()=>{});return()=>{active=false;};},[reload]);
+ useEffect(()=>{let active=true;const controller=new AbortController();const timer=setTimeout(async()=>{setBusy(true);try{const r=await api.get('/catalog/products',{params:{search,categoryId:category||undefined,page,limit:15},signal:controller.signal});if(active){setData(r.data);setError('');}}catch(e){if(active)setError(e.response?.data?.message||t('Could not load products.'));}finally{if(active)setBusy(false);}},200);return()=>{active=false;clearTimeout(timer);controller.abort();};},[search,category,page,reload,t]);
+ return <Stack spacing={2}><Box sx={{display:'grid',gridTemplateColumns:{xs:'1fr',sm:'2fr 1fr'},gap:1.5}}><TextField label={t('Search products')} placeholder={t('Name, SKU or barcode')} value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}}/><TextField select label={t('Category')} value={category} onChange={e=>{setCategory(e.target.value);setPage(1);}}><MenuItem value="">{t('All categories')}</MenuItem>{categories.map(c=><MenuItem key={c.id} value={c.id}>{c.name}</MenuItem>)}</TextField></Box>
+ {error&&<Alert severity="error">{error}</Alert>}{busy&&<Typography role="status" variant="caption">{t('Loading...')}</Typography>}
+ {!busy&&data?.products?.length===0&&<Typography color="text.secondary" sx={{py:4,textAlign:'center'}}>{t('No products found.')}</Typography>}
+ <Stack divider={<Box sx={{borderBottom:'1px solid',borderColor:'divider'}}/>}>{(data?.products||[]).map(p=><Box key={p.id} sx={{display:'flex',flexWrap:{xs:'wrap',sm:'nowrap'},alignItems:'center',gap:1.5,py:1.5}}><Box sx={{minWidth:0,flex:'1 1 180px'}}><Typography fontWeight={600} sx={{overflowWrap:'anywhere'}}>{p.name}</Typography><Typography variant="caption" color="text.secondary">{p.category?.name} · {p.sku||p.barcode||'—'}</Typography><Stack direction="row" spacing={1} alignItems="center" mt={.5}><Typography variant="body2">{money(p.salePrice)}</Typography><Chip size="small" label={t('In stock: {quantity}',{quantity:p.stockQty})} color={p.stockQty>0?'default':'warning'} variant="outlined"/></Stack></Box><Stack direction="row" spacing={.5}><Button size="small" startIcon={<AddIcon/>} disabled={disabled||busy||(requireStock&&p.stockQty<1)} onClick={()=>onAdd(p,false)}>{t('Add')}</Button>{canGift&&<Button size="small" disabled={disabled||busy||(requireStock&&p.stockQty<1)} onClick={()=>onAdd(p,true)}>{t('Gift')}</Button>}</Stack></Box>)}</Stack>
+ <RecordPager pagination={data?.pagination} onChange={setPage} disabled={busy}/></Stack>;
+}

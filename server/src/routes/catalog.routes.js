@@ -1,71 +1,54 @@
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
-
+const F = require("../financial-core"),
+  R = require("../records-core");
 const router = express.Router();
-
+router.use(
+  requireAuth,
+  requireRole("ADMIN", "EXPEDITOR", "WAREHOUSE", "DRIVER"),
+);
 router.get(
   "/categories",
-  requireAuth,
-  requireRole("ADMIN", "EXPEDITOR", "WAREHOUSE", "DRIVER"),
-  async (req, res) => {
-    try {
-      const categories = await prisma.category.findMany({
-        orderBy: { name: "asc" },
-      });
-
-      res.json({ categories });
-    } catch (error) {
-      console.error("Get categories error:", error);
-      res.status(500).json({ message: error.message || "Server error" });
-    }
-  },
+  R.route(async (_req, res) =>
+    res.json({
+      categories: await prisma.category.findMany({ orderBy: { name: "asc" } }),
+    }),
+  ),
 );
-
 router.get(
   "/products",
-  requireAuth,
-  requireRole("ADMIN", "EXPEDITOR", "WAREHOUSE", "DRIVER"),
-  async (req, res) => {
-    try {
-      const { categoryId, search = "" } = req.query;
-
-      const where = {};
-
-      if (categoryId) {
-        where.categoryId = String(categoryId);
-      }
-
-      if (search && String(search).trim()) {
-        where.name = {
-          contains: String(search).trim(),
-          mode: "insensitive",
-        };
-      }
-
-      const products = await prisma.product.findMany({
+  R.route(async (req, res) => {
+    const p = R.page(req.query),
+      where = { archivedAt: null };
+    if (req.query.categoryId) where.categoryId = F.id(req.query.categoryId);
+    const search = F.text(req.query.search, 150);
+    if (search)
+      where.OR = ["name", "sku", "barcode"].map((field) => ({
+        [field]: { contains: search, mode: "insensitive" },
+      }));
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
         where,
-        include: {
-          category: true,
-          stock: true,
-        },
-        orderBy: [{ name: "asc" }],
-      });
-
-      const mapped = products.map((p) => ({
+        include: { category: true, stock: true },
+        orderBy: [{ name: "asc" }, { id: "asc" }],
+        skip: p.skip,
+        take: p.take,
+      }),
+      prisma.product.count({ where }),
+    ]);
+    res.json({
+      products: products.map((p) => ({
         id: p.id,
         name: p.name,
-        salePrice: Number(p.salePrice || 0),
-        stockQty: Number(p.stock?.quantity || 0),
+        sku: p.sku,
+        barcode: p.barcode,
+        salePrice: Number(p.salePrice),
+        stockQty: p.stock?.quantity || 0,
         category: p.category,
-      }));
-
-      res.json({ products: mapped });
-    } catch (error) {
-      console.error("Get products error:", error);
-      res.status(500).json({ message: error.message || "Server error" });
-    }
-  },
+      })),
+      pagination: R.pagination(p, total),
+    });
+  }),
 );
-
 module.exports = router;

@@ -24,6 +24,8 @@ enum BillingCycle {
 }
 
 model Company {
+ billingAccount BillingAccount?
+ billingCheckouts BillingCheckout[]
   id                       String              @id @default(cuid())
   name                     String
   loginEmail               String              @unique
@@ -32,7 +34,15 @@ model Company {
   market                   BillingMarket       @default(AZ)
   billingCycle             BillingCycle        @default(MONTHLY)
   currency                 String              @default("AZN")
-  locale                   String              @default("az")
+  locale                   String              @default("en")
+  timezone                 String              @default("UTC")
+  address                  String?
+  phone                    String?
+  taxId                    String?
+  invoicePrefix            String              @default("")
+  supportEmail             String?
+  logoUrl                  String?
+  currencyConfigured       Boolean             @default(false)
   isActive                 Boolean             @default(false)
   startsAt                 DateTime            @default(now())
   endsAt                   DateTime?
@@ -40,6 +50,10 @@ model Company {
   legacyUploads            Boolean             @default(false)
   createdAt                DateTime            @default(now())
   updatedAt                DateTime            @updatedAt
+  refunds                  CustomerRefund[]
+  invoiceCounter           InvoiceCounter?
+  stockMovements           StockMovement[]
+  operationRequests        OperationRequest[]
   categoryRecords          Category[]
   productRecords           Product[]
   purchaseRecords          Purchase[]
@@ -79,8 +93,13 @@ model Product {
   categoryId String
   category   Category @relation(fields: [companyId, categoryId], references: [companyId, id])
 
+  sku        String?
+  barcode    String?
+  archivedAt DateTime?
+  movements  StockMovement[]
+
   stock     Stock?
-  salePrice Float  @default(0)
+  salePrice Decimal @default(0) @db.Decimal(12, 2)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -90,8 +109,11 @@ model Product {
   purchaseItems    PurchaseItem[]
   paymentSoldItems PaymentSoldItem[]
 
+  @@unique([companyId, sku])
+  @@unique([companyId, barcode])
   @@unique([companyId, name, categoryId])
   @@unique([companyId, id])
+  @@index([companyId, archivedAt, name, id])
 }
 
 model Purchase {
@@ -117,7 +139,7 @@ model PurchaseItem {
   purchaseId String
   productId  String
   quantity   Int
-  unitCost   Float    @default(0)
+  unitCost   Decimal  @default(0) @db.Decimal(12, 2)
   createdAt  DateTime @default(now())
 
   purchase Purchase @relation(fields: [companyId, purchaseId], references: [companyId, id], onDelete: Cascade)
@@ -132,6 +154,7 @@ model Stock {
   productId String   @id
   product   Product  @relation(fields: [companyId, productId], references: [companyId, id])
   quantity  Int      @default(0)
+  version   Int      @default(0)
   updatedAt DateTime @updatedAt
 
   @@unique([companyId, productId])
@@ -179,6 +202,7 @@ model Customer {
 
   orders   Order[]
   returns  Return[]
+  refunds  CustomerRefund[]
   payments Payment[]
 
   createdAt DateTime @default(now())
@@ -219,20 +243,28 @@ model User {
   editedOrders      Order[]             @relation("OrderEditedBy")
   returns           Return[]
   purchases         Purchase[]
+  refundsCreated    CustomerRefund[]
+  paymentsVoided    Payment[] @relation("PaymentVoidedBy")
   paymentsCreated   Payment[]           @relation("PaymentCreatedBy")
   assignedCustomers Customer[]          @relation("CustomerAssignedExpeditor")
   liveSessions      DriverLiveSession[]
   orderEditLogs     OrderEditLog[]
+  stockMovements    StockMovement[]
 
   @@unique([companyId, id])
   @@unique([companyId, email])
 }
 
 model Order {
-  companyId   String
-  company     Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  id          String  @id @default(cuid())
-  orderNumber Int     @unique @default(autoincrement())
+  companyId        String
+  company          Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  id               String  @id @default(cuid())
+  orderNumber      Int     @default(autoincrement())
+  invoiceNumber    String?
+  customerSnapshot Json?
+  companySnapshot  Json?
+  totalAmount      Decimal @default(0) @db.Decimal(12, 2)
+  currency         String  @default("AZN")
 
   customerId String
   customer   Customer @relation(fields: [companyId, customerId], references: [companyId, id])
@@ -263,10 +295,14 @@ model Order {
   customerSignature String?
   signedAt          DateTime?
 
+  payments Payment[] @relation("OrderPayments")
   items    OrderItem[]
   editLogs OrderEditLog[]
 
   @@unique([companyId, id])
+  @@unique([companyId, orderNumber])
+  @@unique([companyId, customerId, id])
+  @@index([companyId, customerId, createdAt, id])
   @@index([customerId])
   @@index([createdById])
   @@index([areaId])
@@ -276,15 +312,18 @@ model Order {
 }
 
 model OrderItem {
-  companyId   String
-  company     Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  id          String  @id @default(cuid())
-  orderId     String
-  productId   String
-  quantity    Int
-  unitPrice   Decimal @db.Decimal(10, 2)
-  returnedQty Int     @default(0)
-  isGift      Boolean @default(false)
+  companyId    String
+  company      Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  id           String  @id @default(cuid())
+  orderId      String
+  productId    String
+  quantity     Int
+  unitPrice    Decimal @db.Decimal(10, 2)
+  productName  String?
+  productSku   String?
+  categoryName String?
+  returnedQty  Int     @default(0)
+  isGift       Boolean @default(false)
 
   order       Order        @relation(fields: [companyId, orderId], references: [companyId, id], onDelete: Cascade)
   product     Product      @relation(fields: [companyId, productId], references: [companyId, id])
@@ -303,6 +342,7 @@ model Return {
   customer    Customer @relation(fields: [companyId, customerId], references: [companyId, id])
   createdById String
   createdBy   User     @relation(fields: [companyId, createdById], references: [companyId, id])
+  totalAmount Decimal  @default(0) @db.Decimal(12, 2)
   note        String?
   createdAt   DateTime @default(now())
 
@@ -336,9 +376,13 @@ model Payment {
   companyId   String
   company     Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
   id          String    @id @default(cuid())
+  orderId     String?
+  voidedAt    DateTime?
+  voidedById  String?
+  voidReason  String?
   customerId  String
   createdById String?
-  amount      Float
+  amount      Decimal   @db.Decimal(12, 2)
   paymentType String?
   paymentDate DateTime?
   imageUrl    String?
@@ -348,6 +392,8 @@ model Payment {
   customer  Customer @relation(fields: [companyId, customerId], references: [companyId, id], onDelete: Cascade)
   createdBy User?    @relation("PaymentCreatedBy", fields: [companyId, createdById], references: [companyId, id], onDelete: Restrict)
 
+  order Order? @relation("OrderPayments", fields: [companyId, customerId, orderId], references: [companyId, customerId, id], onDelete: Restrict)
+  voidedBy User? @relation("PaymentVoidedBy", fields: [companyId, voidedById], references: [companyId, id], onDelete: Restrict)
   soldItems PaymentSoldItem[]
 
   @@unique([companyId, id])
@@ -417,4 +463,96 @@ enum DeliveryStatus {
   IN_WAREHOUSE
   ON_BOARD
   DELIVERED
+}
+
+model OperationRequest {
+  id        String   @id @default(cuid())
+  companyId String
+  scope     String
+  key       String
+  hash      String
+  response  Json
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, scope, key])
+}
+
+model InvoiceCounter {
+  currency String?
+  companyId String  @id
+  value     Int     @default(0)
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+}
+
+model StockMovement {
+  id         String   @id @default(cuid())
+  companyId  String
+  productId  String
+  userId     String?
+  actorName  String
+  kind       String
+  delta      Int
+  before     Int
+  after      Int
+  reason     String
+  documentId String?
+  createdAt  DateTime @default(now())
+
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  product     Product @relation(fields: [companyId, productId], references: [companyId, id], onDelete: Restrict)
+  performedBy User?   @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Restrict)
+
+  @@index([companyId, productId, createdAt, id])
+  @@index([companyId, createdAt, id])
+}
+
+model CustomerRefund {
+ id String @id @default(cuid())
+ companyId String
+ customerId String
+ createdById String
+ amount Decimal @db.Decimal(12, 2)
+ method String
+ note String
+ createdAt DateTime @default(now())
+ company Company @relation(fields:[companyId], references:[id], onDelete:Restrict)
+ customer Customer @relation(fields:[companyId,customerId], references:[companyId,id], onDelete:Restrict)
+ createdBy User @relation(fields:[companyId,createdById], references:[companyId,id], onDelete:Restrict)
+ @@unique([companyId,id])
+ @@index([companyId,customerId,createdAt,id])
+}
+
+model BillingAccount {
+ companyId String @id
+ customerId String? @unique
+ subscriptionId String? @unique
+ status String @default("manual")
+ lastEventAt DateTime?
+ cancelAt DateTime?
+ billingEmail String?
+ company Company @relation(fields:[companyId],references:[id],onDelete:Restrict)
+}
+model BillingCheckout {
+ activeKey String? @unique
+ id String @id @default(cuid())
+ companyId String
+ cycle String
+ email String
+ transactionId String? @unique
+ createdAt DateTime @default(now())
+ company Company @relation(fields:[companyId],references:[id],onDelete:Restrict)
+ @@index([companyId,createdAt])
+}
+model BillingEvent {
+ id String @id
+ type String
+ occurredAt DateTime
+ payload Json
+ state String @default("pending")
+ attempts Int @default(0)
+ lastError String?
+ processedAt DateTime?
+ createdAt DateTime @default(now())
+ @@index([state,createdAt])
 }

@@ -1,19 +1,17 @@
+const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
-const { requireAuth } = require("../middleware/auth.middleware");
+const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
 const router = express.Router();
 
-function getMonthRange(date = new Date()) {
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 1);
-  return { start, end };
-}
-
-function getPreviousMonthRange(date = new Date()) {
-  const start = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-  const end = new Date(date.getFullYear(), date.getMonth(), 1);
-  return { start, end };
+const W = require("../workspace-core");
+function monthRange(zone, offset = 0) {
+  const day = W.localDay(new Date(), zone), d = W.calendar(day);
+  const y=d.getUTCFullYear(), m=d.getUTCMonth();
+  const start=new Date(Date.UTC(y,m+offset,1)).toISOString().slice(0,10);
+  const end=new Date(Date.UTC(y,m+offset+1,1)).toISOString().slice(0,10);
+  return {start: W.zonedDay(start,zone), end: W.zonedDay(end,zone)};
 }
 
 function calcPercentChange(current, previous) {
@@ -30,10 +28,10 @@ function calcOrderTotal(order) {
   }, 0);
 }
 
-router.get("/stats", requireAuth, async (req, res) => {
+router.get("/stats", requireAuth, requireRole("ADMIN"), async (req, res) => {
   try {
-    const currentMonth = getMonthRange();
-    const previousMonth = getPreviousMonthRange();
+    const currentMonth = monthRange(req.company.timezone);
+    const previousMonth = monthRange(req.company.timezone, -1);
 
     const [
       productsCount,
@@ -146,7 +144,7 @@ router.get("/stats", requireAuth, async (req, res) => {
       recentOrders,
     });
   } catch (error) {
-    console.error("DASHBOARD_STATS_ERROR:", error);
+    log("DASHBOARD_STATS_ERROR:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
     return res.status(500).json({
       message: "Dashboard statistikaları alınmadı",
     });

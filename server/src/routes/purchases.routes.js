@@ -1,7 +1,10 @@
+const {log}=require("../ops/runtime");
+const W = require("../workspace-core");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
+const F = require("../financial-core");
 const router = express.Router();
 
 /**
@@ -36,24 +39,7 @@ router.get(
         ];
       }
 
-      if (startDate || endDate) {
-        where.createdAt = {};
-
-        if (startDate) {
-          const start = new Date(startDate);
-          if (!isNaN(start.getTime())) {
-            where.createdAt.gte = start;
-          }
-        }
-
-        if (endDate) {
-          const end = new Date(endDate);
-          if (!isNaN(end.getTime())) {
-            end.setHours(23, 59, 59, 999);
-            where.createdAt.lte = end;
-          }
-        }
-      }
+      if (startDate || endDate) where.createdAt = W.dateRange(startDate, endDate, req.company.timezone);
 
       const [purchases, total] = await prisma.$transaction([
         prisma.purchase.findMany({
@@ -94,8 +80,8 @@ router.get(
         },
       });
     } catch (error) {
-      console.error("Get purchases error:", error);
-      res.status(500).json({ message: error.message || "Server error" });
+      log("Get purchases error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
+      F.errorResponse(res, error);
     }
   },
 );
@@ -140,8 +126,8 @@ router.get(
 
       res.json({ purchase });
     } catch (error) {
-      console.error("Get single purchase error:", error);
-      res.status(500).json({ message: error.message || "Server error" });
+      log("Get single purchase error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
+      F.errorResponse(res, error);
     }
   },
 );
@@ -171,44 +157,12 @@ router.post(
     try {
       const { supplier, invoiceNo, note, items } = req.body;
 
-      if (!Array.isArray(items) || items.length === 0) {
-        return res
-          .status(400)
-          .json({ message: "items must be a non-empty array" });
-      }
-
-      const normalizedItems = items.map((i) => ({
-        productId: String(i?.productId || "").trim(),
-        quantity: parseInt(i?.quantity, 10),
-        unitCost: Number(i?.unitCost),
-        salePrice: Number(i?.salePrice),
+      const normalizedItems = F.lines(items).map((item) => ({
+        productId: F.id(item.productId),
+        quantity: F.integer(item.quantity),
+        unitCost: F.money(item.unitCost, true),
+        salePrice: F.money(item.salePrice, true),
       }));
-
-      for (const it of normalizedItems) {
-        if (!it.productId) {
-          return res
-            .status(400)
-            .json({ message: "Each item must have productId" });
-        }
-
-        if (!Number.isInteger(it.quantity) || it.quantity <= 0) {
-          return res
-            .status(400)
-            .json({ message: "Each item must have quantity > 0" });
-        }
-
-        if (!Number.isFinite(it.unitCost) || it.unitCost < 0) {
-          return res.status(400).json({
-            message: "Each item must have valid unitCost",
-          });
-        }
-
-        if (!Number.isFinite(it.salePrice) || it.salePrice < 0) {
-          return res.status(400).json({
-            message: "Each item must have valid salePrice",
-          });
-        }
-      }
 
       const createdById = req.user?.id || req.user?.userId;
       if (!createdById) {
@@ -217,14 +171,20 @@ router.post(
           .json({ message: "Invalid token payload (missing user id)" });
       }
 
-      const result = await prisma.$transaction(async (tx) => {
+      const input = {
+        supplier: F.text(supplier, 200),
+        invoiceNo: F.text(invoiceNo, 100),
+        note: F.text(note),
+        items: normalizedItems,
+      };
+      const result = await F.mutate(req, "purchase", input, async (tx) => {
         const productIds = [
           ...new Set(normalizedItems.map((x) => x.productId)),
         ];
 
         const products = await tx.product.findMany({
-          where: { id: { in: productIds } },
-          select: { id: true, name: true },
+          where: { id: { in: productIds }, archivedAt: null },
+          select: { id: true, name: true, salePrice: true },
         });
 
         if (products.length !== productIds.length) {
@@ -235,24 +195,30 @@ router.post(
           throw err;
         }
 
-        for (const it of normalizedItems) {
-          await tx.stock.upsert({
-            where: { productId: it.productId },
-            update: {
-              quantity: { increment: it.quantity },
-            },
-            create: {
-              productId: it.productId,
-              quantity: it.quantity,
-            },
-          });
+        if (req.user.role !== "ADMIN") {
+          const catalogue = new Map(
+            products.map((product) => [product.id, product]),
+          );
+          if (
+            normalizedItems.some(
+              (item) =>
+                F.minor(item.salePrice) !==
+                F.minor(catalogue.get(item.productId).salePrice),
+            )
+          )
+            throw F.fail(
+              403,
+              "Kataloq satış qiymətini yalnız administrator dəyişə bilər.",
+              "PRICE_PERMISSION",
+            );
+        }
 
-          await tx.product.update({
-            where: { id: it.productId },
-            data: {
-              salePrice: it.salePrice,
-            },
-          });
+        for (const it of normalizedItems) {
+          if (req.user.role === "ADMIN")
+            await tx.product.update({
+              where: { id: it.productId },
+              data: { salePrice: it.salePrice },
+            });
         }
 
         const purchase = await tx.purchase.create({
@@ -290,14 +256,19 @@ router.post(
           },
         });
 
-        return purchase;
+        for (const item of normalizedItems)
+          await F.moveStock(tx, item.productId, item.quantity, {
+            user: req.user,
+            kind: "PURCHASE",
+            reason: input.note || "Alış " + (input.invoiceNo || ""),
+            documentId: purchase.id,
+          });
+        return { purchase };
       });
 
-      res.status(201).json({ purchase: result });
+      res.status(result.replayed ? 200 : 201).json(result);
     } catch (error) {
-      const status = error.statusCode || 500;
-      console.error("Create purchase error:", error);
-      res.status(status).json({ message: error.message || "Server error" });
+      return F.errorResponse(res, error);
     }
   },
 );

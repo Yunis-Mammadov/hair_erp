@@ -1,0 +1,50 @@
+name: ERP checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: zindex_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql://postgres:ci-only-password@localhost:5432/zindex_test
+      NATIVE_DATABASE_URL: postgresql://postgres:ci-only-password@localhost:5432/zindex_test
+      VITE_API_URL: /api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
+      - run: npm ci --prefix server
+      - run: npm ci --prefix client
+      - run: npx prisma validate && npx prisma generate
+        working-directory: server
+      - run: npm test
+        working-directory: server
+      - name: Install PostgreSQL 18 backup tools
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo tee /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc > /dev/null
+          . /etc/os-release
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $VERSION_CODENAME-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-18
+          echo "PG_BIN=/usr/lib/postgresql/18/bin" >> "$GITHUB_ENV"
+      - run: npm run test:native
+        working-directory: server
+      - run: npm test && npm run lint -- --max-warnings=0 && npm run build
+        working-directory: client

@@ -3,7 +3,9 @@ const { platformPrisma } = require("./prismaClient");
 const { signToken, verifyToken } = require("./auth-security");
 const { subscriptionIsActive } = require("./config/plans");
 
-const uploadsRoot = path.resolve(__dirname, "uploads");
+const uploadsRoot = path.resolve(
+  process.env.UPLOADS_DIR || path.join(__dirname, "uploads"),
+);
 function uploadPath(value, company) {
   if (typeof value !== "string" || value.length > 4096)
     throw new Error("Şəkil ünvanı yanlışdır.");
@@ -26,7 +28,7 @@ function inlineImage(value) {
   );
 }
 function normalizeUploadUrl(value, company) {
-  if (inlineImage(value)) return value;
+  if (inlineImage(value)) throw Object.assign(new Error("Upload new receipt images through the image upload endpoint."), {statusCode:400, code:"INVALID_IMAGE"});
   try {
     return uploadPath(value, company).pathname;
   } catch (error) {
@@ -61,7 +63,7 @@ function signImageResponses(req, res, next) {
       return value;
     const copy = { ...value };
     for (const [key, item] of Object.entries(copy)) {
-      if (key === "imageUrl" && item) {
+      if (["imageUrl", "logoUrl"].includes(key) && item) {
         try {
           copy[key] = signedUploadUrl(item, req);
         } catch {

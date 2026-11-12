@@ -1,12 +1,23 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const { readFileSync, mkdirSync, writeFileSync, rmSync } = require("node:fs");
+const {
+  readFileSync,
+  mkdirSync,
+  writeFileSync,
+  rmSync,
+  mkdtempSync,
+} = require("node:fs");
 const path = require("node:path");
 const { PGlite } = require("@electric-sql/pglite");
 const { PGLiteSocketServer } = require("@electric-sql/pglite-socket");
 const bcrypt = require("bcrypt");
 
 test("Existing ERP: migration, company/PIN login, tenant isolation and Basic restrictions", async (t) => {
+  const uploads = mkdtempSync(
+    path.join(require("node:os").tmpdir(), "z-index-group1-"),
+  );
+  process.env.UPLOADS_DIR = uploads;
+  t.after(() => rmSync(uploads, { recursive: true, force: true }));
   const db = new PGlite();
   await db.waitReady;
   await db.exec(
@@ -38,6 +49,19 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
       "utf8",
     ),
   );
+  await db.exec(
+    readFileSync(
+      path.join(
+        __dirname,
+        "../prisma/migrations/202611100001_group1_financials/migration.sql",
+      ),
+      "utf8",
+    ),
+  );
+  await db.exec(readFileSync(path.resolve(__dirname, "../prisma/migrations/202611100002_group3_records/migration.sql"), "utf8"));
+  await db.exec(readFileSync(path.resolve(__dirname, "../prisma/migrations/202611100003_group4_global_setup/migration.sql"), "utf8"));
+  await db.exec(readFileSync(path.resolve(__dirname, "../prisma/migrations/202611110001_group5_workflows/migration.sql"), "utf8"));
+  await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611120001_group6_operations/migration.sql"),"utf8"));
   const wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
   await wire.start();
   process.env.DATABASE_URL = `postgresql://postgres:postgres@127.0.0.1:${wire.getServerConn().split(":")[1]}/postgres?connection_limit=1`;
@@ -70,6 +94,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
       headers: {
         ...(body ? { "Content-Type": "application/json" } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        "Idempotency-Key": require("node:crypto").randomUUID(),
       },
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
@@ -155,8 +180,8 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
           data: { companyId: b.id, categoryId: cat.id, name: "B Product" },
         });
         assert.equal(PRICES.AZ.PREMIUM.YEARLY, 250000);
-        assert.equal(PRICES.GLOBAL.BASIC.MONTHLY, 999);
-        assert.equal(PRICES.GLOBAL.BASIC.YEARLY, 9999);
+        assert.equal(PRICES.GLOBAL.BASIC.MONTHLY, 1499);
+        assert.equal(PRICES.GLOBAL.BASIC.YEARLY, 14999);
       },
     );
     await t.test(
@@ -257,7 +282,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
             await call(
               `/api/stock/${productB.id}`,
               "PATCH",
-              { quantity: 3 },
+              { quantity: 3, expectedVersion: 0, reason: "Test count" },
               tokenA,
             )
           ).status,
@@ -623,9 +648,23 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
         const form = new FormData();
         form.set(
           "file",
-          new Blob([new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])], {
-            type: "image/png",
-          }),
+          new Blob(
+            [
+              await require("sharp")({
+                create: {
+                  width: 4,
+                  height: 4,
+                  channels: 3,
+                  background: "white",
+                },
+              })
+                .png()
+                .toBuffer(),
+            ],
+            {
+              type: "image/png",
+            },
+          ),
           "receipt.png",
         );
         const uploaded = await fetch(base + "/api/uploads", {
@@ -636,7 +675,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
         assert.equal(uploaded.status, 201);
         const data = await uploaded.json();
         const url = new URL(data.file.url);
-        imagePath = path.join(__dirname, "../src/uploads", a.id);
+        imagePath = path.join(uploads, a.id);
         assert.equal((await call(url.pathname)).status, 401);
         assert.equal((await call(url.pathname + url.search)).status, 200);
         const bad = await call(
@@ -758,7 +797,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
             },
           },
         );
-        assert.ok(result.stdout.includes('"amountMinor": 9999'));
+        assert.ok(result.stdout.includes('"amountMinor": 14999'));
         const created = await raw.company.findUnique({
           where: { loginEmail: "cli@zindex.invalid" },
         });

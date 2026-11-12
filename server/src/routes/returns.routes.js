@@ -1,9 +1,12 @@
+const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
 const { hasFeature } = require("../config/plans");
 
+const F = require("../financial-core");
+const R = require("../records-core"), W = require("../workspace-core");
 const router = express.Router();
 
 /**
@@ -16,6 +19,10 @@ router.get(
   async (req, res) => {
     try {
       const where = {};
+      const page=R.page(req.query);
+      if(req.query.startDate||req.query.endDate)where.createdAt=W.dateRange(req.query.startDate,req.query.endDate,req.company.timezone);
+      const search=F.text(req.query.search,150);
+      if(search)where.OR=[{customer:{name:{contains:search,mode:"insensitive"}}},{customer:{phone:{contains:search}}},{customer:{salon:{contains:search,mode:"insensitive"}}},{note:{contains:search,mode:"insensitive"}}];
 
       if (
         hasFeature(req.company, "customerAssignments") &&
@@ -26,7 +33,9 @@ router.get(
         };
       }
 
+      const total=await prisma.return.count({where});
       const returns = await prisma.return.findMany({
+        skip:page.skip,take:page.take,
         where,
         include: {
           customer: {
@@ -59,10 +68,10 @@ router.get(
         },
       });
 
-      res.json({ returns });
+      res.json({ returns, pagination:R.pagination(page,total) });
     } catch (error) {
-      console.error("GET_RETURNS_ERROR:", error);
-      res.status(500).json({ message: "Geri qaytarmalar alınmadı" });
+      log("GET_RETURNS_ERROR:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
+      F.errorResponse(res,error);
     }
   },
 );
@@ -117,265 +126,108 @@ router.get(
 
       res.json({ return: returnData });
     } catch (error) {
-      console.error("Get single return error:", error);
+      log("Get single return error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       res.status(500).json({ message: error.message || "Server error" });
     }
   },
 );
 
-/**
- * POST /returns
- */
+// POST /returns — combine duplicates before allocation; lock against payment/edit/return races.
 router.post(
   "/",
   requireAuth,
   requireRole("ADMIN", "EXPEDITOR", "WAREHOUSE"),
   async (req, res) => {
     try {
-      const { customerId, note, items } = req.body;
-
-      if (!customerId) {
-        return res.status(400).json({ message: "customerId tələb olunur" });
-      }
-
-      if (!Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({ message: "items tələb olunur" });
-      }
-
-      const normalizedItems = items
-        .map((item) => ({
-          productId: item.productId,
-          quantity: Number(item.quantity || 0),
-        }))
-        .filter((item) => item.productId && item.quantity > 0);
-
-      if (normalizedItems.length === 0) {
-        return res.status(400).json({
-          message: "Qaytarılacaq məhsullar düzgün göndərilməyib",
-        });
-      }
-
-      const result = await prisma.$transaction(async (tx) => {
-        const authUserId = req.user?.userId || req.user?.id;
-
-        if (!authUserId) {
-          throw new Error("Aktiv istifadəçi tapılmadı");
-        }
-
-        const isExpeditor =
-          hasFeature(req.company, "customerAssignments") &&
-          req.user.role === "EXPEDITOR";
-
-        const customer = await tx.customer.findFirst({
-          where: isExpeditor
-            ? {
-                id: customerId,
-                assignedExpeditorId: authUserId,
-              }
-            : {
-                id: customerId,
-              },
-          include: {
-            orders: {
-              where: isExpeditor ? { createdById: authUserId } : {},
-              orderBy: { createdAt: "asc" },
-              include: {
-                items: {
-                  include: {
-                    product: {
-                      include: {
-                        category: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        if (!customer) {
-          throw new Error("Müştəri tapılmadı");
-        }
-
-        /**
-         * MƏDAXİLDƏ SATILMIŞ KİMİ QEYD OLUNAN MƏHSULLAR
-         * Bu məhsullar artıq geri qaytarıla bilməz.
-         */
-        const paymentSoldItems = await tx.paymentSoldItem.findMany({
-          where: {
-            payment: {
-              customerId,
-            },
-          },
-          select: {
-            productId: true,
-            quantity: true,
-          },
-        });
-
-        const soldQtyByProduct = paymentSoldItems.reduce((acc, item) => {
-          acc[item.productId] =
-            (acc[item.productId] || 0) + Number(item.quantity || 0);
-          return acc;
-        }, {});
-
-        const returnDoc = await tx.return.create({
-          data: {
-            note: note || null,
-            customerId,
-            createdById: authUserId,
-          },
-        });
-
-        for (const requestedItem of normalizedItems) {
-          const { productId, quantity } = requestedItem;
-          let remainingQty = quantity;
-
-          const matchingOrderItems = customer.orders
-            .flatMap((order) =>
-              (order.items || []).map((item) => ({
-                ...item,
-                orderId: order.id,
-              })),
-            )
-            .filter((item) => {
-              const orderedQty = Number(item.quantity || 0);
-              const returnedQty = Number(item.returnedQty || 0);
-              const availableQty = orderedQty - returnedQty;
-
-              return (
-                item.productId === productId && !item.isGift && availableQty > 0
-              );
-            });
-
-          const totalOrderedAvailable = matchingOrderItems.reduce(
-            (sum, item) => {
-              const orderedQty = Number(item.quantity || 0);
-              const returnedQty = Number(item.returnedQty || 0);
-              return sum + Math.max(orderedQty - returnedQty, 0);
-            },
-            0,
+      const input = {
+        customerId: F.id(req.body?.customerId),
+        note: F.text(req.body?.note),
+        items: F.combine(req.body?.items),
+      };
+      const result = await F.mutate(req, "return", input, async (tx) => {
+        await F.lockCustomer(tx, input.customerId, req);
+        const allocations = [];
+        for (const requested of input.items) {
+          const state = await F.returnable(
+            tx,
+            input.customerId,
+            requested.productId,
           );
-
-          const alreadySoldQty = Number(soldQtyByProduct[productId] || 0);
-          const totalAvailable = Math.max(
-            totalOrderedAvailable - alreadySoldQty,
-            0,
-          );
-
-          if (remainingQty > totalAvailable) {
-            const productName =
-              matchingOrderItems[0]?.product?.name || "Məhsul";
-
-            throw new Error(
-              `${productName} üçün maksimum ${totalAvailable} ədəd qaytarmaq olar. Çünki ${alreadySoldQty} ədəd artıq mədaxildə satılmış kimi qeyd olunub.`,
+          if (requested.quantity > state.available)
+            throw F.fail(
+              409,
+              `Bu məhsul üçün maksimum ${state.available} ədəd qaytarmaq olar.`,
+              "RETURN_LIMIT",
             );
+          let skip = state.sold,
+            left = requested.quantity;
+          for (const item of state.items) {
+            let available = Math.max(item.quantity - item.returnedQty, 0);
+            const reserved = Math.min(skip, available);
+            skip -= reserved;
+            available -= reserved;
+            const quantity = Math.min(left, available);
+            if (!quantity) continue;
+            allocations.push({
+              orderItemId: item.id,
+              productId: item.productId,
+              quantity,
+              unitPrice: item.unitPrice,
+              previousReturned: item.returnedQty,
+            });
+            left -= quantity;
+            if (!left) break;
           }
-
-          /**
-           * Burada satılmış miqdarı əvvəlcə skip edirik.
-           * Yəni mədaxildə satılmış məhsullar qaytarma üçün əlçatan sayılmır.
-           */
-          let soldQtyToSkip = alreadySoldQty;
-
-          for (const orderItem of matchingOrderItems) {
-            if (remainingQty <= 0) break;
-
-            const orderedQty = Number(orderItem.quantity || 0);
-            const returnedQty = Number(orderItem.returnedQty || 0);
-            let availableQty = Math.max(orderedQty - returnedQty, 0);
-
-            if (soldQtyToSkip > 0) {
-              const skippedQty = Math.min(soldQtyToSkip, availableQty);
-              availableQty -= skippedQty;
-              soldQtyToSkip -= skippedQty;
-            }
-
-            if (availableQty <= 0) continue;
-
-            const allocateQty = Math.min(remainingQty, availableQty);
-
-            await tx.returnItem.create({
-              data: {
-                returnId: returnDoc.id,
-                orderItemId: orderItem.id,
-                productId: orderItem.productId,
-                quantity: allocateQty,
-                unitPrice: orderItem.unitPrice,
-              },
-            });
-
-            await tx.orderItem.update({
-              where: { id: orderItem.id },
-              data: {
-                returnedQty: {
-                  increment: allocateQty,
-                },
-              },
-            });
-
-            await tx.stock.update({
-              where: { productId: orderItem.productId },
-              data: {
-                quantity: {
-                  increment: allocateQty,
-                },
-              },
-            });
-
-            remainingQty -= allocateQty;
-          }
+          if (left)
+            throw F.fail(409, "Qaytarma miqdarı dəyişib. Yenidən cəhd et.");
         }
-
-        await tx.customer.update({
-          where: { id: customerId },
+        const doc = await tx.return.create({
           data: {
-            isProblematic: true,
-            problemNote: note ? String(note).trim() : customer.problemNote,
-            problemMarkedAt: new Date(),
+            customerId: input.customerId,
+            createdById: req.user.id,
+            note: input.note,
+            totalAmount: F.major(
+              allocations.reduce(
+                (sum, item) => sum + F.minor(item.unitPrice) * item.quantity,
+                0,
+              ),
+            ),
           },
         });
-
-        const fullReturnDoc = await tx.return.findUnique({
-          where: { id: returnDoc.id },
+        for (const { previousReturned, ...item } of allocations) {
+          const updated = await tx.orderItem.updateMany({
+            where: { id: item.orderItemId, returnedQty: previousReturned },
+            data: { returnedQty: { increment: item.quantity } },
+          });
+          if (updated.count !== 1)
+            throw F.fail(409, "Qaytarma miqdarı dəyişib. Yenidən cəhd et.");
+          await tx.returnItem.create({ data: { ...item, returnId: doc.id } });
+          await F.moveStock(tx, item.productId, item.quantity, {
+            user: req.user,
+            kind: "RETURN",
+            reason: input.note || "Müştəri qaytarması",
+            documentId: doc.id,
+          });
+        }
+        const returnDoc = await tx.return.findUnique({
+          where: { id: doc.id },
           include: {
             customer: true,
-            createdBy: {
-              select: {
-                id: true,
-                fullName: true,
-                email: true,
-                role: true,
-              },
-            },
+            createdBy: { select: { id: true, fullName: true, role: true } },
             items: {
               include: {
-                product: {
-                  include: {
-                    category: true,
-                  },
-                },
+                product: { include: { category: true } },
                 orderItem: true,
               },
             },
           },
         });
-
-        return fullReturnDoc;
+        return { returnDoc, summary: await F.account(tx, input.customerId) };
       });
-
-      return res.status(201).json({
-        message: "Geri qaytarma yaradıldı",
-        returnDoc: result,
-      });
+      return res.status(result.replayed ? 200 : 201).json(result);
     } catch (error) {
-      console.error("Create return error:", error);
-      return res.status(400).json({
-        message: error.message || "Geri qaytarma yaradılmadı",
-      });
+      return F.errorResponse(res, error);
     }
   },
 );
-
 module.exports = router;

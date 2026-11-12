@@ -1,3 +1,4 @@
+const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
@@ -62,7 +63,7 @@ router.get(
 
       return res.json({ orders });
     } catch (error) {
-      console.error("GET /live-location/orders error:", error);
+      log("GET /live-location/orders error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       return res.status(500).json({ message: "Bortda sifarişlər alınmadı" });
     }
   },
@@ -95,7 +96,7 @@ router.get(
 
       return res.json({ sessions });
     } catch (error) {
-      console.error("GET /live-location/active error:", error);
+      log("GET /live-location/active error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       return res.status(500).json({ message: "Aktiv canlı konumlar alınmadı" });
     }
   },
@@ -154,7 +155,7 @@ router.post(
         session: result,
       });
     } catch (error) {
-      console.error("POST /live-location/start error:", error);
+      log("POST /live-location/start error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       return res
         .status(500)
         .json({ message: "Canlı paylaşım başlatıla bilmədi" });
@@ -217,7 +218,7 @@ router.patch(
         session: updated,
       });
     } catch (error) {
-      console.error("PATCH /live-location/update error:", error);
+      log("PATCH /live-location/update error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       return res.status(500).json({ message: "Canlı konum yenilənmədi" });
     }
   },
@@ -261,7 +262,7 @@ router.post(
         session: stopped,
       });
     } catch (error) {
-      console.error("POST /live-location/stop error:", error);
+      log("POST /live-location/stop error:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
       return res.status(500).json({ message: "Canlı paylaşım dayandırılmadı" });
     }
   },
