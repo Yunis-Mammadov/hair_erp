@@ -16,13 +16,23 @@ router.post('/webhooks/paddle',raw({type:'application/json',limit:'256kb'}),rout
  try{await db.billingEvent.create({data:{id:event.event_id,type:event.event_type,occurredAt:new Date(event.occurred_at),payload:event}});}catch(e){if(e.code!=='P2002')throw e;}
  res.json({received:true});
 }));
-const renewalLimiter=attemptLimiter(5,15*60000,req=>String(req.body?.email||'').toLowerCase());
-router.post('/api/billing/renewal-login',require('express').json({limit:'4kb'}),renewalLimiter,route(async(req,res)=>{
- const {email,password,pin}=req.body||{};
- if(typeof email!=='string'||email.length>254||typeof password!=='string'||Buffer.byteLength(password)>72||typeof pin!=='string'||!/^\d{4,8}$/.test(pin))throw fail(400,'Enter company email, password and admin PIN.');
- const company=await db.company.findUnique({where:{loginEmail:email.trim().toLowerCase()}});
- const dummy='$2b$04$R69NAN1YzCqwL89mYKjS0ukIuEaGYo/M0R9sG6PJpN6ke0o.5FVJm';
- if(!await bcrypt.compare(password,company?.passwordHash||dummy)||!company?.isActive)throw fail(401,'Company credentials or admin PIN are incorrect.');
+const renewalIpLimiter=attemptLimiter(30,15*60000,()=> 'renewal');
+const renewalCompanyLimiter=attemptLimiter(5,15*60000,req=>req.renewalCompany.id);
+async function renewalCredentials(req,res,next){
+ try {
+  const {email,password,pin}=req.body||{};
+  if(typeof email!=='string'||email.length>254||typeof password!=='string'||Buffer.byteLength(password)>72||typeof pin!=='string'||!/^\d{4,8}$/.test(pin))throw fail(400,'Enter company email, password and admin PIN.');
+  const company=await db.company.findUnique({where:{loginEmail:email.trim().toLowerCase()}});
+  // The normal login and renewal paths use the same bcrypt work factor.
+  const dummy=await renewalDummy;
+  if(!await bcrypt.compare(password,company?.passwordHash||dummy)||!company?.isActive)throw fail(401,'Company credentials or admin PIN are incorrect.');
+  req.renewalCompany=company;
+  next();
+ }catch(e){next(e);}
+}
+const renewalDummy=bcrypt.hash(require('node:crypto').randomBytes(32).toString('hex'),12);
+router.post('/api/billing/renewal-login',require('express').json({limit:'4kb'}),renewalIpLimiter,renewalCredentials,renewalCompanyLimiter,route(async(req,res)=>{
+ const company=req.renewalCompany,{pin}=req.body;
  const users=await db.user.findMany({where:{companyId:company.id,isActive:true,role:'ADMIN'}});let user;
  for(const candidate of users)if(candidate.pinHash&&await bcrypt.compare(pin,candidate.pinHash))user=candidate;
  if(!user)throw fail(401,'Company credentials or admin PIN are incorrect.');
@@ -40,10 +50,11 @@ async function billingAuth(req,res,next){
 router.use('/api/billing',billingAuth,(_req,res,next)=>{res.set('Cache-Control','no-store');next();});
 router.get('/api/billing',route(async(req,res)=>{
  const company=req.billingCompany,account=await db.billingAccount.findUnique({where:{companyId:company.id}});
- res.json({company:publicCompany(company),active:subscriptionIsActive(company),status:account?.status||'manual',cancelAt:account?.cancelAt,enabled:process.env.BILLING_PROVIDER==='paddle'&&company.market==='GLOBAL'&&company.plan==='BASIC',hasSubscription:!!account?.subscriptionId,support:publicService()});
+ res.json({company:publicCompany(company),active:subscriptionIsActive(company),status:account?.status||'manual',cancelAt:account?.cancelAt,enabled:!company.isDemo&&process.env.BILLING_PROVIDER==='paddle'&&company.market==='GLOBAL'&&company.plan==='BASIC',hasSubscription:!!account?.subscriptionId,support:publicService()});
 }));
 router.post('/api/billing/checkout',require('express').json({limit:'4kb'}),route(async(req,res)=>{
  const company=req.billingCompany,{cycle,email}=req.body||{};
+ if(company.isDemo)throw fail(403,'Demo accounts cannot open paid checkout.','DEMO_RESTRICTED');
  if(process.env.BILLING_PROVIDER!=='paddle')throw fail(503,'Contact support to renew your plan.','BILLING_DISABLED');
  if(company.market!=='GLOBAL'||company.plan!=='BASIC')throw fail(403,'Contact support for this plan.');
  if(!['MONTHLY','YEARLY'].includes(cycle)||typeof email!=='string'||email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||/\.invalid$/i.test(email))throw fail(400,'Choose a billing cycle and a real billing email.');
@@ -74,6 +85,7 @@ router.post('/api/billing/checkout',require('express').json({limit:'4kb'}),route
  res.json({url:transaction.checkout.url});
 }));
 router.post('/api/billing/portal',route(async(req,res)=>{
+ if(req.billingCompany.isDemo)throw fail(403,'Demo accounts cannot open paid checkout.','DEMO_RESTRICTED');
  if(process.env.BILLING_PROVIDER!=='paddle')throw fail(503,'Contact support to manage your plan.');
  const account=await db.billingAccount.findUnique({where:{companyId:req.billingCompany.id}});
  if(!account?.customerId||!account.subscriptionId)throw fail(404,'No linked subscription was found.');

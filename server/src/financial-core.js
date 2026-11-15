@@ -1,3 +1,4 @@
+const Q = require("./quantity");
 const { createHash } = require("node:crypto");
 const { Prisma } = require("@prisma/client");
 const { prisma } = require("./prismaClient");
@@ -63,7 +64,7 @@ function combine(items) {
     const productId = id(item?.productId);
     map.set(
       productId,
-      integer((map.get(productId) || 0) + integer(item.quantity)),
+      Q.quantity(Q.add(map.get(productId), Q.quantity(item.quantity))),
     );
   }
   return [...map]
@@ -135,6 +136,15 @@ async function mutate(req, scope, input, fn) {
         );
       return { ...existing.response, replayed: true };
     }
+    if (!req.company.currencyConfigured && /^(?:sale|purchase|payment|return|customer-refund|void-payment:)/.test(scope)) {
+      // Migrated financial records keep their original currency. Only an empty
+      // workspace must explicitly confirm currency before its first transaction.
+      let historical = false;
+      for (const model of ['order', 'purchase', 'payment', 'return']) {
+        if (await tx[model].findFirst({ select: { id: true } })) { historical = true; break; }
+      }
+      if (!historical) throw fail(409, 'An administrator must confirm the operating currency in Company settings before the first transaction.', 'CURRENCY_NOT_CONFIGURED');
+    }
     const response = JSON.parse(
       JSON.stringify({ ...(await fn(tx)), replayed: false }),
     );
@@ -162,6 +172,9 @@ async function lockCustomer(tx, customerId, req) {
   return customer;
 }
 async function moveStock(tx, productId, delta, details = {}) {
+  const product=await tx.product.findUnique({where:{id:productId},select:{unit:true}});
+  if(!product)throw fail(404,'Product not found.');
+  Q.quantity(Math.abs(Number(delta)),product.unit,0,1000000000);
   await tx.stock.upsert({
     where: { productId },
     create: { productId, quantity: 0 },
@@ -170,7 +183,7 @@ async function moveStock(tx, productId, delta, details = {}) {
   const updated = await tx.stock.updateMany({
     where: {
       productId,
-      quantity: delta < 0 ? { gte: -delta } : { lte: 1000000000 - delta },
+      quantity: delta < 0 ? { gte: -delta } : { lte: Q.sub(1000000000, delta) },
     },
     data: { quantity: { increment: delta }, version: { increment: 1 } },
   });
@@ -188,7 +201,7 @@ async function moveStock(tx, productId, delta, details = {}) {
       actorName: details.user?.fullName || "Sistem",
       kind: details.kind || "ADJUSTMENT",
       delta,
-      before: stock.quantity - delta,
+      before: Q.sub(stock.quantity, delta),
       after: stock.quantity,
       reason: details.reason || "Stok əməliyyatı",
       documentId: details.documentId || null,
@@ -203,8 +216,8 @@ async function moveStock(tx, productId, delta, details = {}) {
 }
 function summary(customer) {
  const orders=customer.orders||[],returns=customer.returns||[],payments=(customer.payments||[]).filter(p=>!p.voidedAt),refunds=customer.refunds||[];
- const orderAmount=orders.reduce((n,o)=>n+o.items.reduce((v,i)=>v+(i.isGift?0:minor(i.unitPrice)*i.quantity),0),0);
- const returnAmount=returns.reduce((n,r)=>n+r.items.reduce((v,i)=>v+minor(i.unitPrice)*i.quantity,0),0);
+ const orderAmount=orders.reduce((n,o)=>n+(o.totalAmount==null?o.items.reduce((v,i)=>v+(i.isGift?0:Q.lineCents(minor(i.unitPrice),i.quantity)),0):minor(o.totalAmount)),0);
+ const returnAmount=returns.reduce((n,r)=>n+r.items.reduce((v,i)=>v+(i.lineTotalAmount==null?Q.lineCents(minor(i.unitPrice),i.quantity):minor(i.lineTotalAmount)),0),0);
  return totals(major(orderAmount),major(returnAmount),major(payments.reduce((n,p)=>n+minor(p.amount),0)),orders.length,returns.length,payments.length,major(refunds.reduce((n,r)=>n+minor(r.amount),0)),refunds.length);
 }
 async function account(tx, customerId) {
@@ -281,13 +294,13 @@ async function returnable(tx, customerId, productId) {
     }),
   ]);
   const available = items.reduce(
-    (n, item) => n + Math.max(item.quantity - item.returnedQty, 0),
+    (n, item) => Q.add(n, Math.max(Q.sub(item.quantity, item.returnedQty), 0)),
     0,
   );
   return {
     items,
     sold: sold._sum.quantity || 0,
-    available: Math.max(available - (sold._sum.quantity || 0), 0),
+    available: Math.max(Q.sub(available, sold._sum.quantity || 0), 0),
   };
 }
 function errorResponse(res, error) {

@@ -157,6 +157,7 @@ router.get(
               productId: product.id,
               productName: product.name,
               sku: product.sku,
+              unit: product.unit,
               categoryName: product.category.name,
               totalQty: order.quantity || 0,
               returnedQty: order.returnedQty || 0,
@@ -256,6 +257,7 @@ router.post(
       const customer = await prisma.customer.create({
         data: {
           ...input,
+          ...require("../reminders").contact(req.body),
           assignedExpeditorId:
             hasFeature(req.company, "customerAssignments") &&
             req.user.role === "EXPEDITOR"
@@ -320,6 +322,9 @@ router.put(
         return res.status(404).json({ message: "Müştəri tapılmadı" });
       }
 
+      if (isProblematic !== undefined && typeof isProblematic !== 'boolean')
+        throw F.fail(400, 'The customer flag must be true or false.', 'INVALID_CUSTOMER_FLAG');
+
       let finalAreaId = existingCustomer.areaId || null;
 
       if (areaId !== undefined) {
@@ -327,7 +332,7 @@ router.put(
         await W.checkArea(prisma, finalAreaId);
       }
 
-      const updateData = { areaId: finalAreaId };
+      const updateData = { areaId: finalAreaId, ...require("../reminders").contact(req.body,existingCustomer) };
       for (const field of ["name", "phone", "salon", "address"])
         if (req.body[field] !== undefined) {
           updateData[field] = field === "phone" ? W.phone(req.body[field]) : F.text(
@@ -368,13 +373,11 @@ router.put(
       }
 
       if (isProblematic !== undefined) {
-        updateData.isProblematic = Boolean(isProblematic);
+        updateData.isProblematic = isProblematic;
       }
 
       if (problemNote !== undefined) {
-        updateData.problemNote = problemNote
-          ? String(problemNote).trim()
-          : null;
+        updateData.problemNote = F.text(problemNote, 1000);
       }
 
       if (isProblematic === true) {

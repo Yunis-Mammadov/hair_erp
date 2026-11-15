@@ -1,0 +1,15 @@
+.git
+**/node_modules
+**/.env
+**/.env.*
+**/uploads
+**/backups
+**/dist
+**/android
+**/*.log
+
+**/*.dump
+**/*.bak
+**/*.zip
+**/*.pem
+**/*.key

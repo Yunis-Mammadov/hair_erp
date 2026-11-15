@@ -1,3 +1,4 @@
+const Q=require("../quantity");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
@@ -64,6 +65,7 @@ router.get(
           items: products.map((product) => ({
             productId: product.id,
             productName: product.name,
+            unit: product.unit,
             sku: product.sku,
             barcode: product.barcode,
             archivedAt: product.archivedAt,
@@ -80,6 +82,7 @@ router.get(
           })),
           pagination: R.pagination(p, total),
           stats: {
+            quantityByUnit: Object.fromEntries(await Promise.all(Q.units.map(async unit=>[unit,(await tx.stock.aggregate({where:{product:{...base,unit}},_sum:{quantity:true}}))._sum.quantity||0]))),
             totalProducts,
             totalQuantity: totalQuantity._sum.quantity || 0,
             outOfStock,
@@ -125,7 +128,7 @@ router.patch(
   R.route(async (req, res) => {
     const input = {
       productId: F.id(req.params.productId),
-      quantity: F.integer(req.body?.quantity, 0, 1000000000),
+      quantity: Q.quantity(req.body?.quantity, undefined, 0, 1000000000),
       expectedVersion: F.integer(req.body?.expectedVersion, 0, 2147483647),
       reason: F.text(req.body?.reason, 300),
     };
@@ -135,6 +138,7 @@ router.patch(
         where: { id: input.productId },
       });
       if (!product) throw F.fail(404, "Məhsul tapılmadı.");
+      Q.quantity(input.quantity,product.unit,0,1000000000);
       if (product.archivedAt)
         throw F.fail(409, "Əvvəl məhsulu arxivdən çıxar.");
       const stock = await tx.stock.findUnique({
@@ -150,7 +154,7 @@ router.patch(
         stock: await F.moveStock(
           tx,
           input.productId,
-          input.quantity - (stock?.quantity || 0),
+          Q.sub(input.quantity,stock?.quantity),
           { user: req.user, kind: "ADJUSTMENT", reason: input.reason },
         ),
       };

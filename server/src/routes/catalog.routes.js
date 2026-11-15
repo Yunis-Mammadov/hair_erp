@@ -45,6 +45,7 @@ router.get(
         barcode: p.barcode,
         salePrice: Number(p.salePrice),
         stockQty: p.stock?.quantity || 0,
+        unit: p.unit,
         category: p.category,
       })),
       pagination: R.pagination(p, total),

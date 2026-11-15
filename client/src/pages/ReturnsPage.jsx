@@ -1,3 +1,4 @@
+import {quantityStep} from '../lib/quantities.mjs';
 import { useI18n } from "../i18n/useI18n";
 import { t } from "../i18n/runtime";
 import { useEffect, useState } from "react";
@@ -164,7 +165,7 @@ export default function ReturnsPage() {
                       <TextField size="small" type="number" inputProps={{
                   min: 0,
                   max: p.returnableQty,
-                  step: 1
+                  step: quantityStep(p.unit)
                 }} value={selection[p.productId]?.quantity ?? ""} disabled={busy || !p.returnableQty} onChange={e => setSelection(prev => ({
                   ...prev,
                   [p.productId]: {

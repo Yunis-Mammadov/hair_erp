@@ -1,3 +1,4 @@
+const Q=require("../quantity");
 const W = require("../workspace-core");
 const express = require("express");
 
@@ -49,7 +50,8 @@ router.post(
             : row.salePrice,
           true,
         ),
-        quantity: number(row.quantity, 0, 1000000000),
+        ...(row.unit ? {unit:Q.unit(row.unit)} : {}),
+        quantity: Q.quantity(row.quantity === "" || row.quantity === undefined ? 0 : row.quantity,row.unit||"PIECE",0,1000000000),
       };
     });
     res.status(201).json(
@@ -84,6 +86,7 @@ router.post(
               sku: row.sku,
               barcode: row.barcode,
               salePrice: row.salePrice,
+              unit: row.unit || "PIECE",
             },
           });
           await F.moveStock(tx, product.id, row.quantity, {
@@ -163,6 +166,7 @@ router.get(
           "quantity",
           "archived",
           "currency",
+          "unit",
         ],
         map: (r) => [
           r.name,
@@ -173,6 +177,7 @@ router.get(
           r.stock?.quantity || 0,
           !!r.archivedAt,
           req.company.currency,
+          r.unit,
         ],
       },
       customers: {

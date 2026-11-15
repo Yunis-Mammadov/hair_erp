@@ -9,6 +9,7 @@ function log(event, fields={}) {
 function requestLog(req,res,next){req.requestId=randomUUID();res.set('X-Request-ID',req.requestId);const start=performance.now();res.once('finish',()=>log('http',{requestId:req.requestId,method:req.method,route:(req.baseUrl||'')+(req.route?.path||'/unmatched'),status:res.statusCode,durationMs:Math.round(performance.now()-start)}));next();}
 function validateEnvironment(env=process.env){
  if(env.TRUST_PROXY_HOPS&&!/^[0-3]$/.test(env.TRUST_PROXY_HOPS))throw Error('TRUST_PROXY_HOPS must be an integer from 0 to 3.');
+ if(env.APP_URL){let url;try{url=new URL(env.APP_URL);}catch{throw Error('APP_URL must be a valid HTTP(S) URL.');}if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.search||url.hash)throw Error('APP_URL must be an HTTP(S) URL without credentials, query or fragment.');}
  if(env.NODE_ENV==='production'){
   for(const key of ['DATABASE_URL','JWT_SECRET','APP_URL','UPLOADS_DIR','SUPPORT_EMAIL','SERVICE_OPERATOR_NAME'])if(!env[key])throw Error(key+' is required in production.');
   if(!/^https:\/\//.test(env.APP_URL))throw Error('APP_URL must use HTTPS in production.');

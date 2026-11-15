@@ -23,6 +23,7 @@ function calcPercentChange(current, previous) {
 }
 
 function calcOrderTotal(order) {
+  if(order.totalAmount!=null)return Number(order.totalAmount);
   return (order.items || []).reduce((sum, item) => {
     return sum + Number(item.quantity || 0) * Number(item.unitPrice || 0);
   }, 0);

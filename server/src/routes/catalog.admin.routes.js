@@ -1,3 +1,4 @@
+const Q=require("../quantity");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
@@ -12,6 +13,7 @@ function productInput(body) {
   if (!name) throw F.fail(400, "Məhsul adını yaz.");
   return {
     name,
+    ...(body.unit !== undefined ? {unit: Q.unit(body.unit)} : {}),
     categoryId: F.id(body.categoryId),
     salePrice: F.money(body.salePrice === undefined ? 0 : body.salePrice, true),
     sku: code(body.sku),
@@ -82,11 +84,7 @@ router.post(
   R.route(async (req, res) => {
     const input = {
       ...productInput(req.body || {}),
-      quantity: F.integer(
-        req.body?.quantity === undefined ? 0 : req.body.quantity,
-        0,
-        1000000000,
-      ),
+      quantity: Q.quantity(req.body?.quantity ?? 0, req.body?.unit || "PIECE", 0, 1000000000),
     };
     res.json(
       await F.mutate(req, "product-create", input, async (tx) => {
@@ -193,13 +191,14 @@ router.patch(
         if (!existing) throw F.fail(404, "Məhsul tapılmadı.");
         let data;
         if (input.archived !== undefined) {
-          if (input.archived && existing.stock?.quantity)
+          if (input.archived && Number(existing.stock?.quantity))
             throw F.fail(
               409,
               "Yalnız qalığı sıfır olan məhsulu arxivləmək olar.",
             );
           data = { archivedAt: input.archived ? new Date() : null };
         } else {
+          if(input.unit && input.unit!==existing.unit && (Number(existing.stock?.quantity)||await tx.stockMovement.count({where:{productId:id,delta:{not:0}}})||await tx.orderItem.count({where:{productId:id}})||await tx.purchaseItem.count({where:{productId:id}})))throw F.fail(409,'A unit cannot change after stock or documents exist. Create a new product.','UNIT_LOCKED');
           await category(tx, input.categoryId);
           const { id: ignored, ...fields } = input;
           data = fields;

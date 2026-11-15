@@ -1,4 +1,7 @@
 const path = require("node:path");
+const fs = require('node:fs/promises');
+const { constants } = require('node:fs');
+const sharp = require('sharp');
 const { platformPrisma } = require("./prismaClient");
 const { signToken, verifyToken } = require("./auth-security");
 const { subscriptionIsActive } = require("./config/plans");
@@ -34,6 +37,27 @@ function normalizeUploadUrl(value, company) {
   } catch (error) {
     error.statusCode = 400;
     throw error;
+  }
+}
+async function validateUploadReference(value, company) {
+  const normalized = normalizeUploadUrl(value, company);
+  const { diskPath } = uploadPath(normalized, company);
+  let handle;
+  try {
+    const directory = path.dirname(diskPath);
+    const root = await fs.realpath(uploadsRoot);
+    const expected = directory === uploadsRoot ? root : path.join(root, company.id);
+    if (await fs.realpath(directory) !== expected) throw Error('Directory');
+    handle = await fs.open(diskPath, constants.O_RDONLY | (constants.O_NOFOLLOW || 0));
+    const stat = await handle.stat();
+    if (!stat.isFile() || !stat.size || stat.size > 5 * 1024 * 1024) throw Error('File');
+    const image = await sharp(await handle.readFile(), { limitInputPixels: 16000000, animated: false }).metadata();
+    if (!['png', 'jpeg', 'webp'].includes(image.format) || !image.width || !image.height) throw Error('Image');
+    return normalized;
+  } catch {
+    throw Object.assign(new Error('The attached image is missing or invalid. Upload the image again.'), { statusCode: 400, code: 'INVALID_IMAGE_REFERENCE' });
+  } finally {
+    await handle?.close();
   }
 }
 function signedUploadUrl(value, req) {
@@ -117,6 +141,7 @@ async function serveUpload(req, res, next) {
 module.exports = {
   uploadsRoot,
   normalizeUploadUrl,
+  validateUploadReference,
   signedUploadUrl,
   signImageResponses,
   serveUpload,

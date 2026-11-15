@@ -1,13 +1,20 @@
 const { PrismaClient, Prisma } = require("@prisma/client");
 const { getCompanyId } = require("./tenant-context");
 // Reject an old generated client before accepting business requests.
-const requiredFields={Company:["timezone","logoUrl"],Payment:["orderId","voidedAt"],CustomerRefund:["amount"],BillingEvent:["state"]};
+const requiredFields={Company:["timezone","logoUrl","isDemo"],Product:["unit"],ReminderOutbox:["state"],Payment:["orderId","voidedAt"],CustomerRefund:["amount"],BillingEvent:["state"]};
 for(const [name,fields]of Object.entries(requiredFields)){
  const model=Prisma.dmmf.datamodel.models.find(m=>m.name===name);
  if(fields.some(field=>!model?.fields.some(f=>f.name===field)))throw new Error("Prisma Client is out of date. Stop the backend, run npx prisma generate in server, then restart it.");
 }
 // Only authentication and local company management use the unscoped client.
-const platformPrisma = new PrismaClient();
+// Preserve the numeric quantity API when PostgreSQL storage moves from Int to Decimal.
+function quantityNumbers(value,key) {
+ if(value instanceof Prisma.Decimal) return ['quantity','returnedQty','delta','before','after'].includes(key)?value.toNumber():value;
+ if(value instanceof Date || value==null || typeof value!=='object')return value;
+ if(Array.isArray(value))return value.map(v=>quantityNumbers(v));
+ return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,quantityNumbers(v,k)]));
+}
+const platformPrisma = new PrismaClient().$extends({query:{$allOperations:async({args,query})=>quantityNumbers(await query(args))}});
 const tenantModels = new Set(
   Prisma.dmmf.datamodel.models
     .filter((model) => model.name !== "Company")

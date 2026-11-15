@@ -54,6 +54,7 @@ function publicCompany(company) {
   const offer = PRICES[company.market]?.[company.plan];
   return {
     id: company.id,
+    isDemo: company.isDemo,
     name: company.name,
     loginEmail: company.loginEmail,
     plan: company.plan,

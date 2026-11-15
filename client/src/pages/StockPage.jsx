@@ -1,4 +1,3 @@
-import { amountValue } from "../lib/money-input.mjs";
 import { useI18n } from "../i18n/useI18n";
 import { t } from "../i18n/runtime";
 import { useEffect, useState } from "react";
@@ -6,9 +5,9 @@ import { Alert, Box, Button, Chip, Dialog, DialogTitle, DialogContent, DialogAct
 import { useAuth } from "../features/auth/useAuth";
 import { api } from "../lib/api";
 import { PageLayout, PageHeader, PageCard, DataTable, RecordDate } from "../components/WorkspaceUI";
-import { RecordPager, ExportButton, ImportButton } from "../components/RecordsTools";
+import { RecordPager, ExportButton } from "../components/RecordsTools";
 export default function StockPage() {
-  useI18n();
+  const { money } = useI18n();
   const {
       user
     } = useAuth(),
@@ -108,24 +107,23 @@ export default function StockPage() {
     }
   }
   return <PageLayout>
-      <PageHeader title={t("Məhsullar və stok")} description={t("Məhsul kataloqu, qalıqlar və stok hərəkətlərinin tarixçəsi.")} actions={<>
-            {admin && <>
-                <ExportButton kind="products" />
-                <ImportButton kind="products" onDone={refresh} />
-                <Button variant="contained" onClick={() => {
-          setDialogError("");
-          setEdit({
-            name: "",
-            categoryId: categories[0]?.id || "",
-            sku: "",
-            barcode: "",
-            salePrice: "0",
-            quantity: "0"
-          });
-        }}>{t("Məhsul əlavə et")}</Button>
-              </>}
-            <Button onClick={refresh}>{t("Yenilə")}</Button>
-          </>} />
+      <PageHeader
+  title={t("Məhsullar və stok")}
+  description={t(
+    "Məhsul kataloqu, qalıqlar və stok hərəkətlərinin tarixçəsi.",
+  )}
+  actions={
+    <>
+      {admin && (
+        <ExportButton kind="products" />
+      )}
+
+      <Button onClick={refresh}>
+        {t("Yenilə")}
+      </Button>
+    </>
+  }
+/>
       {error && <Alert severity="error" sx={{
       mb: 2
     }}>
@@ -134,7 +132,7 @@ export default function StockPage() {
       <Stack direction="row" spacing={2} flexWrap="wrap" sx={{
       mb: 2
     }}>
-        {[[t("Məhsul"), data?.stats.totalProducts], [t("Ümumi qalıq"), data?.stats.totalQuantity], [t("Az qalıb"), data?.stats.lowStock], [t("Bitib"), data?.stats.outOfStock]].map(([label, value]) => <PageCard key={label} sx={{
+        {[[t("Məhsul"), data?.stats.totalProducts], [t("Ümumi qalıq"), data?.stats.quantityByUnit?Object.entries(data.stats.quantityByUnit).filter(([,n])=>n>0).map(([u,n])=>n+" "+t(u)).join(" · ")||"0":data?.stats.totalQuantity], [t("Az qalıb"), data?.stats.lowStock], [t("Bitib"), data?.stats.outOfStock]].map(([label, value]) => <PageCard key={label} sx={{
         p: 2,
         minWidth: 130
       }}>
@@ -162,7 +160,7 @@ export default function StockPage() {
           <TextField select label={t("Stok")} value={filters.status} onChange={e => filter("status", e.target.value)} sx={{
           minWidth: 140
         }}>
-            {[["ALL", t("Hamısı")], ["IN_STOCK", "Stokda var"], ["LOW", t("Az qalıb")], ["OUT", "Bitib"]].map(([value, label]) => <MenuItem key={value} value={value}>
+            {[["ALL", t("Hamısı")], ["IN_STOCK", t("Stokda var")], ["LOW", t("Az qalıb")], ["OUT", t("Bitib")]].map(([value, label]) => <MenuItem key={value} value={value}>
                 {label}
               </MenuItem>)}
           </TextField>
@@ -178,7 +176,7 @@ export default function StockPage() {
         <DataTable label={t("Məhsullar və stok")} minWidth={760}>
           <TableHead>
             <TableRow>
-              {[t("Məhsul"), "SKU / barkod", t("Qalıq"), t("Qiymət"), t("Əməliyyat")].map(h => <TableCell key={h}>{h}</TableCell>)}
+              {[t("Məhsul"), t("SKU / barcode"), t("Qalıq"), t("Qiymət"), t("Əməliyyat")].map(h => <TableCell key={h}>{h}</TableCell>)}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -193,9 +191,9 @@ export default function StockPage() {
                   {p.barcode || "—"}
                 </TableCell>
                 <TableCell>
-                  <Chip size="small" label={p.quantity} color={p.quantity === 0 ? "default" : p.quantity <= 5 ? "warning" : "success"} />
+                  <Chip size="small" label={p.quantity+" "+t(p.unit||"PIECE")} color={p.quantity === 0 ? "default" : p.quantity <= 5 ? "warning" : "success"} />
                 </TableCell>
-                <TableCell>{amountValue(p.salePrice).toFixed(2)}</TableCell>
+                <TableCell>{money(p.salePrice)}</TableCell>
                 <TableCell>
                   <Stack direction="row" flexWrap="wrap">
                     <Button onClick={() => {
@@ -220,7 +218,8 @@ export default function StockPage() {
                       categoryId: p.category.id,
                       sku: p.sku || "",
                       barcode: p.barcode || "",
-                      salePrice: String(p.salePrice)
+                      salePrice: String(p.salePrice),
+                      unit:p.unit||"PIECE"
                     });
                   }}>{t("Dəyiş")}</Button>
                         <Button disabled={saving || !p.archivedAt && p.quantity !== 0} onClick={() => save(() => api.patch(`/catalog/admin/products/${p.productId}`, {
@@ -259,9 +258,10 @@ export default function StockPage() {
                       {c.name}
                     </MenuItem>)}
                 </TextField>
+                <TextField select label={t("Unit")} value={edit.unit||"PIECE"} onChange={e=>setEdit({...edit,unit:e.target.value})}>{["PIECE","BOX","KG","LITER"].map(u=><MenuItem key={u} value={u}>{t(u)}</MenuItem>)}</TextField>
                 {["sku", "barcode", "salePrice", ...(!edit.id ? ["quantity"] : [])].map(key => <TextField key={key} label={{
               sku: "SKU",
-              barcode: "Barkod",
+              barcode: t("Barkod"),
               salePrice: t("Satış qiyməti"),
               quantity: t("İlkin qalıq")
             }[key]} value={edit[key]} onChange={e => setEdit({
@@ -278,7 +278,7 @@ export default function StockPage() {
           categoryId: edit.categoryId,
           sku: edit.sku,
           barcode: edit.barcode,
-          salePrice: edit.salePrice
+          salePrice: edit.salePrice, unit:edit.unit||"PIECE"
         }) : api.post("/catalog/admin/products", edit))}>{t("Saxla")}</Button>
         </DialogActions>
       </Dialog>
@@ -316,7 +316,7 @@ export default function StockPage() {
           <DataTable minWidth={700}>
             <TableHead>
               <TableRow>
-                {["Tarix", t("Əməliyyat / səbəb"), t("İstifadəçi"), t("Əvvəl"), t("Dəyişiklik"), "Sonra"].map(h => <TableCell key={h}>{h}</TableCell>)}
+                {[t("Tarix"), t("Əməliyyat / səbəb"), t("İstifadəçi"), t("Əvvəl"), t("Dəyişiklik"), t("Sonra")].map(h => <TableCell key={h}>{h}</TableCell>)}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -325,7 +325,7 @@ export default function StockPage() {
                     <RecordDate value={m.createdAt} />
                   </TableCell>
                   <TableCell>
-                    {m.kind}
+                    {t(({OPENING:'Opening stock',SALE:'Sale',SALE_EDIT:'Sale edit',PURCHASE:'Purchase',RETURN:'Return',ADJUSTMENT:'Stock adjustment'})[m.kind] || m.kind)}
                     <Typography variant="caption" display="block">
                       {m.reason}
                     </Typography>

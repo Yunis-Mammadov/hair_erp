@@ -41,7 +41,7 @@ const uploadsRoutes = require("./routes/uploads.routes");
 const areaRoutes = require("./routes/area.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 
-const allowedOrigins=[...(process.env.NODE_ENV==='production'?[]:['http://localhost:5173','http://127.0.0.1:5173']),...(process.env.ALLOWED_ORIGINS||'').split(',').map(x=>x.trim()).filter(Boolean)];
+const allowedOrigins=[...(process.env.NODE_ENV==='production'?[]:['http://localhost:5173','http://127.0.0.1:5173']),...(process.env.APP_URL?[new URL(process.env.APP_URL).origin]:[]),...(process.env.ALLOWED_ORIGINS||'').split(',').map(x=>x.trim()).filter(Boolean)];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -81,7 +81,14 @@ app.get("/health", (req, res) => {
 });
 
 app.get('/ready',readiness({db:require('./prismaClient').platformPrisma,uploadsRoot:require('./upload-access').uploadsRoot}));
+
 app.use("/api/auth", authRoutes);
+
+app.use(
+  "/api/operator",
+  require("./routes/operator.routes"),
+);
+
 app.use("/api", requireAuth, signImageResponses);
 app.use("/api/delivery", requireFeature("delivery"));
 app.use("/api/live-location", requireFeature("liveLocation"));
@@ -102,6 +109,7 @@ app.use("/api/areas", (req, res, next) => {
     return requireFeature("delivery")(req, res, next);
   next();
 });
+app.use("/api/extras", require("./routes/extras.routes"));
 app.use("/api/workspace", require("./routes/workspace.routes"));
 app.use("/api/exp", expRoutes);
 app.use("/api/catalog", catalogRoutes);
@@ -183,7 +191,8 @@ if (require.main === module) {
  const {platformPrisma:db}=require('./prismaClient');
  const server=app.listen(process.env.PORT||7079,process.env.HOST||'127.0.0.1',()=>log('server_started'));
  const stopWorker=require('./ops/billing').startWorker(db);
- const close=()=>{stopWorker();server.close(async()=>{await db.$disconnect();process.exit(0);});setTimeout(()=>process.exit(1),15000).unref();};
+ const stopReminders=require('./reminders').startWorker();
+ const close=()=>{stopWorker();stopReminders();server.close(async()=>{await db.$disconnect();process.exit(0);});setTimeout(()=>process.exit(1),15000).unref();};
  process.once('SIGINT',close);process.once('SIGTERM',close);
 }
 module.exports={app};

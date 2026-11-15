@@ -27,6 +27,7 @@ test("Group 4: languages, currency, international customers and local dates", as
       "202611100003_group4_global_setup",
       "202611110001_group5_workflows",
       "202611120001_group6_operations",
+      "202611130001_group7_extras",
     ])
       await db.exec(
         await fs.readFile(
@@ -92,6 +93,7 @@ test("Group 4: languages, currency, international customers and local dates", as
           loginEmail: randomUUID() + "@zindex.invalid",
           passwordHash: "fixture",
           plan,
+          currencyConfigured: true,
           isActive: true,
           endsAt: new Date(Date.now() + 86400000),
         },
@@ -239,7 +241,7 @@ test("Group 4: languages, currency, international customers and local dates", as
       assert.equal(ok(await api('/orders?startDate=2026-11-10&endDate=2026-11-10','GET',null,f.token)).orders.length,1);assert.equal(ok(await api('/orders?startDate=2026-11-09&endDate=2026-11-09','GET',null,f.token)).orders.length,0);assert.equal((await api('/orders?startDate=2026-02-30','GET',null,f.token)).status,400);
     });
     await t.test('onboarding and USD Starter billing are independent of TRY transactions',async()=>{
-      const f=await fixture();await raw.company.update({where:{id:f.company.id},data:{market:'GLOBAL',billingCycle:'YEARLY'}});assert.equal(ok(await api('/workspace/onboarding','GET',null,f.token)).currencyConfigured,false);
+      const f=await fixture();await raw.company.update({where:{id:f.company.id},data:{market:'GLOBAL',billingCycle:'YEARLY',currencyConfigured:false}});assert.equal(ok(await api('/workspace/onboarding','GET',null,f.token)).currencyConfigured,false);
       const company=ok(await api('/workspace/settings','PATCH',{currency:'TRY'},f.token)).company;assert.deepEqual(company.subscriptionPrice,{currency:'USD',amountMinor:14999});assert.equal(company.currency,'TRY');
       ok(await api('/orders','POST',f.sale(),f.token),201);const d=ok(await api('/workspace/onboarding','GET',null,f.token));assert.equal(d.sales,1);assert.equal(d.currencyConfigured,true);
     });

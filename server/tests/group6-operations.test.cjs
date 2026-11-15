@@ -27,6 +27,7 @@ test("Group 6: operations, team and subscription provisioning", async (t) => {
       "202611100003_group4_global_setup",
       "202611110001_group5_workflows",
       "202611120001_group6_operations",
+      "202611130001_group7_extras",
     ])
       await db.exec(
         await fs.readFile(
@@ -92,6 +93,7 @@ test("Group 6: operations, team and subscription provisioning", async (t) => {
           loginEmail: randomUUID() + "@zindex.invalid",
           passwordHash: "fixture",
           plan,
+          currencyConfigured: true,
           isActive: true,
           endsAt: new Date(Date.now() + 86400000),
         },

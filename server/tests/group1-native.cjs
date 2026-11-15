@@ -49,6 +49,7 @@ test(
             "202611100003_group4_global_setup",
             "202611110001_group5_workflows",
             "202611120001_group6_operations",
+      "202611130001_group7_extras",
           ].includes(m),
       ))
         await client.query(
@@ -84,6 +85,7 @@ test(
       await client.query(await fs.readFile(path.join(root, "202611100003_group4_global_setup/migration.sql"), "utf8"));
       await client.query(await fs.readFile(path.join(root,"202611110001_group5_workflows/migration.sql"),"utf8"));
       await client.query(await fs.readFile(path.join(root,"202611120001_group6_operations/migration.sql"),"utf8"));
+      await client.query(await fs.readFile(path.join(root,"202611130001_group7_extras/migration.sql"),"utf8"));
       process.env.DATABASE_URL =
         url.toString() + (url.search ? "&" : "?") + "connection_limit=12";
       process.env.JWT_SECRET = "native-test-only-secret-with-at-least-32-bytes";
@@ -93,9 +95,9 @@ test(
       server = app.listen(0, "127.0.0.1");
       await new Promise((r) => server.on("listening", r));
       const base = "http://127.0.0.1:" + server.address().port;
-      async function call(route, body, token, key = randomUUID()) {
+      async function call(route, body, token, key = randomUUID(), method = "POST") {
         const res = await fetch(base + "/api" + route, {
-          method: "POST",
+          method,
           headers: {
             Authorization: "Bearer " + token,
             "Content-Type": "application/json",
@@ -111,6 +113,7 @@ test(
             name: "Native company",
             loginEmail: randomUUID() + "@zindex.invalid",
             passwordHash: "not-used-in-signed-fixture",
+            currencyConfigured: true,
             isActive: true,
             endsAt: new Date(Date.now() + 86400000),
             market: "GLOBAL",
@@ -170,13 +173,17 @@ test(
         };
       }
       await t.test(
-        "28 real migrations preserve legacy IDs, money, PIN and stock",
+        "29 real migrations preserve legacy IDs, money, PIN and stock",
         async () => {
-          assert.equal(migrations.length, 28);
+          assert.equal(migrations.length, 29);
           const order = await raw.order.findUnique({
             where: { id: "preserved-order" },
           });
           assert.equal(order.orderNumber, 23);
+          assert.equal(Number(order.subtotalAmount),25);
+          const legacyItem=await raw.orderItem.findUnique({where:{id:'preserved-item'}});
+          assert.equal(legacyItem.unit,'PIECE');assert.equal(Number(legacyItem.lineTotalAmount),25);
+          assert.equal(Number((await raw.returnItem.findUnique({where:{id:'preserved-return-item'}})).lineTotalAmount),12.5);
           assert.equal(order.invoiceNumber, "00023");
           assert.equal(Number(order.totalAmount), 25);
           assert.equal(order.customerSnapshot.name, "Original customer");
@@ -440,6 +447,8 @@ test(
         assert.equal(customersResponse.status,200);assert.equal(customerPage.customers.length,25);assert.equal(customerPage.pagination.total,1001);
         const orderResponse=await fetch(base+'/api/orders?page=1&limit=25',{headers:{Authorization:'Bearer '+f.token}}),orderPage=await orderResponse.json();
         assert.equal(orderResponse.status,200);assert.equal(orderPage.orders.length,25);assert.equal(orderPage.pagination.total,3000);assert.ok(JSON.stringify(orderPage).length<150000);
+        const agingResponse=await fetch(base+'/api/extras/aging?page=1&limit=25',{headers:{Authorization:'Bearer '+f.token}}),aging=await agingResponse.json();
+        assert.equal(agingResponse.status,200);assert.equal(aging.totalDebt,30000);assert.equal(aging.invoices.length,25);assert.equal(aging.pagination.total,3000);
         t.diagnostic('1000 customers / 3000 invoices / 3000 lines: two paginated reads '+Math.round(performance.now()-started)+' ms on this runner; not a production latency guarantee.');
       });
       await t.test("currency setup racing with the first sale never relabels money", async () => {
@@ -455,6 +464,58 @@ test(
           const orders=await raw.order.findMany({where:{companyId:f.company.id}});
           for(const order of orders){assert.equal(order.currency,current.currency);assert.equal(Number(order.totalAmount),10);}
         }
+      });
+
+      await t.test('audit F04 payment reservations and invoice edits serialize without impossible quantities',async()=>{
+        const f=await fixture(10),body={...f.sale(),items:[{...f.sale().items[0],quantity:5}]};
+        const created=await call('/orders',body,f.token);assert.equal(created.status,201);const id=created.body.order.id;
+        const [paid,edited]=await Promise.all([
+          call('/payments',{customerId:f.customer.id,amount:1,soldItems:[{productId:f.product.id,quantity:5}]},f.token),
+          call('/orders/'+id,{...body,items:[{...body.items[0],quantity:1}]},f.token,randomUUID(),'PUT'),
+        ]);
+        assert.ok(paid.status===201&&edited.status===409||paid.status===409&&edited.status===200,JSON.stringify({paid,edited}));
+        const items=await raw.orderItem.aggregate({where:{orderId:id},_sum:{quantity:true}}),sold=await raw.paymentSoldItem.aggregate({where:{payment:{customerId:f.customer.id,voidedAt:null}},_sum:{quantity:true}});
+        assert.ok((sold._sum.quantity||0)<=items._sum.quantity);
+        assert.equal((await raw.stock.findUnique({where:{productId:f.product.id}})).quantity,10-items._sum.quantity);
+      });
+      await t.test('audit F03 simultaneous signatures record one immutable signed document',async()=>{
+        const f=await fixture();await raw.company.update({where:{id:f.company.id},data:{plan:'PREMIUM'}});
+        const sale=await call('/orders',f.sale(),f.token);assert.equal(sale.status,201);
+        const image=async color=>'data:image/png;base64,'+(await require('sharp')({create:{width:20,height:10,channels:4,background:color}}).png().toBuffer()).toString('base64');
+        const [a,b]=await Promise.all([image('black'),image('red')]);
+        const replies=await Promise.all([call('/orders/'+sale.body.order.id+'/seller-signature',{signature:a},f.token),call('/exp/orders/'+sale.body.order.id+'/seller-signature',{signature:b},f.token)]);
+        assert.deepEqual(replies.map(r=>r.status).sort(),[200,409]);assert.equal(await raw.orderEditLog.count({where:{orderId:sale.body.order.id}}),1);
+      });
+      await t.test('audit F07 concurrent currency setup cannot label the first sale with the old currency',async()=>{
+        const f=await fixture();await raw.company.update({where:{id:f.company.id},data:{currencyConfigured:false}});
+        const request=async(route,method,body)=>{const response=await fetch(base+'/api'+route,{method,headers:{Authorization:'Bearer '+f.token,'Content-Type':'application/json','Idempotency-Key':randomUUID(),'X-Workspace-Currency':'USD'},body:JSON.stringify(body)});return {status:response.status,body:await response.json()};};
+        const [settings,sale]=await Promise.all([request('/workspace/settings','PATCH',{currency:'EUR'}),request('/orders','POST',f.sale())]);
+        assert.equal(settings.status,200);assert.equal(sale.status,409);assert.equal(await raw.order.count({where:{companyId:f.company.id}}),0);
+        assert.equal((await raw.company.findUnique({where:{id:f.company.id}})).currency,'EUR');
+      });
+
+      await t.test('group7 concurrent fractional sales cannot oversell and charges reconcile',async()=>{
+        const f=await fixture(1);await raw.product.update({where:{id:f.product.id},data:{unit:'KG'}});
+        const body={...f.sale(.6),discountPercent:10,taxPercent:18};
+        const results=await Promise.all([call('/orders',body,f.token),call('/orders',body,f.token)]);
+        assert.deepEqual(results.map(r=>r.status).sort(),[201,409]);assert.equal((await raw.stock.findUnique({where:{productId:f.product.id}})).quantity,.4);
+        const order=await raw.order.findFirst({where:{companyId:f.company.id},include:{items:true}});assert.equal(Number(order.totalAmount),6.37);assert.equal(Number(order.items[0].lineTotalAmount),6.37);
+      });
+      await t.test('group7 concurrent fractional returns refund allocated tax/discount cents once',async()=>{
+        const f=await fixture(1);await raw.product.update({where:{id:f.product.id},data:{unit:'KG'}});
+        const sale=await call('/orders',{...f.sale(.667),discountPercent:7.5,taxPercent:18},f.token);assert.equal(sale.status,201);
+        const body={customerId:f.customer.id,items:[{productId:f.product.id,quantity:.4}]};
+        const results=await Promise.all([call('/returns',body,f.token),call('/returns',body,f.token)]);assert.deepEqual(results.map(r=>r.status).sort(),[201,409]);
+        const last=await call('/returns',{customerId:f.customer.id,items:[{productId:f.product.id,quantity:.267}]},f.token);assert.equal(last.status,201);
+        const returns=await raw.return.aggregate({where:{customerId:f.customer.id},_sum:{totalAmount:true}});assert.equal(Number(returns._sum.totalAmount),Number(sale.body.order.totalAmount));assert.equal((await raw.stock.findUnique({where:{productId:f.product.id}})).quantity,1);
+      });
+      await t.test('group7 concurrent reminder workers claim one email and crash recovery never retries it',async()=>{
+        const f=await fixture();await call('/orders',f.sale(),f.token);await raw.customer.update({where:{id:f.customer.id},data:{email:'customer@example.com',reminderOptIn:true,reminderConsentAt:new Date()}});
+        const job=await raw.reminderOutbox.create({data:{companyId:f.company.id,customerId:f.customer.id,recipient:'customer@example.com',locale:'en',debtCents:1000n,subject:'Test',body:'Native worker test'}});
+        let calls=0;const send=async()=>{calls++;await new Promise(r=>setTimeout(r,30));return {messageId:'native@example.com'};};const M=require('../src/reminders');
+        await Promise.all([M.processOne(raw,send),M.processOne(raw,send)]);assert.equal(calls,1);assert.equal((await raw.reminderOutbox.findUnique({where:{id:job.id}})).state,'SENT');
+        const crashed=await raw.reminderOutbox.create({data:{companyId:f.company.id,customerId:f.customer.id,recipient:'customer@example.com',locale:'en',debtCents:1000n,subject:'Test',body:'Ambiguous',state:'SENDING',startedAt:new Date(Date.now()-600000)}});
+        assert.equal(await M.processOne(raw,send),false);assert.equal(calls,1);assert.equal((await raw.reminderOutbox.findUnique({where:{id:crashed.id}})).state,'UNKNOWN');
       });
     } finally {
       if (server) await new Promise((r) => server.close(r));

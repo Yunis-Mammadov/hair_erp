@@ -34,6 +34,7 @@ function count(value) {
 }
 function orderTotal(order) {
   // A zero price is valid, including gifts. Do not replace it with the catalogue price.
+  if(order.totalAmount!=null)return Number(order.totalAmount);
   return (order.items || []).reduce((sum, item) => sum + (item.isGift ? 0 : Number(item.quantity || 0) * amountValue(item.unitPrice ?? 0)), 0);
 }
 function dateParts(value) {

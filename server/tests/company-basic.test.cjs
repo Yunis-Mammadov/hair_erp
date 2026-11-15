@@ -62,6 +62,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
   await db.exec(readFileSync(path.resolve(__dirname, "../prisma/migrations/202611100003_group4_global_setup/migration.sql"), "utf8"));
   await db.exec(readFileSync(path.resolve(__dirname, "../prisma/migrations/202611110001_group5_workflows/migration.sql"), "utf8"));
   await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611120001_group6_operations/migration.sql"),"utf8"));
+  await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611130001_group7_extras/migration.sql"),"utf8"));
   const wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
   await wire.start();
   process.env.DATABASE_URL = `postgresql://postgres:postgres@127.0.0.1:${wire.getServerConn().split(":")[1]}/postgres?connection_limit=1`;
@@ -148,6 +149,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
           data: {
             loginEmail: "a@zindex.invalid",
             passwordHash,
+            currencyConfigured: true,
             isActive: true,
             endsAt: future,
           },
@@ -158,6 +160,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
             name: "Global B",
             loginEmail: "b@zindex.invalid",
             passwordHash,
+            currencyConfigured: true,
             isActive: true,
             endsAt: future,
             market: "GLOBAL",

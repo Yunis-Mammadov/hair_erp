@@ -1,10 +1,11 @@
+const Q=require("../quantity");
 const {log}=require("../ops/runtime");
 const W = require("../workspace-core");
 const express = require("express");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
 
-const { normalizeUploadUrl } = require("../upload-access");
+const { normalizeUploadUrl, validateUploadReference } = require("../upload-access");
 const { hasFeature } = require("../config/plans");
 
 const F = require("../financial-core");
@@ -160,6 +161,8 @@ router.post(
             "PAYMENT_LIMIT",
           );
         for (const item of input.soldItems) {
+          const product=await tx.product.findUnique({where:{id:item.productId},select:{unit:true}});
+          if(!product)throw F.fail(404,'Product not found.');Q.quantity(item.quantity,product.unit);
           const available = await F.returnable(
             tx,
             input.customerId,
@@ -172,6 +175,7 @@ router.post(
               "SOLD_ITEM_LIMIT",
             );
         }
+        if (input.imageUrl) await validateUploadReference(input.imageUrl, req.company);
         const payment = await tx.payment.create({
           data: {
             customerId: input.customerId,

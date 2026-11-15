@@ -10,6 +10,7 @@ export function canOpenPage(user, pathname) {
 }
 
 export function defaultRoute(user) {
+  if (user?.role === 'ADMIN' && user?.company?.currencyConfigured === false) return '/workspace/settings';
   if (user?.role === "EXPEDITOR") return "/exp/sales";
   if (user?.role === "WAREHOUSE") return "/warehouse/stock";
   if (user?.role === "DRIVER")

@@ -58,7 +58,7 @@ export function ImportButton({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [done, setDone] = useState("");
-  const headers = kind === "products" ? ["name", "category", "sku", "barcode", "salePrice", "quantity"] : ["name", "phone", "salon", "address", "lat", "lng"];
+  const headers = kind === "products" ? ["name", "category", "sku", "barcode", "salePrice", "quantity", "unit"] : ["name", "phone", "salon", "address", "lat", "lng"];
   async function read(file) {
     setError("");
     setRows([]);
@@ -66,7 +66,7 @@ export function ImportButton({
     try {
       if (file.size > 1000000) throw new Error(t("Fayl 1 MB-dan kiçik olmalıdır."));
       const parsed = parseCSV(await file.text());
-      if (headers.some(h => !Object.hasOwn(parsed[0], h))) throw new Error(t("Sütunlar nümunə fayla uyğun olmalıdır."));
+      if (headers.filter(h=>h!=="unit").some(h => !Object.hasOwn(parsed[0], h))) throw new Error(t("Sütunlar nümunə fayla uyğun olmalıdır."));
       setRows(parsed);
     } catch (e) {
       setError(t(e.message));

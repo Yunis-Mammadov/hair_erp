@@ -4,7 +4,7 @@ import { useI18n } from "../i18n/useI18n";
 import { t } from "../i18n/runtime";
 import { useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
-import { AppBar, Avatar, Box, Chip, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Stack, Toolbar, Tooltip, Typography, useMediaQuery } from "@mui/material";
+import { Alert, Button, AppBar, Avatar, Box, Chip, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText, Stack, Toolbar, Tooltip, Typography, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
@@ -476,6 +476,8 @@ export default function AppShell({
       outline: "none",
       transition
     }}>
+        {user?.company?.isDemo&&<Alert severity="warning" sx={{m:2}}>{t("Demo workspace - sample data. Email and paid checkout are disabled.")}</Alert>}
+        {user?.company?.currencyConfigured === false && <Alert severity="info" sx={{m:2}} action={user.role==='ADMIN'?<Button component={RouterLink} to="/workspace/settings">{t('Company settings')}</Button>:null}>{t(user.role==='ADMIN'?'Confirm the operating currency before your first transaction.':'Ask an administrator to confirm the operating currency before the first transaction.')}</Alert>}
         {children}
       </Box>
     </Box>;

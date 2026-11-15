@@ -2,7 +2,7 @@ const { Router } = require("express");
 const { platformPrisma: db, prisma } = require("../prismaClient");
 const { requireRole } = require("../middleware/auth.middleware");
 const { publicCompany } = require("../config/plans");
-const { normalizeUploadUrl } = require("../upload-access");
+const { normalizeUploadUrl, validateUploadReference } = require("../upload-access");
 const F = require("../financial-core"), W = require("../workspace-core"), R = require("../records-core");
 const router = Router();
 async function hasActivity(tx, companyId) {
@@ -29,6 +29,7 @@ router.patch("/settings", requireRole("ADMIN"), R.route(async (req, res) => {
   if ("supportEmail" in data && data.supportEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.supportEmail)) throw F.fail(400, "Enter a valid contact email.");
   if ("invoicePrefix" in data) { data.invoicePrefix = (data.invoicePrefix || "").toUpperCase(); if (!/^[A-Z0-9-]{0,12}$/.test(data.invoicePrefix)) throw F.fail(400, "Invoice prefix may contain up to 12 letters, digits or hyphens."); }
   if ("currency" in data) data.currencyConfigured = true;
+  if (data.logoUrl) await validateUploadReference(data.logoUrl, req.company);
   let company;
   for (let attempt = 0; ; attempt++) {
     try {

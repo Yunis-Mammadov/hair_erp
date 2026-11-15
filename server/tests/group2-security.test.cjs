@@ -28,6 +28,7 @@ test("Group 2: API permissions, safe images, input errors and session revocation
       "202611100003_group4_global_setup",
       "202611110001_group5_workflows",
       "202611120001_group6_operations",
+      "202611130001_group7_extras",
     ])
       await db.exec(
         await fs.readFile(
@@ -93,6 +94,7 @@ test("Group 2: API permissions, safe images, input errors and session revocation
           loginEmail: randomUUID() + "@zindex.invalid",
           passwordHash: "fixture",
           plan,
+          currencyConfigured: true,
           isActive: true,
           endsAt: new Date(Date.now() + 86400000),
         },

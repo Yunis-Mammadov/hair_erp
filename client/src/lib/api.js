@@ -3,8 +3,8 @@ import { prepareFinancialRequest, finishFinancialRequest } from "./financial-ret
 import { sessionFailure } from "./session-events.mjs";
 import { getSnapshot, t } from "../i18n/runtime";
 import { normalizeMoneyPayload } from "./money-input.mjs";
-const API_URL = import.meta.env.VITE_API_URL;
-if (!API_URL) throw new Error("VITE_API_URL is not defined");
+import { resolveApiUrl } from './api-url.mjs';
+const API_URL = resolveApiUrl(import.meta.env.VITE_API_URL);
 export const api = axios.create({ baseURL:API_URL, timeout:15000 });
 api.interceptors.request.use(config => {
   const token=config.anonymous?null:localStorage.getItem("token"), state=getSnapshot();

@@ -98,6 +98,7 @@ test("Group 1 financial regressions", async (t) => {
   await db.exec(fs.readFileSync(path.resolve(__dirname, "../prisma/migrations/202611100003_group4_global_setup/migration.sql"), "utf8"));
   await db.exec(fs.readFileSync(path.resolve(__dirname, "../prisma/migrations/202611110001_group5_workflows/migration.sql"), "utf8"));
   await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611120001_group6_operations/migration.sql"),"utf8"));
+  await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611130001_group7_extras/migration.sql"),"utf8"));
   const wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
   await wire.start();
   process.env.DATABASE_URL =
@@ -154,6 +155,7 @@ test("Group 1 financial regressions", async (t) => {
         name: "Audit " + ++fixtureCounter,
         loginEmail: "audit-" + fixtureCounter + "@zindex.invalid",
         passwordHash,
+        currencyConfigured: true,
         isActive: true,
         endsAt: new Date(Date.now() + 86400000),
         market,

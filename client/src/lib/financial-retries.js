@@ -27,7 +27,7 @@ export async function prepareFinancialRequest(config, token) {
     !recordPatch &&
     ((config.method || "get").toLowerCase() !== "post" ||
       !(
-        writes.test(pathname) ||
+        writes.test(pathname) || /^\/extras\/customers\/[^/]+\/reminders$/.test(pathname) ||
         /^\/catalog\/admin\/(?:categories|products(?:\/bulk)?)\/?$/.test(
           pathname,
         ) ||

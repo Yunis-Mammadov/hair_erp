@@ -8,7 +8,7 @@ test('Group 6 native PostgreSQL backup and restore including receipt images',{sk
  try{
   await admin.query('CREATE DATABASE "'+source+'"');const sourceUrl=new URL(url);sourceUrl.pathname='/'+source;client=new Client({connectionString:sourceUrl.toString()});await client.connect();
   await client.query(await fs.readFile(path.join(__dirname,'fixtures/legacy-schema.sql'),'utf8'));
-  for(const name of ['202611070001_company_basic_login','202611100001_group1_financials','202611100002_group3_records','202611100003_group4_global_setup','202611110001_group5_workflows','202611120001_group6_operations'])await client.query(await fs.readFile(path.join(__dirname,'../prisma/migrations',name,'migration.sql'),'utf8'));
+  for(const name of ['202611070001_company_basic_login','202611100001_group1_financials','202611100002_group3_records','202611100003_group4_global_setup','202611110001_group5_workflows','202611120001_group6_operations','202611130001_group7_extras'])await client.query(await fs.readFile(path.join(__dirname,'../prisma/migrations',name,'migration.sql'),'utf8'));
   await client.query(`UPDATE "Company" SET name='Restore Company',"passwordHash"='preserved-company-password',"logoUrl"='/uploads/legacy-logo.png',"isActive"=true WHERE id='legacy-company';
    INSERT INTO "User" (id,"companyId","fullName","pinHash",role,"updatedAt") VALUES ('backup-user','legacy-company','Preserved User','preserved-pin-hash','ADMIN',NOW());
    INSERT INTO "Category" (id,"companyId",name,"updatedAt") VALUES ('backup-category','legacy-company','Test',NOW());
@@ -23,6 +23,15 @@ test('Group 6 native PostgreSQL backup and restore including receipt images',{sk
    const run=require('node:util').promisify(require('node:child_process').execFile);
    const result=await run(process.execPath,[path.join(__dirname,'../scripts/reset-pin.cjs')],{cwd:path.join(__dirname,'..'),env:{...process.env,DATABASE_URL:sourceUrl.toString(),RESET_COMPANY_ID:'legacy-company',RESET_USER_ID:'backup-user',RESET_PIN:'789321'}});
    assert.ok(!result.stdout.includes('789321'));const user=(await client.query('SELECT "pinHash","authVersion" FROM "User" WHERE id=$1',['backup-user'])).rows[0];assert.equal(await require('bcrypt').compare('789321',user.pinHash),true);assert.equal(user.authVersion,1);
+  });
+  await t.test('audit F01 scoped password recovery and session revocation preserve company settings',async()=>{
+   const run=require('node:util').promisify(require('node:child_process').execFile),before=(await client.query('SELECT * FROM "Company" WHERE id=$1',['legacy-company'])).rows[0];
+   const result=await run(process.execPath,[path.join(__dirname,'../scripts/reset-company-password.cjs')],{cwd:path.join(__dirname,'..'),env:{...process.env,DATABASE_URL:sourceUrl.toString(),RESET_COMPANY_ID:'legacy-company',RESET_COMPANY_PASSWORD:'audit-only-new-password'}});
+   assert.ok(!result.stdout.includes('audit-only-new-password'));let after=(await client.query('SELECT * FROM "Company" WHERE id=$1',['legacy-company'])).rows[0];
+   assert.equal(await require('bcrypt').compare('audit-only-new-password',after.passwordHash),true);assert.equal(after.authVersion,before.authVersion+1);
+   for(const field of ['name','plan','market','currency','timezone','endsAt'])assert.deepEqual(after[field],before[field]);
+   await run(process.execPath,[path.join(__dirname,'../scripts/revoke-company-sessions.cjs'),'--confirm'],{cwd:path.join(__dirname,'..'),env:{...process.env,DATABASE_URL:sourceUrl.toString(),REVOKE_COMPANY_ID:'legacy-company'}});
+   assert.equal((await client.query('SELECT "authVersion" FROM "Company" WHERE id=$1',['legacy-company'])).rows[0].authVersion,before.authVersion+2);
   });
   const uploads=path.join(root,'original-uploads');await fs.mkdir(path.join(uploads,'legacy-company'),{recursive:true});const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=','base64');await fs.writeFile(path.join(uploads,'legacy-company/receipt.png'),png);await fs.writeFile(path.join(uploads,'legacy-logo.png'),png);
   const folder=path.join(root,'backup'),restoredUploads=path.join(root,'new-parent','restored-uploads');

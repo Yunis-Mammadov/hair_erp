@@ -1,3 +1,4 @@
+const Q=require("../quantity");
 const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
@@ -7,10 +8,11 @@ const { hasFeature } = require("../config/plans");
 
 const F = require("../financial-core");
 const W = require("../workspace-core");
-const { normalizeUploadUrl } = require("../upload-access");
+const { normalizeUploadUrl, validateUploadReference } = require("../upload-access");
 const R = require("../records-core");
 
 const router = express.Router();
+router.use(require('../signatures').router);
 
 const ALLOWED_PAYMENTS = ["REALİZASİYA", "NAĞD", "HİSSƏLİ", "DİGƏR"];
 
@@ -20,7 +22,7 @@ function normalizeOrderItems(items) {
       throw F.fail(400, "isGift boolean olmalıdır.");
     const value = {
       productId: F.id(item.productId),
-      quantity: F.integer(item.quantity),
+      quantity: Q.quantity(item.quantity),
       unitPrice: F.money(item.unitPrice, item.isGift === true),
       isGift: item.isGift === true,
     };
@@ -28,12 +30,7 @@ function normalizeOrderItems(items) {
       throw F.fail(400, "Hədiyyənin qiyməti sıfır olmalıdır.");
     return value;
   });
-  const total = result.reduce(
-    (sum, item) => sum + F.minor(item.unitPrice) * item.quantity,
-    0,
-  );
-  if (!Number.isSafeInteger(total) || total > 999999999999)
-    throw F.fail(400, "Satışın ümumi məbləği çox böyükdür.");
+  Q.priced(result);
   return result;
 }
 
@@ -46,6 +43,7 @@ async function ensureProductsExist(tx, productIds) {
       id: true,
       name: true,
       salePrice: true,
+      unit: true,
       sku: true,
       category: { select: { name: true } },
     },
@@ -103,15 +101,14 @@ router.get(
         expeditorId = "",
       } = req.query;
 
+      if (typeof paymentType !== 'string') throw F.fail(400, 'Choose a valid payment type.', 'INVALID_PAYMENT_TYPE');
       const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
       const limitNumber = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
       const skip = (pageNumber - 1) * limitNumber;
 
-      const where = {};
+      const where = R.orderWhere(req);
 
-      if (req.user.role === "EXPEDITOR") {
-        where.createdById = req.user.userId;
-      } else {
+      if (req.user.role !== "EXPEDITOR") {
         if (
           hasFeature(req.company, "teamManagement") &&
           expeditorId &&
@@ -143,7 +140,9 @@ router.get(
       }
 
       if (paymentType && String(paymentType).trim()) {
-        where.paymentType = String(paymentType).trim();
+        if (typeof paymentType !== 'string' || !ALLOWED_PAYMENTS.includes(paymentType))
+          throw F.fail(400, 'Choose a valid payment type.', 'INVALID_PAYMENT_TYPE');
+        where.paymentType = paymentType;
       }
 
       if (startDate || endDate) where.createdAt = W.dateRange(startDate, endDate, req.company.timezone);
@@ -201,7 +200,7 @@ router.get(
  * GET /orders/:id
  */
 router.get("/:id",requireAuth,requireRole("ADMIN","EXPEDITOR","WAREHOUSE","DRIVER"),R.route(async(req,res)=>{
- const where={id:F.id(req.params.id)};if(req.user.role==="EXPEDITOR")where.createdById=req.user.id;
+ const where={id:F.id(req.params.id),...R.orderWhere(req)};
  const order=await prisma.$transaction(async tx=>{const row=await tx.order.findFirst({where,include:R.orderInclude});if(!row)return null;return {...R.presentOrder(row),...(await R.orderFinancials(tx,row.customerId)).get(row.id)};},{isolationLevel:"RepeatableRead"});
  if(!order)throw F.fail(404,"Invoice not found.");res.json({order});
 }));
@@ -244,10 +243,12 @@ router.post(
         if(!p || typeof p!=="object" || Array.isArray(p))throw F.fail(400,"Check the initial payment.");
         initialPayment={amount:F.money(p.amount),method:F.text(p.method,20)||"CASH",note:F.text(p.note,300),imageUrl:p.imageUrl?normalizeUploadUrl(p.imageUrl,req.company):null};
         if(!["CASH","BANK","CARD"].includes(initialPayment.method))throw F.fail(400,"Choose a payment method.");
-        if(F.minor(initialPayment.amount)>F.minor(R.documentTotal(normalizedItems)))throw F.fail(409,"Payment exceeds the invoice balance.","PAYMENT_LIMIT");
+        if(F.minor(initialPayment.amount)>F.minor(Q.priced(normalizedItems,req.body.discountPercent,req.body.taxPercent).amounts.totalAmount))throw F.fail(409,"Payment exceeds the invoice balance.","PAYMENT_LIMIT");
       }
       const input = {
         ...(initialPayment ? {initialPayment} : {}),
+        ...(req.body.discountPercent !== undefined ? {discountPercent: Q.rate(req.body.discountPercent)/100} : {}),
+        ...(req.body.taxPercent !== undefined ? {taxPercent: Q.rate(req.body.taxPercent)/100} : {}),
         customerId: customerInput ? null : F.id(customerId),
         newCustomer: customerInput,
         paymentType,
@@ -293,12 +294,15 @@ router.post(
           }
         }
 
+        for(const item of normalizedItems)Q.quantity(item.quantity,products.find(p=>p.id===item.productId).unit);
+        if(req.user.role!=='ADMIN' && (Q.rate(input.discountPercent)||Q.rate(input.taxPercent)))throw F.fail(403,'Only administrators can set discounts and tax.','PRICE_PERMISSION');
+        const pricing=Q.priced(normalizedItems,input.discountPercent,input.taxPercent);
         const invoice = await R.nextInvoice(tx, req.company.id, req.company.invoicePrefix);
-        const snapshotItems = R.itemSnapshots(normalizedItems, products);
+        const snapshotItems = R.itemSnapshots(pricing.items, products);
         const order = await tx.order.create({
           data: {
             ...invoice,
-            totalAmount: R.documentTotal(normalizedItems),
+            ...pricing.amounts,
             currency: req.company.currency,
             customerSnapshot: R.customerSnapshot(customer),
             companySnapshot: R.companySnapshot(req),
@@ -341,6 +345,7 @@ router.post(
         });
         let payment=null;
         if(input.initialPayment){
+          if (input.initialPayment.imageUrl) await validateUploadReference(input.initialPayment.imageUrl, req.company);
           const balance=await F.account(tx,customer.id);
           if(F.minor(input.initialPayment.amount)>F.minor(balance.debt))throw F.fail(409,"Payment exceeds the remaining customer debt after credit.","PAYMENT_LIMIT");
           payment=await tx.payment.create({data:{customerId:customer.id,orderId:order.id,createdById:req.user.id,amount:input.initialPayment.amount,paymentType:input.initialPayment.method,note:input.initialPayment.note||"Payment at sale",imageUrl:input.initialPayment.imageUrl,paymentDate:new Date()}});
@@ -354,61 +359,6 @@ router.post(
     }
   },
 );
-
-// POST /orders/:id/signature
-router.post(
-  "/:id/signature",
-  requireAuth,
-  requireRole("ADMIN", "DRIVER"),
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { signature } = req.body;
-
-      if (!signature) {
-        return res.status(400).json({ message: "İmza tələb olunur" });
-      }
-
-      const updated = await prisma.order.update({
-        where: { id },
-        data: {
-          customerSignature: signature,
-          signedAt: new Date(),
-        },
-      });
-
-      return res.json({ order: updated });
-    } catch (err) {
-      log("SIGNATURE ERROR:",{code:err.code||err.type||"REQUEST_FAILED",name:err.name,status:err.status||err.statusCode||500});
-      return res.status(500).json({ message: "İmza saxlanmadı" });
-    }
-  },
-);
-
-// POST /orders/:id/seller-signature
-router.post("/:id/seller-signature", requireAuth, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { signature } = req.body;
-
-    if (!signature) {
-      return res.status(400).json({ message: "signature tələb olunur" });
-    }
-
-    const order = await prisma.order.update({
-      where: { id },
-      data: {
-        sellerSignature: signature,
-        sellerSignedAt: new Date(),
-      },
-    });
-
-    return res.json({ message: "Seller imzası əlavə olundu", order });
-  } catch (err) {
-    log("SELLER SIGN ERROR:",{code:err.code||err.type||"REQUEST_FAILED",name:err.name,status:err.status||err.statusCode||500});
-    return res.status(500).json({ message: "Xəta baş verdi" });
-  }
-});
 
 /**
  * PUT /orders/:id
@@ -454,6 +404,9 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
         throw err;
       }
 
+      if (existingOrder.sellerSignature || existingOrder.customerSignature)
+        throw F.fail(409, 'A signed invoice cannot be edited.', 'SIGNED_INVOICE');
+
       const hasReturnedItems = existingOrder.items.some(
         (item) => item.returnedQty > 0 || item.returnItems.length > 0,
       );
@@ -468,11 +421,26 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
         tx,
         normalizedItems.map((x) => x.productId),
       );
+      for(const item of normalizedItems)Q.quantity(item.quantity,products.find(p=>p.id===item.productId).unit);
+      const pricing=Q.priced(normalizedItems,req.body.discountPercent??Number(existingOrder.discountPercent),req.body.taxPercent??Number(existingOrder.taxPercent));
       const snapshotItems = R.itemSnapshots(
-        normalizedItems,
+        pricing.items,
         products,
         existingOrder.items,
       );
+
+      // A payment reserves customer/product quantities, including across invoices.
+      // Replacing lines must not leave settled units above the remaining sale.
+      const affected = [...new Set([...existingOrder.items, ...normalizedItems].map(i => i.productId))];
+      for (const productId of affected) {
+        const [other, reserved] = await Promise.all([
+          tx.orderItem.aggregate({ where: { productId, isGift: false, orderId: { not: id }, order: { customerId: existingOrder.customerId } }, _sum: { quantity: true, returnedQty: true } }),
+          tx.paymentSoldItem.aggregate({ where: { productId, payment: { customerId: existingOrder.customerId, voidedAt: null } }, _sum: { quantity: true } }),
+        ]);
+        const nextQuantity = normalizedItems.filter(i => i.productId === productId && !i.isGift).reduce((n, i) => Q.add(n,i.quantity), 0);
+        if ((reserved._sum.quantity || 0) > Q.add(Q.sub(other._sum.quantity,other._sum.returnedQty),nextQuantity))
+          throw F.fail(409, 'This edit would remove products already recorded with a payment. Correct the payment first.', 'SOLD_ITEM_LIMIT');
+      }
 
       // 1) Köhnə sifarişin stokunu geri qaytar
       await giveBackStock(
@@ -514,7 +482,7 @@ router.put("/:id", requireAuth, requireRole("ADMIN"), async (req, res) => {
       const updatedOrder = await tx.order.update({
         where: { id: existingOrder.id },
         data: {
-          totalAmount: R.documentTotal(normalizedItems),
+          ...pricing.amounts,
           lastEditedById: req.user.id,
           lastEditedAt: new Date(),
           paymentType: paymentType || existingOrder.paymentType,

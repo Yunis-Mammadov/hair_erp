@@ -7,7 +7,7 @@ export function clearRejectedDraft(key,status){if([400,404,405,413,415,422].incl
 // Reuse the exact sent sale when only a refreshed server balance has changed.
 export function restoredSaleBody(pending,form){
  if(!pending?.body||form.file)return null;
- const shape=x=>({mode:x.mode,customerId:x.customer?.id||null,newCustomer:x.newCustomer,lines:x.lines,paymentMode:x.paymentMode,amount:x.amount,method:x.method,note:x.note});
+ const shape=x=>({mode:x.mode,customerId:x.customer?.id||null,newCustomer:x.newCustomer,lines:x.lines,paymentMode:x.paymentMode,amount:x.amount,method:x.method,note:x.note,discountPercent:String(x.discountPercent??0).replace(',','.'),taxPercent:String(x.taxPercent??0).replace(',','.')});
  return JSON.stringify(shape(pending))===JSON.stringify(shape(form))?pending.body:null;
 }
 export function sameDraftBody(a,b){

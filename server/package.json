@@ -17,7 +17,11 @@
     "backup:restore": "node scripts/backup.cjs restore",
     "test:ops": "node --test tests/group6-operations.test.cjs",
     "billing:events": "node scripts/billing-events.cjs",
-    "user:reset-pin": "node scripts/reset-pin.cjs"
+    "user:reset-pin": "node scripts/reset-pin.cjs",
+    "repo:check": "node scripts/check-repository.cjs",
+    "company:revoke-sessions": "node scripts/revoke-company-sessions.cjs",
+    "company:reset-password": "node scripts/reset-company-password.cjs",
+    "demo:create": "node scripts/demo.cjs"
   },
   "keywords": [],
   "author": "",
@@ -29,10 +33,12 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "5.3.0",
+    "helmet": "8.3.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "2.5.0",
-    "sharp": "0.35.5",
-    "helmet": "8.3.0"
+    "nodemailer": "10.5.0",
+    "pdfkit": "0.20.2",
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.14",

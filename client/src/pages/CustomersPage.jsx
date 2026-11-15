@@ -1,3 +1,4 @@
+import DebtAging from '../components/DebtAging';
 import LedgerDialog from "../components/LedgerDialog";
 import { useI18n } from "../i18n/useI18n";
 import { t } from "../i18n/runtime";
@@ -20,7 +21,7 @@ export default function CustomersPage() {
   } = useAuth();
   const canFilterExpeditor = canUseFeature(currentUser, "teamManagement") && ["ADMIN", "DRIVER", "WAREHOUSE"].includes(currentUser?.role);
   const showAssignments = canUseFeature(currentUser, "customerAssignments");
-  const [collect,setCollect]=useState(null);
+  const [collect,setCollect]=useState(null);const [aging,setAging]=useState(false);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
   const [customers, setCustomers] = useState([]);
@@ -83,9 +84,10 @@ export default function CustomersPage() {
     setExpeditorId("");
     setReloadKey(key => key + 1);
   }
-  return <PageLayout>
+  return <PageLayout>{aging&&<DebtAging onClose={()=>setAging(false)}/>}
       <PageHeader title={t("Müştərilər")} description={t("Müştəri məlumatları, satışlar və borclar.")} actions={<>
             {currentUser?.role === "ADMIN" && <>
+                <Button onClick={()=>setAging(true)}>{t("Debt aging")}</Button>
                 <ExportButton kind="customers" />
                 <ImportButton kind="customers" onDone={() => setReloadKey(k => k + 1)} />
               </>}

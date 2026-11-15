@@ -1,3 +1,4 @@
+const Q=require("../quantity");
 const {log}=require("../ops/runtime");
 const express = require("express");
 const { prisma } = require("../prismaClient");
@@ -93,7 +94,7 @@ router.get(
         hasFeature(req.company, "customerAssignments") &&
         req.user.role === "EXPEDITOR"
       ) {
-        where.createdById = req.user.userId;
+        where.customer = { assignedExpeditorId: req.user.id };
       }
 
       const returnData = await prisma.return.findFirst({
@@ -148,6 +149,9 @@ router.post(
         await F.lockCustomer(tx, input.customerId, req);
         const allocations = [];
         for (const requested of input.items) {
+          const product=await tx.product.findUnique({where:{id:requested.productId},select:{unit:true}});
+          if(!product)throw F.fail(404,"Product not found.");
+          Q.quantity(requested.quantity,product.unit);
           const state = await F.returnable(
             tx,
             input.customerId,
@@ -162,10 +166,10 @@ router.post(
           let skip = state.sold,
             left = requested.quantity;
           for (const item of state.items) {
-            let available = Math.max(item.quantity - item.returnedQty, 0);
+            let available = Math.max(Q.sub(item.quantity,item.returnedQty), 0);
             const reserved = Math.min(skip, available);
-            skip -= reserved;
-            available -= reserved;
+            skip = Q.sub(skip,reserved);
+            available = Q.sub(available,reserved);
             const quantity = Math.min(left, available);
             if (!quantity) continue;
             allocations.push({
@@ -173,9 +177,10 @@ router.post(
               productId: item.productId,
               quantity,
               unitPrice: item.unitPrice,
+              lineTotalAmount: Q.returnCents(item,quantity)/100,
               previousReturned: item.returnedQty,
             });
-            left -= quantity;
+            left = Q.sub(left,quantity);
             if (!left) break;
           }
           if (left)
@@ -188,7 +193,7 @@ router.post(
             note: input.note,
             totalAmount: F.major(
               allocations.reduce(
-                (sum, item) => sum + F.minor(item.unitPrice) * item.quantity,
+                (sum, item) => sum + F.minor(item.lineTotalAmount),
                 0,
               ),
             ),

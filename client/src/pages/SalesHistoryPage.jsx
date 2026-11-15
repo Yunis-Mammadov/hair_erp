@@ -1,3 +1,4 @@
+import {validQuantity,quantityStep,chargeTotals} from '../lib/quantities.mjs';
 import LedgerDialog from "../components/LedgerDialog";
 import InvoiceDialog from "../components/InvoiceDialog";
 import { amountValue } from "../lib/money-input.mjs";
@@ -66,6 +67,7 @@ function buildEditItemsFromOrder(order) {
   return order.items.map(item => ({
     localKey: item.id || `${item.productId}-${Math.random()}`,
     productId: item.productId,
+    unit:item.unit||item.product?.unit||"PIECE",
     productName: item.product?.name || "-",
     categoryName: item.product?.category?.name || "-",
     quantity: Number(item.quantity || 0),
@@ -301,7 +303,7 @@ export default function SalesHistoryPage() {
       if (item.isGift) return sum;
       const qty = Number(item.quantity || 0);
       const price = amountValue(item.unitPrice || 0);
-      return sum + qty * price;
+      return sum + Number(item.lineTotalAmount??Math.round(qty*price*100)/100);
     }, 0);
   };
   const getGoogleMapsLink = (lat, lng) => {
@@ -328,8 +330,8 @@ export default function SalesHistoryPage() {
     return editForm.items.filter(item => item.isGift);
   }, [editForm.items]);
   const editTotal = useMemo(() => {
-    return getOrderTotal(editForm.items);
-  }, [editForm.items]);
+    return chargeTotals(editForm.items,editForm.discountPercent||0,editForm.taxPercent||0).total;
+  }, [editForm]);
   function openPrintPreview(order) {
     if (!order) return;
     setPrintOrder(order);
@@ -355,6 +357,7 @@ export default function SalesHistoryPage() {
     setEditForm({
       paymentType: selectedOrder.paymentType || "NAĞD",
       note: selectedOrder.note || "",
+      discountPercent:Number(selectedOrder.discountPercent||0),taxPercent:Number(selectedOrder.taxPercent||0),
       items: buildEditItemsFromOrder(selectedOrder)
     });
     setEditError("");
@@ -369,6 +372,7 @@ export default function SalesHistoryPage() {
     setEditForm({
       paymentType: selectedOrder.paymentType || "NAĞD",
       note: selectedOrder.note || "",
+      discountPercent:Number(selectedOrder.discountPercent||0),taxPercent:Number(selectedOrder.taxPercent||0),
       items: buildEditItemsFromOrder(selectedOrder)
     });
     setEditError("");
@@ -410,6 +414,7 @@ export default function SalesHistoryPage() {
         items: [...prev.items, {
           localKey: `new-${product.id}-${Date.now()}-${Math.random()}`,
           productId: product.id,
+          unit:product.unit||"PIECE",
           productName: product.name || "-",
           categoryName: product.category?.name || "-",
           quantity: 1,
@@ -437,10 +442,9 @@ export default function SalesHistoryPage() {
         return;
       }
       const invalidItem = editForm.items.find(item => {
-        const quantity = Number(item.quantity);
         const unitPrice = amountValue(item.unitPrice);
         if (!item.productId) return true;
-        if (!Number.isInteger(quantity) || quantity <= 0) return true;
+        if (!validQuantity(item.quantity,item.unit)) return true;
         if (item.isGift && unitPrice !== 0) return true;
         if (!item.isGift && (!Number.isFinite(unitPrice) || unitPrice <= 0)) {
           return true;
@@ -454,6 +458,7 @@ export default function SalesHistoryPage() {
       const payload = {
         paymentType: editForm.paymentType,
         note: editForm.note,
+        discountPercent:editForm.discountPercent||0,taxPercent:editForm.taxPercent||0,
         items: editForm.items.map(item => ({
           productId: item.productId,
           quantity: Number(item.quantity),
@@ -471,6 +476,7 @@ export default function SalesHistoryPage() {
         setEditForm({
           paymentType: freshOrder.paymentType || "NAĞD",
           note: freshOrder.note || "",
+          discountPercent:Number(freshOrder.discountPercent||0),taxPercent:Number(freshOrder.taxPercent||0),
           items: buildEditItemsFromOrder(freshOrder)
         });
       }
@@ -617,7 +623,7 @@ export default function SalesHistoryPage() {
             fontSize: 11.5,
             color: "text.secondary"
           }}>
-              {loading ? t("Yüklənir…") : listError ? t("Yüklənmə alınmadı") : pagination.total + " nəticə"}
+              {loading ? t("Yüklənir…") : listError ? t("Yüklənmə alınmadı") : t("{count} results", {count: pagination.total})}
             </Typography>
           </Stack>
           {loading ? <Box role="status" aria-label={t("Satışlar yüklənir")} sx={{
@@ -711,7 +717,7 @@ export default function SalesHistoryPage() {
                 fontWeight: 500,
                 fontVariantNumeric: "tabular-nums"
               }}>
-                      {formatMoney(getOrderTotal(order.items))}
+                      {formatMoney(Number(order.totalAmount??getOrderTotal(order.items)))}
                     </TableCell>
                     {canFilterExpeditor && <TableCell>
                         {order.createdBy?.fullName || order.createdBy?.email || "—"}
@@ -765,7 +771,7 @@ export default function SalesHistoryPage() {
               <Stack direction="row" spacing={1} flexWrap="wrap">
                 {!isEditMode && !!selectedOrder && !detailLoading && <>
                     {["ADMIN", "EXPEDITOR"].includes(currentUser?.role) && selectedOrder.remainingDebt > 0 && <Button variant="contained" onClick={() => setCollect(true)}>{t("Record payment")}</Button>}
-                    {canEditOrder && <Button variant="outlined" startIcon={<EditOutlinedIcon />} onClick={enterEditMode} sx={{
+                    {canEditOrder && !selectedOrder.sellerSignature && !selectedOrder.customerSignature && <Button variant="outlined" startIcon={<EditOutlinedIcon />} onClick={enterEditMode} sx={{
                 textTransform: "none",
                 fontWeight: 700
               }}>{t("Düzəliş et")}</Button>}
@@ -888,7 +894,7 @@ export default function SalesHistoryPage() {
             })} color="secondary" variant="outlined" />}
 
                   <Chip label={t("Toplam satış: {value0}", {
-              value0: formatMoney(getOrderTotal(selectedOrder.items || []))
+              value0: formatMoney(Number(selectedOrder.totalAmount??getOrderTotal(selectedOrder.items || [])))
             })} color="success" variant="outlined" />
                 </Stack>
 
@@ -930,7 +936,7 @@ export default function SalesHistoryPage() {
                             <TableCell>{item.quantity}</TableCell>
                             <TableCell>{formatMoney(item.unitPrice)}</TableCell>
                             <TableCell>
-                              {formatMoney(Number(item.quantity || 0) * amountValue(item.unitPrice || 0))}
+                              {formatMoney(Number(item.lineTotalAmount??Math.round(Number(item.quantity || 0)*amountValue(item.unitPrice || 0)*100)/100))}
                             </TableCell>
                           </TableRow>)}
                     </TableBody>
@@ -1007,6 +1013,7 @@ export default function SalesHistoryPage() {
                           </MenuItem>)}
                       </TextField>
 
+                      <TextField label={t('Discount (%)')} value={editForm.discountPercent||0} onChange={e=>setEditForm(prev=>({...prev,discountPercent:e.target.value}))}/><TextField label={t('Tax (%)')} value={editForm.taxPercent||0} onChange={e=>setEditForm(prev=>({...prev,taxPercent:e.target.value}))}/>
                       <TextField label={t("Qeyd")} value={editForm.note} onChange={e => setEditForm(prev => ({
                   ...prev,
                   note: e.target.value
@@ -1111,7 +1118,7 @@ export default function SalesHistoryPage() {
                                   <TextField type="number" size="small" value={item.quantity} onChange={e => updateEditItem(item.localKey, {
                           quantity: Number(e.target.value)
                         })} fullWidth inputProps={{
-                          min: 1
+                          min: quantityStep(item.unit), step:quantityStep(item.unit)
                         }} />
                                 </TableCell>
                                 <TableCell sx={{
@@ -1178,7 +1185,7 @@ export default function SalesHistoryPage() {
                                   <TextField type="number" size="small" value={item.quantity} onChange={e => updateEditItem(item.localKey, {
                           quantity: Number(e.target.value)
                         })} fullWidth inputProps={{
-                          min: 1
+                          min: quantityStep(item.unit), step:quantityStep(item.unit)
                         }} />
                                 </TableCell>
                                 <TableCell>{formatMoney(0)}</TableCell>

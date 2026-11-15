@@ -1,3 +1,4 @@
+import {quantityStep} from '../lib/quantities.mjs';
 import {useAuth} from '../features/auth/useAuth';
 import {draftKey,readDraft,writeDraft,clearDraft,clearRejectedDraft,sameDraftBody} from '../lib/pending-draft.mjs';
 import {useEffect,useRef,useState} from 'react';
@@ -16,7 +17,7 @@ export default function LedgerDialog({kind='payment',customer,payment,order,onCl
  const retrying=!file&&sameDraftBody(pending,body);
  if(kind!=='void'&&(!Number.isFinite(value)||value<=0||(!retrying&&(limit==null||value>limit)))){setError(t('Enter an amount within the available balance.'));return;}if(kind!=='payment'&&note.trim().length<3){setError(t('Enter a reason of at least three characters.'));return;}
 
- if(track&&Object.values(quantities).some(value=>value!==''&&(!/^\d+$/.test(String(value))||Number(value)<0))){setError(t('Check quantities, prices and available stock.'));return;}
+ if(track&&Object.values(quantities).some(value=>value!==''&&(!/^\d+(?:\.\d{1,3})?$/.test(String(value))||Number(value)<0))){setError(t('Check quantities, prices and available stock.'));return;}
  setBusy(true);setError('');let result;
  try{
   if(file&&!receipt.current){const form=new FormData();form.append('file',file);receipt.current=(await api.post('/uploads',form)).data.file.url;setHasReceipt(true);}
@@ -33,6 +34,6 @@ export default function LedgerDialog({kind='payment',customer,payment,order,onCl
  <TextField label={kind==='payment'?t('Note (optional)'):t('Reason')} value={note} onChange={e=>setNote(e.target.value)} required={kind!=='payment'} disabled={busy} multiline minRows={2} inputProps={{maxLength:300}}/>
  {kind==='payment'&&<>{!file&&hasReceipt&&<Alert severity="info">{t('The previously uploaded receipt is retained for this retry.')}</Alert>}<Button component="label" variant="outlined" disabled={busy}>{file?file.name:hasReceipt?t('Replace receipt photo'):t('Attach receipt photo')}<input hidden type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>{setFile(e.target.files?.[0]||null);receipt.current=null;setHasReceipt(false);}}/></Button>{file&&<Button disabled={busy} onClick={()=>{setFile(null);receipt.current=null;setHasReceipt(false);}}>{t('Remove photo')}</Button>}
  <FormControlLabel control={<Checkbox checked={track} disabled={busy} onChange={e=>setTrack(e.target.checked)}/>} label={t('Record products covered (optional)')}/>
- {track&&<Stack spacing={1}>{(products?.products||[]).map(p=><Stack key={p.productId} direction="row" spacing={1} alignItems="center"><Typography sx={{flex:1}}>{p.productName}<br/><small>{t('Available: {quantity}',{quantity:p.returnableQty})}</small></Typography><TextField size="small" type="number" value={quantities[p.productId]||''} onChange={e=>setQuantities(q=>({...q,[p.productId]:e.target.value}))} disabled={busy} inputProps={{min:0,max:p.returnableQty,step:1,'aria-label':p.productName}} sx={{width:90}}/></Stack>)}<RecordPager pagination={products?.pagination} onChange={setPage} disabled={busy}/></Stack>}</>}
+ {track&&<Stack spacing={1}>{(products?.products||[]).map(p=><Stack key={p.productId} direction="row" spacing={1} alignItems="center"><Typography sx={{flex:1}}>{p.productName}<br/><small>{t('Available: {quantity}',{quantity:p.returnableQty})}</small></Typography><TextField size="small" type="number" value={quantities[p.productId]||''} onChange={e=>setQuantities(q=>({...q,[p.productId]:e.target.value}))} disabled={busy} inputProps={{min:0,max:p.returnableQty,step:quantityStep(p.unit),'aria-label':p.productName}} sx={{width:90}}/></Stack>)}<RecordPager pagination={products?.pagination} onChange={setPage} disabled={busy}/></Stack>}</>}
  </Stack></DialogContent><DialogActions><Button disabled={busy} onClick={onClose}>{t('Cancel')}</Button><Button type="submit" variant="contained" color={kind==='void'?'error':'primary'} disabled={busy||(kind!=='void'&&(limit==null||limit<=0)&&!pending)}>{busy?t('Saving...'):title}</Button></DialogActions></Box></Dialog>;
 }

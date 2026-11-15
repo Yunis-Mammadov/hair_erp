@@ -5578,5 +5578,617 @@
     "az": "Abunəlik statusunu yenilə",
     "tr": "Abonelik durumunu yenile",
     "ru": "Обновить статус подписки"
+  },
+  "Stokda var": {
+    "en": "In stock",
+    "az": "Stokda var",
+    "tr": "Stokta var",
+    "ru": "В наличии"
+  },
+  "Sonra": {
+    "en": "After",
+    "az": "Sonra",
+    "tr": "Sonra",
+    "ru": "После"
+  },
+  "SKU / barcode": {
+    "en": "SKU / barcode",
+    "az": "SKU / barkod",
+    "tr": "SKU / barkod",
+    "ru": "SKU / штрихкод"
+  },
+  "Sale edit": {
+    "en": "Sale edit",
+    "az": "Satış redaktəsi",
+    "tr": "Satış düzenlemesi",
+    "ru": "Изменение продажи"
+  },
+  "Stock adjustment": {
+    "en": "Stock adjustment",
+    "az": "Stok düzəlişi",
+    "tr": "Stok düzeltmesi",
+    "ru": "Корректировка остатков"
+  },
+  "{count} results": {
+    "en": "{count} results",
+    "az": "{count} nəticə",
+    "tr": "{count} sonuç",
+    "ru": "Результатов: {count}"
+  },
+  "Confirm the operating currency before your first transaction.": {
+    "en": "Confirm the operating currency before your first transaction.",
+    "az": "İlk əməliyyatdan əvvəl iş valyutasını təsdiqlə.",
+    "tr": "İlk işlemden önce işletme para birimini onaylayın.",
+    "ru": "Подтвердите рабочую валюту перед первой операцией."
+  },
+  "Ask an administrator to confirm the operating currency before the first transaction.": {
+    "en": "Ask an administrator to confirm the operating currency before the first transaction.",
+    "az": "İlk əməliyyatdan əvvəl administratordan iş valyutasını təsdiqləməsini istə.",
+    "tr": "İlk işlemden önce yöneticiden işletme para birimini onaylamasını isteyin.",
+    "ru": "Попросите администратора подтвердить рабочую валюту перед первой операцией."
+  },
+  "An administrator must confirm the operating currency in Company settings before the first transaction.": {
+    "en": "An administrator must confirm the operating currency in Company settings before the first transaction.",
+    "az": "Administrator ilk əməliyyatdan əvvəl Şirkət ayarlarında iş valyutasını təsdiqləməlidir.",
+    "tr": "Yönetici ilk işlemden önce Şirket ayarlarında işletme para birimini onaylamalıdır.",
+    "ru": "Перед первой операцией администратор должен подтвердить рабочую валюту в настройках компании."
+  },
+  "Choose a valid PNG signature.": {
+    "en": "Choose a valid PNG signature.",
+    "az": "Etibarlı PNG imza şəkli seç.",
+    "tr": "Geçerli bir PNG imza görseli seçin.",
+    "ru": "Выберите корректное изображение подписи в формате PNG."
+  },
+  "This signature is already recorded and cannot be replaced.": {
+    "en": "This signature is already recorded and cannot be replaced.",
+    "az": "Bu imza artıq qeydə alınıb və əvəz edilə bilməz.",
+    "tr": "Bu imza zaten kaydedildi ve değiştirilemez.",
+    "ru": "Эта подпись уже сохранена и не может быть заменена."
+  },
+  "The invoice changed. Refresh before continuing.": {
+    "en": "The invoice changed. Refresh before continuing.",
+    "az": "Qaimə dəyişib. Davam etməzdən əvvəl səhifəni yenilə.",
+    "tr": "Fatura değişti. Devam etmeden önce yenileyin.",
+    "ru": "Накладная изменилась. Обновите страницу перед продолжением."
+  },
+  "This edit would remove products already recorded with a payment. Correct the payment first.": {
+    "en": "This edit would remove products already recorded with a payment. Correct the payment first.",
+    "az": "Bu redaktə ödənişdə qeyd edilmiş məhsul miqdarını pozur. Əvvəl ödənişə düzəliş et.",
+    "tr": "Bu düzenleme ödemeye kaydedilen ürün miktarını bozar. Önce ödemeyi düzeltin.",
+    "ru": "Изменение нарушит количество товаров, учтённых в оплате. Сначала исправьте оплату."
+  },
+  "Choose a valid payment type.": {
+    "en": "Choose a valid payment type.",
+    "az": "Etibarlı ödəniş növü seç.",
+    "tr": "Geçerli bir ödeme türü seçin.",
+    "ru": "Выберите корректный тип оплаты."
+  },
+  "The customer flag must be true or false.": {
+    "en": "The customer flag must be true or false.",
+    "az": "Müştəri işarəsi true və ya false olmalıdır.",
+    "tr": "Müşteri işareti true veya false olmalıdır.",
+    "ru": "Признак клиента должен быть true или false."
+  },
+  "The attached image is missing or invalid. Upload the image again.": {
+    "en": "The attached image is missing or invalid. Upload the image again.",
+    "az": "Əlavə edilən şəkil tapılmadı və ya etibarsızdır. Şəkli yenidən yüklə.",
+    "tr": "Eklenen görsel bulunamadı veya geçersiz. Görseli yeniden yükleyin.",
+    "ru": "Прикреплённое изображение отсутствует или повреждено. Загрузите его заново."
+  },
+  "A signed invoice cannot be edited.": {
+    "en": "A signed invoice cannot be edited.",
+    "az": "İmzalanmış qaimə redaktə edilə bilməz.",
+    "tr": "İmzalanmış fatura düzenlenemez.",
+    "ru": "Подписанную накладную нельзя редактировать."
+  },
+  "PIECE": {
+    "en": "Piece",
+    "az": "Ədəd",
+    "tr": "Adet",
+    "ru": "Штука"
+  },
+  "BOX": {
+    "en": "Box",
+    "az": "Qutu",
+    "tr": "Kutu",
+    "ru": "Коробка"
+  },
+  "KG": {
+    "en": "kg",
+    "az": "kq",
+    "tr": "kg",
+    "ru": "кг"
+  },
+  "LITER": {
+    "en": "L",
+    "az": "l",
+    "tr": "L",
+    "ru": "л"
+  },
+  "Unit": {
+    "en": "Unit",
+    "az": "Ölçü vahidi",
+    "tr": "Birim",
+    "ru": "Единица"
+  },
+  "Subtotal": {
+    "en": "Subtotal",
+    "az": "Ara cəm",
+    "tr": "Ara toplam",
+    "ru": "Подытог"
+  },
+  "Discount": {
+    "en": "Discount",
+    "az": "Endirim",
+    "tr": "İndirim",
+    "ru": "Скидка"
+  },
+  "Tax": {
+    "en": "Tax",
+    "az": "Vergi",
+    "tr": "Vergi",
+    "ru": "Налог"
+  },
+  "Discount (%)": {
+    "en": "Discount (%)",
+    "az": "Endirim (%)",
+    "tr": "İndirim (%)",
+    "ru": "Скидка (%)"
+  },
+  "Tax (%)": {
+    "en": "Tax (%)",
+    "az": "Vergi (%)",
+    "tr": "Vergi (%)",
+    "ru": "Налог (%)"
+  },
+  "Account statement": {
+    "en": "Account statement",
+    "az": "Hesab çıxarışı",
+    "tr": "Hesap ekstresi",
+    "ru": "Выписка по счёту"
+  },
+  "Debt aging": {
+    "en": "Debt aging",
+    "az": "Borcun yaşı",
+    "tr": "Borç yaşlandırma",
+    "ru": "Возраст задолженности"
+  },
+  "Debt age since invoice date": {
+    "en": "Debt age since invoice date",
+    "az": "Qaimə tarixindən borcun yaşı",
+    "tr": "Fatura tarihinden itibaren borç yaşı",
+    "ru": "Возраст долга с даты счёта"
+  },
+  "0–30 days": {
+    "en": "0–30 days",
+    "az": "0–30 gün",
+    "tr": "0–30 gün",
+    "ru": "0–30 дней"
+  },
+  "31–60 days": {
+    "en": "31–60 days",
+    "az": "31–60 gün",
+    "tr": "31–60 gün",
+    "ru": "31–60 дней"
+  },
+  "Over 60 days": {
+    "en": "Over 60 days",
+    "az": "60 gündən çox",
+    "tr": "60 günden fazla",
+    "ru": "Более 60 дней"
+  },
+  "Age (days)": {
+    "en": "Age (days)",
+    "az": "Yaş (gün)",
+    "tr": "Yaş (gün)",
+    "ru": "Возраст (дни)"
+  },
+  "Opening balance": {
+    "en": "Opening balance",
+    "az": "Başlanğıc balans",
+    "tr": "Açılış bakiyesi",
+    "ru": "Начальный баланс"
+  },
+  "Closing balance": {
+    "en": "Closing balance",
+    "az": "Son balans",
+    "tr": "Kapanış bakiyesi",
+    "ru": "Конечный баланс"
+  },
+  "Debit": {
+    "en": "Debit",
+    "az": "Debet",
+    "tr": "Borç",
+    "ru": "Дебет"
+  },
+  "Credit": {
+    "en": "Credit",
+    "az": "Kredit",
+    "tr": "Alacak",
+    "ru": "Кредит"
+  },
+  "Balance": {
+    "en": "Balance",
+    "az": "Balans",
+    "tr": "Bakiye",
+    "ru": "Баланс"
+  },
+  "Debits": {
+    "en": "Debits",
+    "az": "Debet cəmi",
+    "tr": "Toplam borç",
+    "ru": "Всего по дебету"
+  },
+  "Credits": {
+    "en": "Credits",
+    "az": "Kredit cəmi",
+    "tr": "Toplam alacak",
+    "ru": "Всего по кредиту"
+  },
+  "Type": {
+    "en": "Type",
+    "az": "Növ",
+    "tr": "Tür",
+    "ru": "Тип"
+  },
+  "Reference": {
+    "en": "Reference",
+    "az": "Sənəd",
+    "tr": "Belge",
+    "ru": "Документ"
+  },
+  "All dates": {
+    "en": "All dates",
+    "az": "Bütün tarixlər",
+    "tr": "Tüm tarihler",
+    "ru": "Все даты"
+  },
+  "Apply": {
+    "en": "Apply",
+    "az": "Tətbiq et",
+    "tr": "Uygula",
+    "ru": "Применить"
+  },
+  "Recorded transactions; negative balance means customer credit.": {
+    "en": "Recorded transactions; negative balance means customer credit.",
+    "az": "Əməliyyatlar qeydə alınma tarixinə görədir; mənfi balans müştəri kreditidir.",
+    "tr": "İşlemler kayıt tarihine göredir; eksi bakiye müşteri alacağıdır.",
+    "ru": "Операции по дате записи; отрицательный баланс означает аванс клиента."
+  },
+  "SALE": {
+    "en": "Sale",
+    "az": "Satış",
+    "tr": "Satış",
+    "ru": "Продажа"
+  },
+  "RETURN": {
+    "en": "Return",
+    "az": "Qaytarma",
+    "tr": "İade",
+    "ru": "Возврат"
+  },
+  "PAYMENT": {
+    "en": "Payment",
+    "az": "Ödəniş",
+    "tr": "Ödeme",
+    "ru": "Оплата"
+  },
+  "PAYMENT_VOID": {
+    "en": "Payment voided",
+    "az": "Ödəniş ləğvi",
+    "tr": "Ödeme iptali",
+    "ru": "Отмена оплаты"
+  },
+  "REFUND": {
+    "en": "Refund",
+    "az": "Pul qaytarılması",
+    "tr": "Para iadesi",
+    "ru": "Возврат денег"
+  },
+  "Download PDF": {
+    "en": "Download PDF",
+    "az": "PDF yüklə",
+    "tr": "PDF indir",
+    "ru": "Скачать PDF"
+  },
+  "Share PDF": {
+    "en": "Share PDF",
+    "az": "PDF paylaş",
+    "tr": "PDF paylaş",
+    "ru": "Поделиться PDF"
+  },
+  "Preparing PDF...": {
+    "en": "Preparing PDF...",
+    "az": "PDF hazırlanır...",
+    "tr": "PDF hazırlanıyor...",
+    "ru": "Подготовка PDF..."
+  },
+  "Could not prepare PDF.": {
+    "en": "Could not prepare PDF.",
+    "az": "PDF hazırlamaq alınmadı.",
+    "tr": "PDF hazırlanamadı.",
+    "ru": "Не удалось подготовить PDF."
+  },
+  "Sharing is unavailable. Download the PDF instead.": {
+    "en": "Sharing is unavailable. Download the PDF instead.",
+    "az": "Paylaşma mümkün deyil. PDF-i yüklə.",
+    "tr": "Paylaşım kullanılamıyor. PDF dosyasını indirin.",
+    "ru": "Общий доступ недоступен. Скачайте PDF."
+  },
+  "Export CSV": {
+    "en": "Export CSV",
+    "az": "CSV ixrac et",
+    "tr": "CSV dışa aktar",
+    "ru": "Экспорт CSV"
+  },
+  "Retry": {
+    "en": "Retry",
+    "az": "Yenidən cəhd et",
+    "tr": "Tekrar dene",
+    "ru": "Повторить"
+  },
+  "Could not load statement.": {
+    "en": "Could not load statement.",
+    "az": "Hesab çıxarışı yüklənmədi.",
+    "tr": "Ekstre yüklenemedi.",
+    "ru": "Не удалось загрузить выписку."
+  },
+  "Email reminders": {
+    "en": "Email reminders",
+    "az": "E-poçt xatırlatmaları",
+    "tr": "E-posta hatırlatmaları",
+    "ru": "Напоминания по почте"
+  },
+  "Customer email": {
+    "en": "Customer email",
+    "az": "Müştərinin e-poçtu",
+    "tr": "Müşteri e-postası",
+    "ru": "Почта клиента"
+  },
+  "The customer agreed to receive payment reminders at this email.": {
+    "en": "The customer agreed to receive payment reminders at this email.",
+    "az": "Müştəri bu e-poçta ödəniş xatırlatmaları almağa razılıq verib.",
+    "tr": "Müşteri bu adreste ödeme hatırlatmaları almayı kabul etti.",
+    "ru": "Клиент согласился получать напоминания об оплате на эту почту."
+  },
+  "Save and preview reminder": {
+    "en": "Save and preview reminder",
+    "az": "Saxla və xatırlatmaya bax",
+    "tr": "Kaydet ve hatırlatmayı önizle",
+    "ru": "Сохранить и просмотреть"
+  },
+  "Queue reminder": {
+    "en": "Queue reminder",
+    "az": "Xatırlatmanı növbəyə əlavə et",
+    "tr": "Hatırlatmayı sıraya al",
+    "ru": "Поставить в очередь"
+  },
+  "Email reminders are disabled. Configure SMTP to enable sending.": {
+    "en": "Email reminders are disabled. Configure SMTP to enable sending.",
+    "az": "E-poçt göndərilməsi bağlıdır. SMTP sazlanmalıdır.",
+    "tr": "E-posta kapalı. Gönderim için SMTP yapılandırılmalı.",
+    "ru": "Отправка отключена. Настройте SMTP."
+  },
+  "One reminder per customer per 24 hours. Unknown delivery outcomes are never retried automatically.": {
+    "en": "One reminder per customer per 24 hours. Unknown delivery outcomes are never retried automatically.",
+    "az": "Hər müştəriyə 24 saatda bir xatırlatma. Nəticəsi bilinməyən göndəriş avtomatik təkrarlanmır.",
+    "tr": "Müşteri başına 24 saatte bir hatırlatma. Sonucu belirsiz gönderim otomatik tekrarlanmaz.",
+    "ru": "Одно напоминание клиенту за 24 часа. Отправка с неизвестным результатом не повторяется автоматически."
+  },
+  "Reminder PENDING": {
+    "en": "Queued",
+    "az": "Növbədə",
+    "tr": "Sırada",
+    "ru": "В очереди"
+  },
+  "Reminder SENDING": {
+    "en": "Sending",
+    "az": "Göndərilir",
+    "tr": "Gönderiliyor",
+    "ru": "Отправляется"
+  },
+  "Reminder SENT": {
+    "en": "Sent",
+    "az": "Göndərildi",
+    "tr": "Gönderildi",
+    "ru": "Отправлено"
+  },
+  "Reminder UNKNOWN": {
+    "en": "Delivery unknown",
+    "az": "Nəticə bilinmir",
+    "tr": "Sonuç belirsiz",
+    "ru": "Результат неизвестен"
+  },
+  "Reminder FAILED": {
+    "en": "Rejected",
+    "az": "Rədd edildi",
+    "tr": "Reddedildi",
+    "ru": "Отклонено"
+  },
+  "Reminder STALE": {
+    "en": "Balance changed",
+    "az": "Balans dəyişib",
+    "tr": "Bakiye değişti",
+    "ru": "Баланс изменился"
+  },
+  "Reminder CANCELED": {
+    "en": "Canceled",
+    "az": "Ləğv edildi",
+    "tr": "İptal edildi",
+    "ru": "Отменено"
+  },
+  "Alt+K: search products · Ctrl+Enter: confirm sale": {
+    "en": "Alt+K: search products · Ctrl+Enter: confirm sale",
+    "az": "Alt+K: məhsul axtar · Ctrl+Enter: satışı təsdiqlə",
+    "tr": "Alt+K: ürün ara · Ctrl+Enter: satışı onayla",
+    "ru": "Alt+K: поиск товара · Ctrl+Enter: подтвердить продажу"
+  },
+  "Demo workspace - sample data. Email and paid checkout are disabled.": {
+    "en": "Demo workspace - sample data. Email and paid checkout are disabled.",
+    "az": "Demo hesab - nümunə məlumatları. E-poçt və paket ödənişi bağlıdır.",
+    "tr": "Demo hesabı - örnek veriler. E-posta ve paket ödemesi kapalı.",
+    "ru": "Демоаккаунт - пример данных. Почта и оплата тарифа отключены."
+  },
+  "Pieces and boxes require whole quantities.": {
+    "en": "Pieces and boxes require whole quantities.",
+    "az": "Ədəd və qutu üçün tam miqdar tələb olunur.",
+    "tr": "Adet ve kutu için tam sayı gerekir.",
+    "ru": "Для штук и коробок нужно целое количество."
+  },
+  "Quantity requires at most three decimal places.": {
+    "en": "Quantity requires at most three decimal places.",
+    "az": "Miqdar ən çox üç onluq rəqəm olmalıdır.",
+    "tr": "Miktar en fazla üç ondalık basamak içermelidir.",
+    "ru": "Количество допускает не более трёх десятичных знаков."
+  },
+  "Only administrators can set discounts and tax.": {
+    "en": "Only administrators can set discounts and tax.",
+    "az": "Endirim və vergini yalnız administrator təyin edə bilər.",
+    "tr": "İndirim ve vergiyi yalnızca yönetici belirleyebilir.",
+    "ru": "Только администратор может задавать скидку и налог."
+  },
+  "Enter a valid customer email.": {
+    "en": "Enter a valid customer email.",
+    "az": "Düzgün müştəri e-poçtu yaz.",
+    "tr": "Geçerli müşteri e-postası girin.",
+    "ru": "Введите корректную почту клиента."
+  },
+  "Email reminders are not configured.": {
+    "en": "Email reminders are not configured.",
+    "az": "E-poçt xatırlatmaları sazlanmayıb.",
+    "tr": "E-posta hatırlatmaları yapılandırılmadı.",
+    "ru": "Напоминания по почте не настроены."
+  },
+  "Customer email and explicit reminder consent are required.": {
+    "en": "Customer email and explicit reminder consent are required.",
+    "az": "Müştərinin e-poçtu və xatırlatma üçün razılığı lazımdır.",
+    "tr": "Müşteri e-postası ve hatırlatma onayı gereklidir.",
+    "ru": "Нужны почта клиента и согласие на напоминания."
+  },
+  "This customer has no outstanding debt.": {
+    "en": "This customer has no outstanding debt.",
+    "az": "Bu müştərinin qalan borcu yoxdur.",
+    "tr": "Bu müşterinin borcu yok.",
+    "ru": "У клиента нет задолженности."
+  },
+  "The balance or recipient changed. Preview the reminder again.": {
+    "en": "The balance or recipient changed. Preview the reminder again.",
+    "az": "Balans və ya alıcı dəyişib. Xatırlatmaya yenidən bax.",
+    "tr": "Bakiye veya alıcı değişti. Hatırlatmayı tekrar önizleyin.",
+    "ru": "Баланс или получатель изменился. Откройте предпросмотр заново."
+  },
+  "Only one reminder per customer is allowed in 24 hours.": {
+    "en": "Only one reminder per customer is allowed in 24 hours.",
+    "az": "Müştəriyə 24 saatda yalnız bir xatırlatma göndərilə bilər.",
+    "tr": "Müşteriye 24 saatte bir hatırlatma gönderilebilir.",
+    "ru": "Клиенту можно отправить одно напоминание за 24 часа."
+  },
+  "Company reminder limit reached. Try again tomorrow.": {
+    "en": "Company reminder limit reached. Try again tomorrow.",
+    "az": "Şirkətin xatırlatma həddi dolub. Sabah yenidən cəhd et.",
+    "tr": "Şirket hatırlatma sınırına ulaştı. Yarın tekrar deneyin.",
+    "ru": "Лимит напоминаний компании исчерпан. Повторите завтра."
+  },
+  "Demo accounts cannot send email.": {
+    "en": "Demo accounts cannot send email.",
+    "az": "Demo hesab e-poçt göndərə bilməz.",
+    "tr": "Demo hesapları e-posta gönderemez.",
+    "ru": "Демоаккаунты не могут отправлять почту."
+  },
+  "Demo accounts cannot open paid checkout.": {
+    "en": "Demo accounts cannot open paid checkout.",
+    "az": "Demo hesab paket ödənişi edə bilməz.",
+    "tr": "Demo hesapları ücretli ödeme açamaz.",
+    "ru": "Демоаккаунты не могут открывать оплату."
+  },
+  "A unit cannot change after stock or documents exist. Create a new product.": {
+    "en": "A unit cannot change after stock or documents exist. Create a new product.",
+    "az": "Stok və ya sənəd olduqda ölçü vahidi dəyişmir. Yeni məhsul yarat.",
+    "tr": "Stok veya belge varsa birim değiştirilemez. Yeni ürün oluşturun.",
+    "ru": "При наличии остатков или документов единицу изменить нельзя. Создайте новый товар."
+  },
+  "Contact preferences saved.": {
+    "en": "Contact preferences saved.",
+    "az": "Əlaqə seçimləri saxlanıldı.",
+    "tr": "İletişim tercihleri kaydedildi.",
+    "ru": "Настройки контакта сохранены."
+  },
+  "Save contact preferences": {
+    "en": "Save contact preferences",
+    "az": "Əlaqə seçimlərini saxla",
+    "tr": "İletişim tercihlerini kaydet",
+    "ru": "Сохранить настройки контакта"
+  },
+  "Choose PIECE, BOX, KG or LITER.": {
+    "en": "Choose PIECE, BOX, KG or LITER.",
+    "az": "Ədəd, qutu, kq və ya litr seç.",
+    "tr": "Adet, kutu, kg veya litre seçin.",
+    "ru": "Выберите штуки, коробки, кг или литры."
+  },
+  "Quantity is outside the allowed range.": {
+    "en": "Quantity is outside the allowed range.",
+    "az": "Miqdar icazə verilən həddən kənardır.",
+    "tr": "Miktar izin verilen aralığın dışında.",
+    "ru": "Количество вне допустимого диапазона."
+  },
+  "Document amount exceeds the allowed range.": {
+    "en": "Document amount exceeds the allowed range.",
+    "az": "Sənədin məbləği icazə verilən həddi aşır.",
+    "tr": "Belge tutarı izin verilen sınırı aşıyor.",
+    "ru": "Сумма документа превышает допустимый предел."
+  },
+  "Enter a percentage with up to two decimals.": {
+    "en": "Enter a percentage with up to two decimals.",
+    "az": "Faizi ən çox iki onluq rəqəmlə yaz.",
+    "tr": "Yüzdeyi en fazla iki ondalık basamakla girin.",
+    "ru": "Введите процент с точностью до двух десятичных знаков."
+  },
+  "Percentage must be between 0 and 100.": {
+    "en": "Percentage must be between 0 and 100.",
+    "az": "Faiz 0 və 100 arasında olmalıdır.",
+    "tr": "Yüzde 0 ile 100 arasında olmalıdır.",
+    "ru": "Процент должен быть от 0 до 100."
+  },
+  "A paid line must be worth at least one minor currency unit.": {
+    "en": "A paid line must be worth at least one minor currency unit.",
+    "az": "Ödənişli məhsul sətrinin dəyəri ən azı bir qəpik olmalıdır.",
+    "tr": "Ücretli ürün satırının değeri en az bir kuruş olmalıdır.",
+    "ru": "Платная строка должна стоить хотя бы одну минимальную денежную единицу."
+  },
+  "Reminder consent must be true or false.": {
+    "en": "Reminder consent must be true or false.",
+    "az": "Xatırlatma razılığı düzgün seçilməlidir.",
+    "tr": "Hatırlatma onayı doğru seçilmelidir.",
+    "ru": "Укажите согласие на напоминания."
+  },
+  "Enter an email before enabling reminders.": {
+    "en": "Enter an email before enabling reminders.",
+    "az": "Xatırlatmaları açmadan əvvəl e-poçt yaz.",
+    "tr": "Hatırlatmaları açmadan önce e-posta girin.",
+    "ru": "Введите почту перед включением напоминаний."
+  },
+  "Statement exceeds 10,000 events. Choose an earlier end date.": {
+    "en": "Statement exceeds 10,000 events. Choose an earlier end date.",
+    "az": "Çıxarışda 10 000-dən çox əməliyyat var. Daha əvvəlki son tarix seç.",
+    "tr": "Ekstre 10.000 işlemi aşıyor. Daha erken bir bitiş tarihi seçin.",
+    "ru": "В выписке более 10 000 событий. Выберите более раннюю конечную дату."
+  },
+  "A document row is too long to render.": {
+    "en": "A document row is too long to render.",
+    "az": "Sənəd sətri çap üçün çox uzundur.",
+    "tr": "Belge satırı yazdırılamayacak kadar uzun.",
+    "ru": "Строка документа слишком длинная для печати."
+  },
+  "Delivery outcome is unknown. Verify delivery before creating a new reminder.": {
+    "en": "Delivery outcome is unknown. Verify delivery before creating a new reminder.",
+    "az": "Göndərişin nəticəsi bilinmir. Yeni xatırlatma yaratmadan əvvəl çatmasını yoxla.",
+    "tr": "Gönderim sonucu belirsiz. Yeni hatırlatma oluşturmadan önce teslimi doğrulayın.",
+    "ru": "Результат доставки неизвестен. Перед новым напоминанием проверьте доставку."
+  },
+  "SMTP rejected the message. Check the recipient or provider.": {
+    "en": "SMTP rejected the message. Check the recipient or provider.",
+    "az": "SMTP məktubu rədd etdi. Alıcını və ya provayderi yoxla.",
+    "tr": "SMTP iletiyi reddetti. Alıcıyı veya sağlayıcıyı kontrol edin.",
+    "ru": "SMTP отклонил письмо. Проверьте получателя или провайдера."
   }
 }
