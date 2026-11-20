@@ -60,6 +60,19 @@ async function validateUploadReference(value, company) {
     await handle?.close();
   }
 }
+async function readPrivateLogo(value, company) {
+  if (!value) return null;
+  let handle;
+  try {
+    const {diskPath}=uploadPath(value,company);
+    const root=await fs.realpath(uploadsRoot),directory=path.dirname(diskPath);
+    const expected=directory===uploadsRoot?root:path.join(root,company.id);
+    if(await fs.realpath(directory)!==expected)return null;
+    handle=await fs.open(diskPath,constants.O_RDONLY|(constants.O_NOFOLLOW||0));
+    const stat=await handle.stat();if(!stat.isFile()||!stat.size||stat.size>5*1024*1024)return null;
+    return await sharp(await handle.readFile(),{limitInputPixels:16000000,animated:false}).rotate().resize({width:400,height:200,fit:'inside',withoutEnlargement:true}).png().toBuffer();
+  } catch { return null; } finally {await handle?.close();}
+}
 function signedUploadUrl(value, req) {
   if (inlineImage(value)) return value;
   const { pathname } = uploadPath(value, req.company);
@@ -140,6 +153,7 @@ async function serveUpload(req, res, next) {
 }
 module.exports = {
   uploadsRoot,
+  readPrivateLogo,
   normalizeUploadUrl,
   validateUploadReference,
   signedUploadUrl,

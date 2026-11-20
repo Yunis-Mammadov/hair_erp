@@ -1,0 +1,26 @@
+{
+  "AZ": {
+    "BASIC": {
+      "currency": "AZN",
+      "MONTHLY": 5000,
+      "YEARLY": 50000
+    },
+    "BUSINESS": {
+      "currency": "AZN",
+      "MONTHLY": 15000,
+      "YEARLY": 150000
+    },
+    "PREMIUM": {
+      "currency": "AZN",
+      "MONTHLY": 29900,
+      "YEARLY": 250000
+    }
+  },
+  "GLOBAL": {
+    "BASIC": {
+      "currency": "USD",
+      "MONTHLY": 1999,
+      "YEARLY": 19999
+    }
+  }
+}

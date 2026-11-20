@@ -3,7 +3,7 @@ import LanguagePicker from "../i18n/LanguagePicker";
 import { useI18n } from "../i18n/useI18n";
 import { t } from "../i18n/runtime";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Alert, Box, Button, CircularProgress, IconButton, InputAdornment, Paper, Stack, TextField, Typography } from "@mui/material";
 import AlternateEmailRoundedIcon from "@mui/icons-material/AlternateEmailRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
@@ -20,7 +20,8 @@ export default function Login() {
   const {
     language
   } = useI18n();
-  const [email, setEmail] = useState("");
+  const location=useLocation();
+  const [email, setEmail] = useState(location.state?.trialLoginEmail||"");
   const [password, setPassword] = useState("");
   const [pin, setPin] = useState("");
   const [challenge, setChallenge] = useState(null);
@@ -154,6 +155,7 @@ export default function Login() {
           </Typography>
         </Stack>
 
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}><LanguagePicker /></Box>
         <Paper component="section" aria-labelledby="login-heading" elevation={0} sx={{
         p: {
           xs: 2.5,
@@ -296,7 +298,7 @@ export default function Login() {
               borderRadius: "8px",
               fontWeight: 500
             }}>
-                {loading ? t("Yoxlanır…") : challenge ? "Daxil ol" : "Davam et"}
+                {loading ? t("Yoxlanır…") : challenge ? t("Sign in") : t("Continue")}
               </Button>
               {challenge && <Button type="button" onClick={changeCompany} disabled={loading} color="inherit" startIcon={<ArrowBackRoundedIcon sx={{
               fontSize: 16
@@ -307,7 +309,7 @@ export default function Login() {
             }}>{t("Başqa şirkətlə daxil ol")}</Button>}
             </Stack>
           </Box>
-        <Stack direction="row" justifyContent="center" flexWrap="wrap" gap={1} sx={{mt:2}}>{[['/renew','Renew subscription'],['/support','Support'],['/privacy','Privacy'],['/terms','Terms']].map(([to,label])=><Button component={RouterLink} to={to} size="small" key={to}>{t(label)}</Button>)}</Stack></Paper>
+        <Stack direction="row" justifyContent="center" flexWrap="wrap" gap={1} sx={{mt:2}}>{[['/trial','Start your 7-day free trial'],['/renew','Renew subscription'],['/support','Support'],['/privacy','Privacy'],['/terms','Terms']].map(([to,label])=><Button component={RouterLink} to={to} size="small" key={to}>{t(label)}</Button>)}</Stack></Paper>
 
         <Typography sx={{
         mt: 2.75,

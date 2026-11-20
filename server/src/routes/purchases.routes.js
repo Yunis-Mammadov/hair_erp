@@ -17,6 +17,7 @@ const {
 } = require("../purchase-input");
 
 const router = express.Router();
+require("../purchase-management")(router);
 
 /**
  * Alış siyahısı
@@ -115,6 +116,7 @@ router.get(
                 },
               },
 
+              voidedBy: {select:{id:true,fullName:true}},
               items: {
                 include: {
                   product: {
@@ -177,6 +179,7 @@ router.get(
           where: { id },
 
           include: {
+            voidedBy: {select:{id:true,fullName:true}},
             createdBy: {
               select: {
                 id: true,

@@ -2,7 +2,7 @@
 
 Başlanğıc versiya: GitHub `0584942`. Bu sənəd audit hissəsini təsvir edir. Cari vahid paket 7-ci qrupu da daxil edir: [GROUP7-RELEASE](GROUP7-RELEASE.md).
 
-**Əvvəl oxu:** [quraşdırma](docs/audit-fixes/QURASDIRMA.md). Backup ifşası üçün ayrıca [Git tarixçəsi və girişlərin yenilənməsi](docs/audit-fixes/BACKUP-TEMIZLEME.md) addımları var.
+**Bu tarixi sənəddir. Cari quraşdırma:** [BASLA_BURADAN.md](BASLA_BURADAN.md). Production və Git tarixçəsi üzrə qalan xarici addımlar: [DEPLOYMENT.md](DEPLOYMENT.md).
 
 | Audit | Paketdəki dəyişiklik | Vəziyyət |
 |---|---|---|

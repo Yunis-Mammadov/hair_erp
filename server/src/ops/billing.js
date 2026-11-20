@@ -1,6 +1,7 @@
 const {createHmac,timingSafeEqual}=require('node:crypto');
 const {log}=require('./runtime');
 const fail=(status,message,code='BILLING_ERROR')=>Object.assign(new Error(message),{status,code});
+const {isTrial}=require('../config/plans');
 const supported=new Set(['subscription.created','subscription.activated','subscription.updated','subscription.resumed','subscription.past_due','subscription.paused','subscription.canceled']);
 function verifySignature(bytes,header,secret,now=Date.now()){
  if(!secret||!Buffer.isBuffer(bytes)||typeof header!=='string')return false;
@@ -50,8 +51,8 @@ async function applyEvent(tx,event,env=process.env){
  if(status==='active'){
   const cycle=priceCycle(data,env),end=new Date(data.current_billing_period?.ends_at),start=new Date(data.current_billing_period?.starts_at);
   if(!Number.isFinite(+end)||!Number.isFinite(+start)||end<=start)throw fail(400,'Missing billing period.');
-  await tx.company.update({where:{id:company.id},data:{billingCycle:cycle,startsAt:company.startsAt>start?start:company.startsAt,endsAt:end}});
- }else if(status==='paused'||status==='canceled'){
+  await tx.company.update({where:{id:company.id},data:{...(company.trialStartedAt&&!company.trialConvertedAt?{trialConvertedAt:occurred}:{}),billingCycle:cycle,startsAt:company.startsAt>start?start:company.startsAt,endsAt:end}});
+ }else if((status==='paused'||status==='canceled')&&!isTrial(company)){
   await tx.company.update({where:{id:company.id},data:{endsAt:company.endsAt&&company.endsAt<occurred?company.endsAt:occurred}});
  }
  // A failed payment/trial never grants a new paid billing period.

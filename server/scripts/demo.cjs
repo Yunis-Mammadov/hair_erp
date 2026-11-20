@@ -2,6 +2,7 @@ require("dotenv").config({ quiet: true });
 const bcrypt = require("bcrypt"),
   { platformPrisma: db } = require("../src/prismaClient");
 const Q = require("../src/quantity");
+const { assertPin } = require("../src/pin-policy");
 async function createDemo(client, input) {
   const email = String(input.email || "")
       .trim()
@@ -19,6 +20,7 @@ async function createDemo(client, input) {
     throw Error(
       "Set DEMO_EMAIL, DEMO_PASSWORD (12-72 bytes) and DEMO_PIN (4-8 digits).",
     );
+  assertPin(pin);
   if (await client.company.findUnique({ where: { loginEmail: email } }))
     throw Error(
       "This email already exists. Demo creation never overwrites an existing workspace.",

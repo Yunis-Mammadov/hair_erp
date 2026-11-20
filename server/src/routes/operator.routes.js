@@ -54,24 +54,12 @@ router.use((req, res, next) => {
 
 router.get("/companies", async (_req, res, next) => {
   try {
-    const companies = await db.company.findMany({
-      select: {
-        id: true,
-        name: true,
-        loginEmail: true,
-        currency: true,
-        plan: true,
-        isActive: true,
-        endsAt: true,
-      },
-      orderBy: [
-        { createdAt: "desc" },
-        { id: "desc" },
-      ],
-      take: 50,
-    });
-
-    res.json({ companies, currencies });
+    const F=require('../financial-core'),R=require('../records-core'),M=require('../operator-management');
+    const page=R.page({..._req.query,limit:_req.query.limit||20});
+    const search=F.text(_req.query.search,150);
+    const where=search?{OR:[{name:{contains:search,mode:'insensitive'}},{loginEmail:{contains:search,mode:'insensitive'}}]}:{};
+    const [companies,total]=await db.$transaction([db.company.findMany({where,select:M.companySelect,orderBy:[{createdAt:'desc'},{id:'desc'}],skip:page.skip,take:page.take}),db.company.count({where})]);
+    res.json({companies:companies.map(M.publicRecord),currencies,pagination:R.pagination(page,total)});
   } catch (error) {
     next(error);
   }
@@ -127,6 +115,9 @@ router.post("/companies", async (req, res, next) => {
     next(error);
   }
 });
+
+require("../operator-pins")(router);
+require("../operator-management")(router);
 
 router.use((_req, res) => {
   res.status(404).json({

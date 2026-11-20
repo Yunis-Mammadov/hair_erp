@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { randomBytes } = require("node:crypto");
+const { isLegacyPin } = require("../pin-policy");
 const { platformPrisma } = require("../prismaClient");
 const { requireAuth, publicUser } = require("../middleware/auth.middleware");
 const {
@@ -116,6 +117,12 @@ router.post(
         return res
           .status(400)
           .json({ message: "PIN 4–8 rəqəmdən ibarət olmalıdır." });
+      if (isLegacyPin(pin)) {
+        return res.status(401).json({
+          code: "PIN_RESET_REQUIRED",
+          message: "Standart PIN bağlanıb. Operator panelindən yeni PIN təyin edilməlidir.",
+        });
+      }
       const company = req.loginCompany;
       const users = await platformPrisma.user.findMany({
         where: { companyId: company.id, isActive: true },

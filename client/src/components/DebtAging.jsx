@@ -94,7 +94,7 @@ export default function DebtAging({ onClose }) {
                         {r.customerName}
                       </Button>
                     </TableCell>
-                    <TableCell>{r.invoiceNumber || r.orderNumber}</TableCell>
+                    <TableCell>{r.type==='OPENING_BALANCE'?t('OPENING_BALANCE'):r.invoiceNumber || r.orderNumber}</TableCell>
                     <TableCell>{date(r.createdAt)}</TableCell>
                     <TableCell>{r.ageDays}</TableCell>
                     <TableCell>{money(r.remainingDebt)}</TableCell>

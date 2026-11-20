@@ -9,6 +9,7 @@ test('Group 6 native PostgreSQL backup and restore including receipt images',{sk
   await admin.query('CREATE DATABASE "'+source+'"');const sourceUrl=new URL(url);sourceUrl.pathname='/'+source;client=new Client({connectionString:sourceUrl.toString()});await client.connect();
   await client.query(await fs.readFile(path.join(__dirname,'fixtures/legacy-schema.sql'),'utf8'));
   for(const name of ['202611070001_company_basic_login','202611100001_group1_financials','202611100002_group3_records','202611100003_group4_global_setup','202611110001_group5_workflows','202611120001_group6_operations','202611130001_group7_extras'])await client.query(await fs.readFile(path.join(__dirname,'../prisma/migrations',name,'migration.sql'),'utf8'));
+  await require("./helpers/current-migrations.cjs")(client, "202611130001_group7_extras");
   await client.query(`UPDATE "Company" SET name='Restore Company',"passwordHash"='preserved-company-password',"logoUrl"='/uploads/legacy-logo.png',"isActive"=true WHERE id='legacy-company';
    INSERT INTO "User" (id,"companyId","fullName","pinHash",role,"updatedAt") VALUES ('backup-user','legacy-company','Preserved User','preserved-pin-hash','ADMIN',NOW());
    INSERT INTO "Category" (id,"companyId",name,"updatedAt") VALUES ('backup-category','legacy-company','Test',NOW());
@@ -18,7 +19,13 @@ test('Group 6 native PostgreSQL backup and restore including receipt images',{sk
    INSERT INTO "Order" (id,"companyId","orderNumber","customerId","createdById","paymentType","updatedAt","totalAmount","invoiceNumber",currency) VALUES ('backup-order','legacy-company',1,'backup-customer','backup-user','NAĞD',NOW(),20,'00001','USD');
    INSERT INTO "OrderItem" (id,"companyId","orderId","productId",quantity,"unitPrice") VALUES ('backup-item','legacy-company','backup-order','backup-product',2,10);
    INSERT INTO "Payment" (id,"companyId","customerId",amount,"imageUrl") VALUES ('backup-payment','legacy-company','backup-customer',5,'/uploads/legacy-company/receipt.png');
+   INSERT INTO "CustomerOpeningBalance" (id,"companyId","customerId",amount,"balanceDate",currency,source,"recordedById") VALUES ('backup-opening','legacy-company','backup-customer',125.50,'2026-01-01','AZN','backup.xlsx','backup-user');
+   INSERT INTO "Purchase" (id,"companyId","createdById",supplier,"purchaseDate","totalAmount",version) VALUES ('backup-purchase','legacy-company','backup-user','Backup supplier','2026-11-01',25.5,2);
+   INSERT INTO "PurchaseItem" (id,"companyId","purchaseId","productId",quantity,"unitCost","lineTotalAmount") VALUES ('backup-purchase-line','legacy-company','backup-purchase','backup-product',3,8.5,25.5);
+   INSERT INTO "AuditEvent" (id,"companyId","entityType","entityId","actorId","actorName",action,reason,"before","after") VALUES ('backup-audit','legacy-company','Purchase','backup-purchase','backup-user','Preserved User','PURCHASE_EDITED','Original correction','{"totalAmount":20}','{"totalAmount":25.5}');
    INSERT INTO "OperationRequest" (id,"companyId",scope,key,hash,response) VALUES ('backup-operation','legacy-company','payment','preserved-request','preserved-hash','{"ok":true}');`);
+  await client.query(`UPDATE "Company" SET "trialEmail"='restore-trial@example.com',"trialStartedAt"='2026-11-01',"trialEndsAt"='2026-11-08',"trialConvertedAt"='2026-11-07',"trialTermsVersion"='2026-11-20' WHERE id='legacy-company';
+   INSERT INTO "TrialInvitation" (id,email,"tokenHash","ipHash","expiresAt","usedAt","companyId","requestHash") VALUES ('restore-invite','restore-trial@example.com','restore-token-hash-only','restore-ip-hash-only','2026-11-01 01:00','2026-11-01','legacy-company','restore-request-hash-only');`);
   await t.test('operator PIN recovery uses explicit tenant/user IDs and prints no PIN',async()=>{
    const run=require('node:util').promisify(require('node:child_process').execFile);
    const result=await run(process.execPath,[path.join(__dirname,'../scripts/reset-pin.cjs')],{cwd:path.join(__dirname,'..'),env:{...process.env,DATABASE_URL:sourceUrl.toString(),RESET_COMPANY_ID:'legacy-company',RESET_USER_ID:'backup-user',RESET_PIN:'789321'}});
@@ -38,7 +45,7 @@ test('Group 6 native PostgreSQL backup and restore including receipt images',{sk
   await t.test('database and both tenant/legacy images are included and checksummed',async()=>{const result=await backup({url:sourceUrl,uploads,out:folder});assert.equal(Object.keys(result.files).length,3);assert.ok(result.files['database.dump']);assert.ok(result.files['uploads/legacy-company/receipt.png']);await verify(folder);});
   await t.test('real pg_restore preserves IDs, PIN hashes, money, stock, retry history and image bytes',async()=>{
    await restore({url:sourceUrl,folder,targetDatabase:target,targetUploads:restoredUploads});const restoredUrl=new URL(url);restoredUrl.pathname='/'+target;const check=new Client({connectionString:restoredUrl.toString()});await check.connect();
-   try{for(const table of ['Company','User','Product','Stock','Customer','Order','OrderItem','Payment','OperationRequest']){const sql='SELECT row_to_json(t) AS data FROM "'+table+'" t ORDER BY row_to_json(t)::text';assert.deepEqual((await check.query(sql)).rows,(await client.query(sql)).rows,table);}}
+   try{for(const table of ['Company','User','Product','Stock','Customer','CustomerOpeningBalance','Order','OrderItem','Payment','OperationRequest','Purchase','PurchaseItem','AuditEvent','TrialInvitation']){const sql='SELECT row_to_json(t) AS data FROM "'+table+'" t ORDER BY row_to_json(t)::text';assert.deepEqual((await check.query(sql)).rows,(await client.query(sql)).rows,table);}}
    finally{await check.end();}assert.deepEqual(await fs.readFile(path.join(restoredUploads,'legacy-company/receipt.png')),png);assert.deepEqual(await fs.readFile(path.join(restoredUploads,'legacy-logo.png')),png);
   });
   await t.test('restore refuses a source or existing database and existing uploads directory',async()=>{

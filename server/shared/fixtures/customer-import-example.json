@@ -1,0 +1,28 @@
+[
+  {
+    "externalId": "0001",
+    "name": "Demo debtor",
+    "phone": "+12125550123",
+    "salon": "Demo Store",
+    "address": "Demo address",
+    "lat": "",
+    "lng": "",
+    "openingDebt": 125.5,
+    "openingCredit": 0,
+    "balanceDate": "2026-01-01",
+    "currency": "USD"
+  },
+  {
+    "externalId": "0002",
+    "name": "Demo credit",
+    "phone": "+442079460123",
+    "salon": "Demo Salon",
+    "address": "Demo address",
+    "lat": "",
+    "lng": "",
+    "openingDebt": 0,
+    "openingCredit": 40,
+    "balanceDate": "2026-01-01",
+    "currency": "USD"
+  }
+]

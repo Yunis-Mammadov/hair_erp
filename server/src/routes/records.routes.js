@@ -9,16 +9,6 @@ const F = require("../financial-core"),
 const router = express.Router();
 router.use(requireAuth, requireRole("ADMIN"));
 const str = (value, max = 150) => F.text(value, max);
-function number(value, min, max) {
-  return F.integer(value === "" || value === undefined ? 0 : value, min, max);
-}
-function coordinate(value, max) {
-  if (value == null || value === "") return null;
-  const n = Number(value);
-  if (!Number.isFinite(n) || Math.abs(n) > max)
-    throw F.fail(400, "Koordinat yanlışdır.");
-  return n;
-}
 function rows(body) {
   if (
     !Array.isArray(body?.rows) ||
@@ -30,10 +20,9 @@ function rows(body) {
     throw F.fail(400, "CSV sətrləri yanlışdır.");
   return body.rows;
 }
-router.post(
-  "/imports/products",
-  R.route(async (req, res) => {
-    const input = rows(req.body).map((row, index) => {
+function readProducts(req) {
+return rows(req.body).map((row, index) => {
+      if(Object.keys(row).some(k=>!["name","category","sku","barcode","salePrice","quantity","unit","currency"].includes(k)))throw F.fail(400,`Row ${index+2}: unknown product column.`);
       if (row.currency && row.currency !== req.company.currency) throw F.fail(409, "CSV currency does not match the company currency.", "CURRENCY_MISMATCH");
       const name = str(row.name),
         category = str(row.category);
@@ -54,8 +43,8 @@ router.post(
         quantity: Q.quantity(row.quantity === "" || row.quantity === undefined ? 0 : row.quantity,row.unit||"PIECE",0,1000000000),
       };
     });
-    res.status(201).json(
-      await F.mutate(req, "import-products", input, async (tx) => {
+}
+async function importProducts(tx,req,input) {
         for (let i = 0; i < input.length; i++) {
           const row = input[i];
           let category = await tx.category.findFirst({
@@ -96,52 +85,30 @@ router.post(
           });
         }
         return { imported: input.length };
-      }),
-    );
-  }),
-);
-router.post(
-  "/imports/customers",
-  R.route(async (req, res) => {
-    const input = rows(req.body).map((row, index) => {
-      const name = str(row.name);
-      if (!name || name.length < 2)
-        throw F.fail(400, `Sətir ${index + 2}: müştəri adı lazımdır.`);
-      const lat = coordinate(row.lat, 90),
-        lng = coordinate(row.lng, 180);
-      if ((lat === null) !== (lng === null))
-        throw F.fail(400, "Hər iki koordinatı yaz.");
-      return {
-        name,
-        phone: str(row.phone, 80)?.replace(/^'(?=[+\d])/, "") || null,
-        salon: str(row.salon),
-        address: str(row.address, 500),
-        lat,
-        lng,
-      };
-    });
-    res.status(201).json(
-      await F.mutate(req, "import-customers", input, async (tx) => {
-        for (let i = 0; i < input.length; i++) {
-          const row = input[i];
-          if (
-            await tx.customer.findFirst({
-              where: row.phone
-                ? { phone: row.phone }
-                : { name: row.name, salon: row.salon },
-            })
-          )
-            throw F.fail(
-              409,
-              `Sətir ${i + 2}: müştəri artıq var. Heç bir sətir əlavə edilmədi.`,
-            );
-          await tx.customer.create({ data: row });
-        }
-        return { imported: input.length };
-      }),
-    );
-  }),
-);
+}
+router.post('/imports/products/preview', R.route(async(req,res)=>{
+ const input=readProducts(req);
+ // Exercise the exact write path, then deliberately roll it back.
+ class Preview extends Error {constructor(result){super('preview');this.result=result;}}
+ try{await F.transaction(async tx=>{throw new Preview(await importProducts(tx,req,input));});}
+ catch(error){if(error instanceof Preview){res.json(error.result);return;}throw error;}
+}));
+router.post('/imports/products', R.route(async(req,res)=>{
+ const input=readProducts(req);
+ const result=await F.mutate(req,'import-products',input,tx=>importProducts(tx,req,input));
+ res.status(result.replayed?200:201).json(result);
+}));
+const customerImport=require('../customer-import');
+router.post('/imports/customers/preview', R.route(async(req,res)=>{
+ const input=customerImport.input(req);
+ const preview=await prisma.$transaction(tx=>customerImport.plan(tx,req,input),{isolationLevel:'RepeatableRead',timeout:20000});
+ res.json(preview);
+}));
+router.post('/imports/customers', R.route(async(req,res)=>{
+ const input=customerImport.input(req);
+ const result=await F.mutate(req,'import-customers',input,tx=>customerImport.plan(tx,req,input,true));
+ res.status(result.replayed?200:201).json(result);
+}));
 // Prefix formula-like strings before CSV quoting; Excel must never execute user data.
 function cell(value) {
   let text = value == null ? "" : String(value);
@@ -182,8 +149,9 @@ router.get(
       },
       customers: {
         model: "customer",
-        headers: ["name", "phone", "salon", "address", "lat", "lng"],
-        map: (r) => [r.name, r.phone, r.salon, r.address, r.lat, r.lng],
+        include: {openingBalance:true},
+        headers: ["externalId", "name", "phone", "salon", "address", "lat", "lng", "openingDebt", "openingCredit", "balanceDate", "currency"],
+        map: (r) => [r.externalId,r.name,r.phone,r.salon,r.address,r.lat,r.lng,Math.max(Number(r.openingBalance?.amount||0),0),Math.max(-Number(r.openingBalance?.amount||0),0),r.openingBalance?W.localDay(r.openingBalance.balanceDate,req.company.timezone):'',req.company.currency],
       },
       sales: {
         model: "order",

@@ -1,0 +1,78 @@
+{
+  "release": "2026-11-20-seven-day-trial",
+  "baseRepository": "https://github.com/Yunis-Mammadov/hair_erp",
+  "baseCommit": "fdeb68cef1f5d2999c43cb8cc5eed82633343bb2",
+  "completeSource": true,
+  "requires": {
+    "node": "24",
+    "postgresql": "18",
+    "prisma": "6.19.3"
+  },
+  "newMigrations": [
+    "202611150001_revoke_standard_pin_sessions",
+    "202611150002_customer_opening_balance",
+    "202611150003_launch_operations",
+    "202611200001_seven_day_trial"
+  ],
+  "customerImport": {
+    "formats": [
+      "xlsx",
+      "csv"
+    ],
+    "maxRows": 200,
+    "maxBytes": 1000000,
+    "modes": [
+      "create",
+      "merge"
+    ],
+    "openingBalances": "immutable, signed customer ledger; company currency only"
+  },
+  "startHere": "BASLA_BURADAN.md",
+  "testReport": "TEST_NETICELERI.md",
+  "pricing": {
+    "GLOBAL_BASIC": {
+      "currency": "USD",
+      "monthlyMinor": 1999,
+      "yearlyMinor": 19999
+    },
+    "AZ": "unchanged"
+  },
+  "support": {
+    "email": "zindex.software@gmail.com",
+    "mode": "reviewed Gmail/mailto draft, sent by user"
+  },
+  "billingProvider": "manual",
+  "checks": {
+    "backend": 220,
+    "frontend": 70,
+    "nativePostgresAndProduction": 35,
+    "failures": 0,
+    "lint": "passed",
+    "build": "passed",
+    "dependencyVulnerabilities": 0
+  },
+  "requiresExternalAcceptance": [
+    "real SMTP delivery and sender verification",
+    "actual Docker image in CI/hosting",
+    "public DNS/HTTPS",
+    "real-browser mobile/print acceptance",
+    "Paddle account, sandbox checkout and live approval"
+  ],
+  "trial": {
+    "days": 7,
+    "hours": 168,
+    "cardRequired": false,
+    "verification": "real email, one-hour link; development-only console preview",
+    "emailClaim": "one trial per normalized verified email",
+    "starts": "successful activation",
+    "expiry": "server-enforced; data retained",
+    "languages": [
+      "en",
+      "az",
+      "tr",
+      "ru"
+    ],
+    "provider": "manual until Paddle configured and verified",
+    "smtpDelivery": "not connected or sent in authoring environment"
+  }
+}

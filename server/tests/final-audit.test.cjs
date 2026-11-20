@@ -40,6 +40,7 @@ test("Final audit: authorization, ledger invariants, currency and validation", a
           "utf8",
         ),
       );
+    await require("./helpers/current-migrations.cjs")(db, "202611130001_group7_extras");
     wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
     await wire.start();
     process.env.DATABASE_URL =
@@ -249,7 +250,7 @@ test("Final audit: authorization, ledger invariants, currency and validation", a
       const f=await fixture();await raw.company.update({where:{id:f.company.id},data:{currencyConfigured:false}});
       const key=randomUUID();
       const declined=await api('/orders','POST',f.sale(),f.token,{'Idempotency-Key':key});assert.equal(declined.status,409);assert.equal(declined.body.code,'CURRENCY_NOT_CONFIGURED');
-      assert.equal((await api('/purchases','POST',{items:[{productId:f.product.id,quantity:1,unitCost:2,salePrice:10}]},f.token)).status,409);
+      assert.equal((await api('/purchases','POST',{ supplier: "Fixture Supplier", purchaseDate: "2026-11-01", items:[{productId:f.product.id,quantity:1,unitCost:2,salePrice:10}]},f.token)).status,409);
       assert.equal(await stock(f),10);assert.equal(await raw.order.count({where:{companyId:f.company.id}}),0);assert.equal(await raw.operationRequest.count({where:{companyId:f.company.id}}),0);
       ok(await api('/workspace/settings','PATCH',{currency:'USD'},f.token));
       const order=ok(await api('/orders','POST',f.sale(),f.token,{'Idempotency-Key':key}),201).order;assert.equal(order.currency,'USD');

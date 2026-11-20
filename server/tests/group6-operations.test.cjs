@@ -40,6 +40,7 @@ test("Group 6: operations, team and subscription provisioning", async (t) => {
           "utf8",
         ),
       );
+    await require("./helpers/current-migrations.cjs")(db, "202611130001_group7_extras");
     wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
     await wire.start();
     process.env.DATABASE_URL =
@@ -228,7 +229,7 @@ test("Group 6: operations, team and subscription provisioning", async (t) => {
       const f=await billingFixture();process.env.PADDLE_ENVIRONMENT='sandbox';process.env.PADDLE_API_KEY='test';process.env.PADDLE_CHECKOUT_URL='https://example.com/checkout';
       const original=global.fetch;let created=0,transaction;
       global.fetch=async(url,options)=>{if(!String(url).startsWith('https://sandbox-api.paddle.com'))return original(url,options);let data;
-        if(String(url).includes('/prices/'))data={status:'active',unit_price:{currency_code:'USD',amount:'1499'},billing_cycle:{interval:'month',frequency:1},trial_period:null};
+        if(String(url).includes('/prices/'))data={status:'active',unit_price:{currency_code:'USD',amount:'1999'},billing_cycle:{interval:'month',frequency:1},trial_period:null};
         else if(options.method==='POST'){created++;transaction={id:'txn_one'+randomUUID(),status:'ready',checkout:{url:'https://checkout.paddle.com/test'}};data=transaction;}
         else data=transaction;return new Response(JSON.stringify({data}),{status:200,headers:{'Content-Type':'application/json'}});};
       try{const body={cycle:'MONTHLY',email:'buyer@example.com'};const results=await Promise.all([api('/billing/checkout','POST',body,f.token),api('/billing/checkout','POST',body,f.token)]);assert.ok(results.some(r=>r.status===200));assert.equal(created,1);assert.ok(results.every(r=>[200,409].includes(r.status)));assert.equal(ok(await api('/billing/checkout','POST',body,f.token)).url,'https://checkout.paddle.com/test');assert.equal(created,1);}finally{global.fetch=original;delete process.env.BILLING_PROVIDER;}

@@ -116,14 +116,17 @@ function create(locale, render) {
     }
   });
 }
-function invoice(order, locale = "en") {
+function invoice(order, locale = "en", options = {}) {
   return create(locale, ({ doc, t, money, date, text, table, ensure }) => {
     const company = order.companySnapshot || {},
       customer = order.customerSnapshot || order.customer || {},
       currency = order.currency || company.currency || "USD";
-    text(company.name || "z-Index", { bold: true, size: 20 });
+    const headerWidth=doc.page.width-(options.logo?184:84);
+    if(options.logo){const y=doc.y;doc.image(options.logo,doc.page.width-114,42,{fit:[72,58]});doc.y=y;}
+    text(company.name || "z-Index", { bold: true, size: 20, width:headerWidth });
     for (const line of [company.address, company.phone, company.taxId])
-      if (line) text(line);
+      if (line) text(line,{width:headerWidth});
+    if(options.logo)doc.y=Math.max(doc.y,110);
     doc.moveDown();
     text(
       t("Sales invoice") +

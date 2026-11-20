@@ -6,6 +6,7 @@ const { Prisma } = require("@prisma/client");
 const { platformPrisma: db } = require("../src/prismaClient");
 const { PRICES } = require("../src/config/plans");
 const { currencies, validTimezone } = require("../src/workspace-core");
+const { assertPin } = require("../src/pin-policy");
 
 function parseInput(input) {
   const code = String(input.code || "").trim().toLowerCase();
@@ -61,7 +62,14 @@ function parseInput(input) {
     throw Error("Saat qurşağı yanlışdır.");
   }
 
+  const pins = Object.fromEntries(
+    ["ADMIN", "WAREHOUSE", "EXPEDITOR"].map(role => [role, assertPin(input.pins?.[role])]),
+  );
+  if (new Set(Object.values(pins)).size !== 3) {
+    throw Error("Üç hesabın PIN-ləri bir-birindən fərqli olmalıdır.");
+  }
   return {
+    pins,
     code,
     name,
     password,
@@ -82,17 +90,17 @@ async function createCompany(input) {
     {
       fullName: "Admin",
       role: "ADMIN",
-      pin: "2580",
+      pin: data.pins.ADMIN,
     },
     {
       fullName: "Warehouse",
       role: "WAREHOUSE",
-      pin: "2557",
+      pin: data.pins.WAREHOUSE,
     },
     {
       fullName: "Sales representative",
       role: "EXPEDITOR",
-      pin: "2534",
+      pin: data.pins.EXPEDITOR,
     },
   ];
 
@@ -202,11 +210,7 @@ if (require.main === module) {
 
     console.table([company]);
 
-    console.table([
-      { role: "ADMIN", pin: "2580" },
-      { role: "WAREHOUSE", pin: "2557" },
-      { role: "EXPEDITOR", pin: "2534" },
-    ]);
+    console.log("PIN-lər sorğuda təyin edildi; ekrana yazılmır.");
   })()
     .catch((error) => {
       console.error(

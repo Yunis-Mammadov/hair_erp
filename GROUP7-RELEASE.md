@@ -1,3 +1,5 @@
+> Əvvəlki funksiyaların tarixi təsviri. Cari quraşdırma üçün [BASLA_BURADAN.md](BASLA_BURADAN.md), cari nəticələr üçün [TEST_NETICELERI.md](TEST_NETICELERI.md) istifadə et.
+
 # Starter: son audit düzəlişləri + 7-ci qrup
 
 Bu, mövcud `miniERP` layihəsinə tətbiq edilən **vahid yeniləmə paketidir**. Son auditin F01–F13 düzəlişləri də daxildir; əvvəlki audit ZIP-ini ayrıca tətbiq etmək lazım deyil. Paket `0584942` GitHub versiyası üzərində hazırlanıb, node_modules və real məlumatları daşımır.

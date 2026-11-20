@@ -41,7 +41,7 @@ const expected = {
   A27: (o) => o.statusCode === 400 && !o.productExists,
   A28: (o) => o.statusCode === 400,
   A29: (o) => o.statusCode === 400,
-  A30: (o) => o.configuredMonthly === 14.99 && o.configuredYearly === 149.99,
+  A30: (o) => o.configuredMonthly === 19.99 && o.configuredYearly === 199.99,
   A31: (o) => o.companyBFirstInvoice === 1,
   A32: (o) => o.statusCode === 400 && o.finalStock === 10,
   A33: (o) =>
@@ -99,6 +99,7 @@ test("Group 1 financial regressions", async (t) => {
   await db.exec(fs.readFileSync(path.resolve(__dirname, "../prisma/migrations/202611110001_group5_workflows/migration.sql"), "utf8"));
   await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611120001_group6_operations/migration.sql"),"utf8"));
   await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611130001_group7_extras/migration.sql"),"utf8"));
+  await require("./helpers/current-migrations.cjs")(db, "202611130001_group7_extras");
   const wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
   await wire.start();
   process.env.DATABASE_URL =
@@ -246,8 +247,7 @@ test("Group 1 financial regressions", async (t) => {
       const r = await api(
         "/purchases",
         "POST",
-        {
-          items: [
+        { supplier: "Fixture Supplier", purchaseDate: "2026-11-01", items: [
             {
               productId: f.product.id,
               quantity: 5,
@@ -354,8 +354,7 @@ test("Group 1 financial regressions", async (t) => {
         const r = await api(
           "/purchases",
           "POST",
-          {
-            items: [
+          { supplier: "Fixture Supplier", purchaseDate: "2026-11-01", items: [
               {
                 productId: f.product.id,
                 quantity: 1.9,

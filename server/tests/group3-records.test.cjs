@@ -40,6 +40,7 @@ test("Group 3: invoices, inventory, pagination and CSV", async (t) => {
           "utf8",
         ),
       );
+    await require("./helpers/current-migrations.cjs")(db, "202611130001_group7_extras");
     wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
     await wire.start();
     process.env.DATABASE_URL =
@@ -601,7 +602,7 @@ test("Group 3: invoices, inventory, pagination and CSV", async (t) => {
           await api("/records/imports/products", "POST", { rows }, f.token, {
             "Idempotency-Key": key,
           }),
-          201,
+          200,
         );
         assert.equal(replay.replayed, true);
         assert.equal(

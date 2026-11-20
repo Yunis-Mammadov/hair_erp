@@ -2,11 +2,11 @@ const {Router,raw}=require('express');
 const bcrypt=require('bcrypt');
 const {platformPrisma:db}=require('../prismaClient');
 const {signToken,verifyToken,bearerToken,attemptLimiter}=require('../auth-security');
-const {publicCompany,subscriptionIsActive}=require('../config/plans');
+const {publicCompany,subscriptionIsActive,isTrial,PRICES}=require('../config/plans');
 const {verifySignature,createPaddle,fail}=require('../ops/billing');
 const router=Router();
 const route=fn=>async(req,res,next)=>{try{await fn(req,res);}catch(e){next(e);}};
-const publicService=()=>({operator:process.env.SERVICE_OPERATOR_NAME||null,supportEmail:process.env.SUPPORT_EMAIL||null,privacyEmail:process.env.PRIVACY_EMAIL||process.env.SUPPORT_EMAIL||null,dataRegion:process.env.DATA_REGION||null,retentionDays:Number(process.env.DATA_RETENTION_DAYS)||null,billingProvider:process.env.BILLING_PROVIDER==='paddle'?'paddle':'manual',checkout:process.env.BILLING_PROVIDER==='paddle'&&/^(test_|live_)/.test(process.env.PADDLE_CLIENT_TOKEN||'')?{clientToken:process.env.PADDLE_CLIENT_TOKEN,environment:process.env.PADDLE_ENVIRONMENT}:null});
+const publicService=()=>({operator:process.env.SERVICE_OPERATOR_NAME||'z-Index',supportEmail:process.env.SUPPORT_EMAIL||'zindex.software@gmail.com',privacyEmail:process.env.PRIVACY_EMAIL||process.env.SUPPORT_EMAIL||'zindex.software@gmail.com',dataRegion:process.env.DATA_REGION||null,retentionDays:Number(process.env.DATA_RETENTION_DAYS)||null,billingProvider:process.env.BILLING_PROVIDER==='paddle'?'paddle':'manual',checkout:process.env.BILLING_PROVIDER==='paddle'&&/^(test_|live_)/.test(process.env.PADDLE_CLIENT_TOKEN||'')?{clientToken:process.env.PADDLE_CLIENT_TOKEN,environment:process.env.PADDLE_ENVIRONMENT}:null});
 router.get(['/public/service','/api/public/service'],(_req,res)=>res.json(publicService()));
 router.post('/webhooks/paddle',raw({type:'application/json',limit:'256kb'}),route(async(req,res)=>{
  if(process.env.BILLING_PROVIDER!=='paddle')throw fail(503,'Billing is not configured.','BILLING_DISABLED');
@@ -25,7 +25,7 @@ async function renewalCredentials(req,res,next){
   const company=await db.company.findUnique({where:{loginEmail:email.trim().toLowerCase()}});
   // The normal login and renewal paths use the same bcrypt work factor.
   const dummy=await renewalDummy;
-  if(!await bcrypt.compare(password,company?.passwordHash||dummy)||!company?.isActive)throw fail(401,'Company credentials or admin PIN are incorrect.');
+  if(!await bcrypt.compare(password,company?.passwordHash||dummy)||!company?.isActive||company.operatorSuspended)throw fail(401,'Company credentials or admin PIN are incorrect.');
   req.renewalCompany=company;
   next();
  }catch(e){next(e);}
@@ -43,14 +43,14 @@ async function billingAuth(req,res,next){
  try{
   let token;try{token=verifyToken(bearerToken(req),'session');}catch{token=verifyToken(bearerToken(req),'renewal');}
   const user=await db.user.findFirst({where:{id:token.userId,companyId:token.companyId,isActive:true},include:{company:true}});
-  if(!user||user.role!=='ADMIN'||!user.company.isActive||user.authVersion!==token.userVersion||user.company.authVersion!==token.companyVersion)throw Error('AUTH');
+  if(!user||user.role!=='ADMIN'||!user.company.isActive||user.company.operatorSuspended||user.authVersion!==token.userVersion||user.company.authVersion!==token.companyVersion)throw Error('AUTH');
   req.billingCompany=user.company;next();
  }catch(e){if(e.name?.startsWith('Prisma'))return next(e);res.status(401).json({message:'Administrator sign-in is required.'});}
 }
 router.use('/api/billing',billingAuth,(_req,res,next)=>{res.set('Cache-Control','no-store');next();});
 router.get('/api/billing',route(async(req,res)=>{
  const company=req.billingCompany,account=await db.billingAccount.findUnique({where:{companyId:company.id}});
- res.json({company:publicCompany(company),active:subscriptionIsActive(company),status:account?.status||'manual',cancelAt:account?.cancelAt,enabled:!company.isDemo&&process.env.BILLING_PROVIDER==='paddle'&&company.market==='GLOBAL'&&company.plan==='BASIC',hasSubscription:!!account?.subscriptionId,support:publicService()});
+ res.json({company:publicCompany(company),active:subscriptionIsActive(company),status:account?.status||'manual',cancelAt:account?.cancelAt,enabled:!company.isDemo&&process.env.BILLING_PROVIDER==='paddle'&&company.market==='GLOBAL'&&company.plan==='BASIC',hasSubscription:!!account?.subscriptionId,offers:PRICES[company.market]?.[company.plan],billingEmail:account?.billingEmail||company.trialEmail||'',support:publicService()});
 }));
 router.post('/api/billing/checkout',require('express').json({limit:'4kb'}),route(async(req,res)=>{
  const company=req.billingCompany,{cycle,email}=req.body||{};
@@ -60,7 +60,7 @@ router.post('/api/billing/checkout',require('express').json({limit:'4kb'}),route
  if(!['MONTHLY','YEARLY'].includes(cycle)||typeof email!=='string'||email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||/\.invalid$/i.test(email))throw fail(400,'Choose a billing cycle and a real billing email.');
  const old=await db.billingAccount.findUnique({where:{companyId:company.id}});
  if(old?.subscriptionId&&!['canceled'].includes(old.status))throw fail(409,'Manage the existing subscription instead.');
- if(!old?.subscriptionId&&subscriptionIsActive(company))throw fail(409,'Your prepaid plan is still active. Contact support for early renewal.');
+ if(!old?.subscriptionId&&subscriptionIsActive(company)&&!isTrial(company))throw fail(409,'Your prepaid plan is still active. Contact support for early renewal.');
  const pending=await db.billingCheckout.findUnique({where:{activeKey:company.id}});
  const paddle=createPaddle();
  if(pending){
@@ -72,7 +72,7 @@ router.post('/api/billing/checkout',require('express').json({limit:'4kb'}),route
  }
  const priceId=process.env[cycle==='MONTHLY'?'PADDLE_MONTHLY_PRICE_ID':'PADDLE_YEARLY_PRICE_ID'];
  const price=await paddle('GET','/prices/'+priceId);
- if(price.status!=='active'||price.unit_price?.currency_code!=='USD'||price.unit_price?.amount!==(cycle==='MONTHLY'?'1499':'14999')||price.billing_cycle?.frequency!==1||price.billing_cycle?.interval!==(cycle==='MONTHLY'?'month':'year')||price.trial_period)throw fail(503,'Billing price configuration must be reviewed.','PRICE_CONFIGURATION');
+ if(price.status!=='active'||price.unit_price?.currency_code!=='USD'||price.unit_price?.amount!==String(PRICES.GLOBAL.BASIC[cycle])||price.billing_cycle?.frequency!==1||price.billing_cycle?.interval!==(cycle==='MONTHLY'?'month':'year')||price.trial_period)throw fail(503,'Billing price configuration must be reviewed.','PRICE_CONFIGURATION');
  const attempt=await db.$transaction(async tx=>{
   const current=await tx.billingAccount.findUnique({where:{companyId:company.id}});
   if(current?.subscriptionId&&!['canceled'].includes(current.status))throw fail(409,'Manage the existing subscription instead.');

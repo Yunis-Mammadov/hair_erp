@@ -1,4 +1,7 @@
+import OperatorCompanyAction from "../components/OperatorCompanyAction";
+import { RecordPager } from "../components/RecordsTools";
 import { useState } from "react";
+import OperatorPinReset from "../components/OperatorPinReset";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -21,6 +24,7 @@ const operatorApi = axios.create({
 });
 
 const emptyForm = {
+  pins: { ADMIN: "", WAREHOUSE: "", EXPEDITOR: "" },
   code: "",
   name: "",
   password: "",
@@ -31,6 +35,8 @@ const emptyForm = {
 };
 
 export default function OperatorCompaniesPage() {
+  const [action,setAction]=useState(null),[search,setSearch]=useState(""),[currentPage,setCurrentPage]=useState(1),[pagination,setPagination]=useState(null);
+  const [resetCompany, setResetCompany] = useState(null);
   const [secret, setSecret] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -66,7 +72,7 @@ export default function OperatorCompaniesPage() {
     }
   }
 
-  async function load(event) {
+  async function load(event, page = currentPage) {
     event?.preventDefault();
 
     if (busy) return;
@@ -77,10 +83,11 @@ export default function OperatorCompaniesPage() {
     try {
       const { data } = await operatorApi.get(
         "/operator/companies",
-        { headers },
+        { headers, params: {page,limit:20,search} },
       );
 
       setCompanies(data.companies);
+      setCurrentPage(page);setPagination(data.pagination);
       setCurrencies(data.currencies);
       setUnlocked(true);
     } catch (err) {
@@ -106,9 +113,7 @@ export default function OperatorCompaniesPage() {
         { headers },
       );
 
-      setCompanies((old) =>
-        [data.company, ...old].slice(0, 50),
-      );
+      const fresh=await operatorApi.get("/operator/companies",{headers,params:{page:1,limit:20,search}});setCompanies(fresh.data.companies);setCurrentPage(1);setPagination(fresh.data.pagination);
 
       setSuccess(
         `${data.company.loginEmail} yaradıldı. Üç hesab hazırdır.`,
@@ -119,6 +124,7 @@ export default function OperatorCompaniesPage() {
         code: "",
         name: "",
         password: "",
+        pins: { ADMIN: "", WAREHOUSE: "", EXPEDITOR: "" },
       }));
     } catch (err) {
       report(err);
@@ -128,6 +134,7 @@ export default function OperatorCompaniesPage() {
   }
 
   function logout() {
+    setAction(null);setResetCompany(null);
     setSecret("");
     setUnlocked(false);
     setCompanies([]);
@@ -336,10 +343,13 @@ export default function OperatorCompaniesPage() {
                 disabled={busy}
               />
 
-              <Alert severity="info">
-                Admin: 2580 · Anbar: 2557 · Satış: 2534.
-                Bunlar başlanğıc PIN-ləridir.
-              </Alert>
+              {[["ADMIN", "Admin PIN"], ["WAREHOUSE", "Anbar PIN"], ["EXPEDITOR", "Satış PIN"]].map(([role, label]) => (
+                <TextField key={role} label={label} type="password" value={form.pins[role]}
+                  onChange={e => setForm(old => ({ ...old, pins: { ...old.pins, [role]: e.target.value.replace(/\D/g, "").slice(0, 8) } }))}
+                  required disabled={busy} autoComplete="new-password"
+                  inputProps={{ inputMode: "numeric", pattern: "[0-9]{4,8}", minLength: 4, maxLength: 8 }} />
+              ))}
+              <Alert severity="info">Üç ayrı PIN təyin et. 2580, 2557 və 2534 qəbul edilmir.</Alert>
 
               <Button
                 type="submit"
@@ -353,9 +363,8 @@ export default function OperatorCompaniesPage() {
             </Stack>
           </Paper>
 
-          <Typography variant="h6">
-            Son 50 şirkət
-          </Typography>
+          <Typography variant="h6">Şirkətlər</Typography>
+          <Stack component="form" direction="row" spacing={1} onSubmit={e=>load(e,1)}><TextField label="Şirkət və ya e-poçt axtar" value={search} onChange={e=>setSearch(e.target.value)} fullWidth disabled={busy}/><Button type="submit" disabled={busy}>Axtar</Button></Stack>
 
           {companies.map((company) => (
             <Paper
@@ -368,6 +377,12 @@ export default function OperatorCompaniesPage() {
               <Typography fontWeight={600}>
                 {company.name}
               </Typography>
+              <Stack direction="row" flexWrap="wrap" gap={1} sx={{my:1}}><Button disabled={busy} onClick={() => setResetCompany(company)}>PIN yenilə</Button>
+              <Button disabled={busy} onClick={()=>setAction({company,kind:'password'})}>Şifrəni yenilə</Button>
+              <Button disabled={busy} onClick={()=>setAction({company,kind:'subscription'})}>Abunəni uzat</Button>
+              <Button disabled={busy} color={company.isActive&&!company.operatorSuspended?'error':'success'} onClick={()=>setAction({company,kind:'status'})}>{company.isActive&&!company.operatorSuspended?'Deaktiv et':'Aktiv et'}</Button>
+              <Button disabled={busy} onClick={()=>setAction({company,kind:'audit'})}>Tarixçə</Button></Stack>
+              <Typography variant="caption" color={company.isActive&&!company.operatorSuspended?'success.main':'error.main'}>{company.isActive&&!company.operatorSuspended?'Aktiv':'Deaktiv'}</Typography>
 
               <Typography>
                 {company.loginEmail}
@@ -389,6 +404,9 @@ export default function OperatorCompaniesPage() {
           ))}
         </Stack>
       )}
+      {unlocked&&<RecordPager pagination={pagination} onChange={p=>load(null,p)} disabled={busy}/>}
+      {action&&<OperatorCompanyAction {...action} secret={secret} onClose={()=>setAction(null)} onSaved={()=>load(null,currentPage)}/>}
+      {resetCompany && <OperatorPinReset company={resetCompany} secret={secret} onClose={() => setResetCompany(null)} />}
     </Box>
   );
 }

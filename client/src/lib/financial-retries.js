@@ -3,7 +3,7 @@
 const pending = new Map();
 const prefix = "z-index-pending-financial:";
 const writes =
-  /^\/(?:orders|exp\/orders|payments(?:\/refunds|\/[^/]+\/void)?|returns|exp\/returns|purchases)\/?$/;
+  /^\/(?:orders|exp\/orders|payments(?:\/refunds|\/[^/]+\/void)?|returns|exp\/returns|purchases(?:\/[^/]+\/void)?)\/?$/;
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
   if (value && typeof value === "object")
@@ -22,7 +22,7 @@ export async function prepareFinancialRequest(config, token) {
   const method = (config.method || "get").toLowerCase();
   const recordPatch =
     method === "patch" &&
-    /^\/(?:stock\/[^/]+|catalog\/admin\/products\/[^/]+)$/.test(pathname);
+    /^\/(?:purchases\/[^/]+|customers\/[^/]+\/contact|stock\/[^/]+|catalog\/admin\/products\/[^/]+)$/.test(pathname);
   if (
     !recordPatch &&
     ((config.method || "get").toLowerCase() !== "post" ||

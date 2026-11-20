@@ -1,155 +1,26 @@
-const {log}=require("../ops/runtime");
-const express = require("express");
-const { prisma } = require("../prismaClient");
-const { requireAuth, requireRole } = require("../middleware/auth.middleware");
-
-const router = express.Router();
-
-const W = require("../workspace-core");
-function monthRange(zone, offset = 0) {
-  const day = W.localDay(new Date(), zone), d = W.calendar(day);
-  const y=d.getUTCFullYear(), m=d.getUTCMonth();
-  const start=new Date(Date.UTC(y,m+offset,1)).toISOString().slice(0,10);
-  const end=new Date(Date.UTC(y,m+offset+1,1)).toISOString().slice(0,10);
-  return {start: W.zonedDay(start,zone), end: W.zonedDay(end,zone)};
+const express=require('express'),F=require('../financial-core'),Q=require('../quantity'),W=require('../workspace-core'),R=require('../records-core');
+const {prisma}=require('../prismaClient'),{requireAuth,requireRole}=require('../middleware/auth.middleware');
+const router=express.Router();
+function monthRange(zone,offset=0){const d=W.calendar(W.localDay(new Date(),zone)),y=d.getUTCFullYear(),m=d.getUTCMonth();return {gte:W.zonedDay(new Date(Date.UTC(y,m+offset,1)).toISOString().slice(0,10),zone),lt:W.zonedDay(new Date(Date.UTC(y,m+offset+1,1)).toISOString().slice(0,10),zone)};}
+const change=(a,b)=>b===0?(a>0?100:a<0?-100:0):Math.round((a-b)/Math.abs(b)*1000)/10;
+async function period(tx,createdAt){
+ const [sales,returns,items,returned]=await Promise.all([
+  tx.order.aggregate({where:{createdAt},_sum:{totalAmount:true},_count:true}),
+  tx.return.aggregate({where:{createdAt},_sum:{totalAmount:true}}),
+  tx.orderItem.aggregate({where:{order:{createdAt},isGift:false},_sum:{quantity:true}}),
+  tx.returnItem.aggregate({where:{returnDoc:{createdAt}},_sum:{quantity:true}})
+ ]);
+ const gross=F.minor(sales._sum.totalAmount),returnedMoney=F.minor(returns._sum.totalAmount);
+ return {gross,returns:returnedMoney,net:gross-returnedMoney,count:sales._count,items:Q.sub(items._sum.quantity||0,returned._sum.quantity||0)};
 }
-
-function calcPercentChange(current, previous) {
-  if (!previous || previous === 0) {
-    return current > 0 ? 100 : 0;
-  }
-
-  return Number((((current - previous) / previous) * 100).toFixed(1));
-}
-
-function calcOrderTotal(order) {
-  if(order.totalAmount!=null)return Number(order.totalAmount);
-  return (order.items || []).reduce((sum, item) => {
-    return sum + Number(item.quantity || 0) * Number(item.unitPrice || 0);
-  }, 0);
-}
-
-router.get("/stats", requireAuth, requireRole("ADMIN"), async (req, res) => {
-  try {
-    const currentMonth = monthRange(req.company.timezone);
-    const previousMonth = monthRange(req.company.timezone, -1);
-
-    const [
-      productsCount,
-      customersCount,
-      currentOrders,
-      previousOrders,
-      recentOrders,
-    ] = await Promise.all([
-      prisma.product.count(),
-
-      prisma.customer.count(),
-
-      prisma.order.findMany({
-        where: {
-          createdAt: {
-            gte: currentMonth.start,
-            lt: currentMonth.end,
-          },
-        },
-        include: {
-          customer: true,
-          items: true,
-        },
-      }),
-
-      prisma.order.findMany({
-        where: {
-          createdAt: {
-            gte: previousMonth.start,
-            lt: previousMonth.end,
-          },
-        },
-        include: {
-          items: true,
-        },
-      }),
-
-      prisma.order.findMany({
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 8,
-        include: {
-          customer: true,
-          items: {
-            include: {
-              product: true,
-            },
-          },
-        },
-      }),
-    ]);
-
-    const currentSalesCount = currentOrders.length;
-    const previousSalesCount = previousOrders.length;
-
-    const currentItemsSold = currentOrders.reduce((sum, order) => {
-      return (
-        sum +
-        order.items.reduce(
-          (itemSum, item) => itemSum + Number(item.quantity || 0),
-          0,
-        )
-      );
-    }, 0);
-
-    const previousItemsSold = previousOrders.reduce((sum, order) => {
-      return (
-        sum +
-        order.items.reduce(
-          (itemSum, item) => itemSum + Number(item.quantity || 0),
-          0,
-        )
-      );
-    }, 0);
-
-    const currentRevenue = currentOrders.reduce((sum, order) => {
-      return sum + calcOrderTotal(order);
-    }, 0);
-
-    const previousRevenue = previousOrders.reduce((sum, order) => {
-      return sum + calcOrderTotal(order);
-    }, 0);
-
-    const averageOrderValue =
-      currentSalesCount > 0 ? currentRevenue / currentSalesCount : 0;
-
-    return res.json({
-      products: {
-        value: productsCount,
-      },
-      customers: {
-        value: customersCount,
-      },
-      orders: {
-        value: currentSalesCount,
-        change: calcPercentChange(currentSalesCount, previousSalesCount),
-      },
-      itemsSold: {
-        value: currentItemsSold,
-        change: calcPercentChange(currentItemsSold, previousItemsSold),
-      },
-      revenue: {
-        value: Number(currentRevenue.toFixed(2)),
-        change: calcPercentChange(currentRevenue, previousRevenue),
-      },
-      averageOrderValue: {
-        value: Number(averageOrderValue.toFixed(2)),
-      },
-      recentOrders,
-    });
-  } catch (error) {
-    log("DASHBOARD_STATS_ERROR:",{code:error.code||error.type||"REQUEST_FAILED",name:error.name,status:error.status||error.statusCode||500});
-    return res.status(500).json({
-      message: "Dashboard statistikaları alınmadı",
-    });
-  }
-});
-
-module.exports = router;
+router.get('/stats',requireAuth,requireRole('ADMIN'),R.route(async(req,res)=>{
+ const data=await prisma.$transaction(async tx=>{
+  const [products,customers,current,previous,recentOrders]=await Promise.all([
+   tx.product.count({where:{archivedAt:null}}),tx.customer.count(),period(tx,monthRange(req.company.timezone)),period(tx,monthRange(req.company.timezone,-1)),
+   tx.order.findMany({orderBy:[{createdAt:'desc'},{id:'desc'}],take:8,include:{customer:true,items:{include:{product:true}}}})
+  ]);
+  return {products:{value:products},customers:{value:customers},orders:{value:current.count,change:change(current.count,previous.count)},itemsSold:{value:current.items,change:change(current.items,previous.items)},revenue:{value:F.major(current.net),gross:F.major(current.gross),returns:F.major(current.returns),change:change(current.net,previous.net)},averageOrderValue:{value:current.count?F.major(Math.round(current.net/current.count)):0},recentOrders,company:{id:req.company.id,name:req.company.name,logoUrl:req.company.logoUrl},basis:'SALES_MINUS_RETURNS_RECORDED_IN_MONTH'};
+ },{isolationLevel:'RepeatableRead'});
+ res.json(data);
+}));
+module.exports=router;

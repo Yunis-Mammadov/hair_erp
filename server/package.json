@@ -11,7 +11,7 @@
     "company:list": "node scripts/company.cjs list",
     "test": "node --test --test-concurrency=1 tests/*.test.cjs",
     "seed": "node scripts/company.cjs setup",
-    "test:native": "node --test --test-concurrency=1 tests/group1-native.cjs tests/group6-backup-native.cjs",
+    "test:native": "node --test --test-concurrency=1 tests/group1-native.cjs tests/group6-backup-native.cjs tests/launch-production-native.cjs tests/trial-native.cjs",
     "backup": "node scripts/backup.cjs backup",
     "backup:verify": "node scripts/backup.cjs verify",
     "backup:restore": "node scripts/backup.cjs restore",

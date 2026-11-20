@@ -1,5 +1,6 @@
 require("dotenv").config();
 const bcrypt = require("bcrypt");
+const { assertPin } = require("../src/pin-policy");
 const { Prisma } = require("@prisma/client");
 const { platformPrisma: db } = require("../src/prismaClient");
 const { PLANS, PRICES, publicCompany } = require("../src/config/plans");
@@ -88,6 +89,7 @@ async function applyActiveUsers(tx, companyId, plan, adminId) {
   const selected = users.filter((user) => keep.includes(user.id));
   // A newly supplied admin PIN must not identify another employee.
   const pin = process.env.COMPANY_ADMIN_PIN;
+  if (pin !== undefined) assertPin(pin);
   if (pin)
     for (const user of users)
       if (
@@ -167,6 +169,7 @@ async function main() {
   const loginEmail = required("COMPANY_LOGIN_EMAIL").trim().toLowerCase();
   const password = required("COMPANY_LOGIN_PASSWORD");
   const pin = process.env.COMPANY_ADMIN_PIN;
+  if (pin !== undefined) assertPin(pin);
   const name = required("COMPANY_NAME").trim();
   if (
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail) ||

@@ -79,5 +79,7 @@
     "Docker image build and remote CI run",
     "Real browser/mobile/print/GPS acceptance",
     "Real Paddle checkout"
-  ]
+  ],
+  "historicalSnapshotOnly": true,
+  "currentReleaseManifest": "RELEASE-PACKAGE.json"
 }

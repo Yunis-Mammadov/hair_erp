@@ -31,6 +31,14 @@ enum ProductUnit {
 }
 
 model Company {
+ trialEmail String? @unique
+ trialStartedAt DateTime?
+ trialEndsAt DateTime?
+ trialConvertedAt DateTime?
+ trialTermsVersion String?
+ trialInvitations TrialInvitation[]
+ operatorSuspended Boolean @default(false)
+ auditEvents AuditEvent[]
  isDemo Boolean @default(false)
  reminders ReminderOutbox[]
  billingAccount BillingAccount?
@@ -59,6 +67,7 @@ model Company {
   legacyUploads            Boolean             @default(false)
   createdAt                DateTime            @default(now())
   updatedAt                DateTime            @updatedAt
+  openingBalances          CustomerOpeningBalance[]
   refunds                  CustomerRefund[]
   invoiceCounter           InvoiceCounter?
   stockMovements           StockMovement[]
@@ -127,6 +136,13 @@ model Product {
 }
 
 model Purchase {
+  version Int @default(0)
+  totalAmount Decimal @default(0) @db.Decimal(12,2)
+  updatedAt DateTime @default(now()) @updatedAt
+  voidedAt DateTime?
+  voidReason String?
+  voidedById String?
+  voidedBy User? @relation("PurchaseVoidedBy",fields:[companyId,voidedById],references:[companyId,id],onDelete:Restrict)
   companyId   String
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
   id          String   @id @default(cuid())
@@ -144,6 +160,7 @@ model Purchase {
 }
 
 model PurchaseItem {
+  lineTotalAmount Decimal @default(0) @db.Decimal(12,2)
   companyId  String
   company    Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
   id         String   @id @default(cuid())
@@ -191,6 +208,8 @@ model Area {
 }
 
 model Customer {
+ externalId String?
+ openingBalance CustomerOpeningBalance?
  email String?
  reminderOptIn Boolean @default(false)
  reminderConsentAt DateTime?
@@ -223,6 +242,7 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([companyId, externalId])
   @@unique([companyId, id])
 }
 
@@ -241,6 +261,8 @@ enum UserRole {
 }
 
 model User {
+ auditEvents AuditEvent[]
+ voidedPurchases Purchase[] @relation("PurchaseVoidedBy")
   companyId   String
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
   id          String   @id @default(cuid())
@@ -258,6 +280,7 @@ model User {
   editedOrders      Order[]             @relation("OrderEditedBy")
   returns           Return[]
   purchases         Purchase[]
+  openingBalancesRecorded CustomerOpeningBalance[]
   refundsCreated    CustomerRefund[]
   paymentsVoided    Payment[] @relation("PaymentVoidedBy")
   paymentsCreated   Payment[]           @relation("PaymentCreatedBy")
@@ -603,4 +626,59 @@ model ReminderOutbox {
  @@unique([companyId,id])
  @@index([companyId,customerId,createdAt])
  @@index([state,createdAt])
+}
+
+// Initial cutover balance: positive = receivable; negative = customer credit.
+// Immutable through imports; never represented as a sale, payment or stock move.
+model CustomerOpeningBalance {
+ id String @id @default(cuid())
+ companyId String
+ customerId String @unique
+ amount Decimal @db.Decimal(12, 2)
+ balanceDate DateTime
+ currency String
+ source String
+ recordedById String
+ createdAt DateTime @default(now())
+ company Company @relation(fields:[companyId], references:[id], onDelete:Restrict)
+ customer Customer @relation(fields:[companyId,customerId], references:[companyId,id], onDelete:Restrict)
+ recordedBy User @relation(fields:[companyId,recordedById], references:[companyId,id], onDelete:Restrict)
+ @@unique([companyId,customerId])
+ @@unique([companyId,id])
+ @@index([companyId,balanceDate,id])
+}
+
+model AuditEvent {
+ id String @id @default(cuid())
+ companyId String
+ entityType String
+ entityId String
+ actorId String?
+ actorName String
+ action String
+ reason String
+ before Json
+ after Json
+ createdAt DateTime @default(now())
+ company Company @relation(fields:[companyId],references:[id],onDelete:Restrict)
+ actor User? @relation(fields:[companyId,actorId],references:[companyId,id],onDelete:Restrict)
+ @@unique([companyId,id])
+ @@index([companyId,entityType,entityId,createdAt,id])
+}
+
+model TrialInvitation {
+ id String @id @default(cuid())
+ email String
+ tokenHash String @unique
+ locale String @default("en")
+ ipHash String
+ expiresAt DateTime
+ createdAt DateTime @default(now())
+ usedAt DateTime?
+ companyId String?
+ requestHash String?
+ company Company? @relation(fields:[companyId],references:[id],onDelete:Restrict)
+ @@index([email,createdAt])
+ @@index([ipHash,createdAt])
+ @@index([expiresAt])
 }

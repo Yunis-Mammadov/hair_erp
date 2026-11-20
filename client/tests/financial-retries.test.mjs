@@ -107,3 +107,9 @@ test("catalogue creates, CSV imports, edits and stock counts retain uncertain re
     finish(b, 200);
   }
 });
+
+test('customer contact edits and purchase corrections or voids retain uncertain retry keys',async()=>{
+ for(const [method,url,data] of [['patch','/customers/customer-1/contact',{name:'Corrected',expectedUpdatedAt:'2026-11-15T10:00:00Z'}],['patch','/purchases/purchase-1',{expectedVersion:1,reason:'Wrong quantity'}],['post','/purchases/purchase-1/void',{expectedVersion:2,reason:'Duplicate receipt'}]]){
+  const first=await prepare({method,url,data,headers:{}},token(77));assert.ok(first.headers['Idempotency-Key']);finish(first,{status:500});const retry=await prepare({method,url,data,headers:{}},token(77));assert.equal(retry.headers['Idempotency-Key'],first.headers['Idempotency-Key']);
+ }
+});

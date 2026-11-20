@@ -1,5 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const { assertPin } = require("../pin-policy");
 const { Prisma } = require("@prisma/client");
 const { prisma } = require("../prismaClient");
 const { requireAuth, requireRole } = require("../middleware/auth.middleware");
@@ -80,6 +81,7 @@ router.post("/", requireAuth, requireRole("ADMIN"), async (req, res, next) => {
       return res
         .status(403)
         .json({ message: "Sürücü hesabı Premium paketindədir." });
+    assertPin(pin);
     const pinHash = await bcrypt.hash(pin, 12);
     const user = await prisma.$transaction(
       async (tx) => {
@@ -157,6 +159,7 @@ router.patch(
             message:
               "Öz admin hesabını deaktiv etmək və ya rolunu azaltmaq olmaz.",
           });
+      if (body.pin !== undefined) assertPin(body.pin);
       const pinHash = body.pin ? await bcrypt.hash(body.pin, 12) : undefined;
       const user = await prisma.$transaction(
         async (tx) => {

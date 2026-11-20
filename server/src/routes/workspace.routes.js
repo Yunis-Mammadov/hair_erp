@@ -6,7 +6,7 @@ const { normalizeUploadUrl, validateUploadReference } = require("../upload-acces
 const F = require("../financial-core"), W = require("../workspace-core"), R = require("../records-core");
 const router = Router();
 async function hasActivity(tx, companyId) {
-  for (const model of ["order", "purchase", "payment", "return"])
+  for (const model of ["order", "purchase", "payment", "return", "customerOpeningBalance"])
     if (await tx[model].findFirst({ where: { companyId }, select: { id: true } })) return true;
   return false;
 }

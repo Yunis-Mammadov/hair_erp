@@ -117,6 +117,7 @@ router.get(
     const buffer = await require("../pdf-documents").invoice(
       order,
       S.language(req),
+      {logo:await require("../upload-access").readPrivateLogo(order.companySnapshot?.logoUrl||req.company.logoUrl,req.company)},
     );
     res
       .set({

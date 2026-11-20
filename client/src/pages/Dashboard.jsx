@@ -1,3 +1,4 @@
+import CompanyBrand from "../components/CompanyBrand";
 import { amountValue } from "../lib/money-input.mjs";
 import GettingStarted from "../components/GettingStarted";
 import { formatMoney, formatNumber, formatTime, formatMonth } from "../i18n/runtime";
@@ -76,16 +77,17 @@ export default function Dashboard() {
       }
     }
     load();
-    return () => controller.abort();
+    const refresh=()=>setReloadKey(key=>key+1);window.addEventListener("focus",refresh);
+    return () => {controller.abort();window.removeEventListener("focus",refresh);};
   }, [reloadKey, companyId]);
   const now = updatedAt || new Date();
   const month = formatMonth(now);
   const orders = data?.recentOrders || [];
   const unavailable = !data;
   const metrics = [{
-    title: t("Bu ayın satış məbləği"),
+    title: t("Net sales this month"),
     value: unavailable ? "—" : money(data.revenue?.value),
-    description: month,
+    description: unavailable ? month : `${month} · ${t("Returns")}: ${money(data.revenue?.returns || 0)}`,
     icon: AccountBalanceWalletOutlinedIcon,
     accent: true
   }, {
@@ -125,7 +127,7 @@ export default function Dashboard() {
     }} justifyContent="space-between" spacing={2} sx={{
       mb: 3
     }}>
-        <Box>
+        <Stack direction="row" spacing={2} alignItems="center"><CompanyBrand company={{...user?.company,...data?.company}}/><Box>
           <Typography component="h1" variant="h2" sx={{
           fontSize: {
             xs: 24,
@@ -137,7 +139,7 @@ export default function Dashboard() {
           fontSize: 13
         }}>
             {user?.company?.name || "z-Index"}{t("· Satışlar və gündəlik əməliyyatlar")}</Typography>
-        </Box>
+        </Box></Stack>
         <Stack direction="row" spacing={1} alignItems="center">
           <Tooltip title={t("Məlumatları yenilə")}>
             <span>
@@ -374,7 +376,7 @@ export default function Dashboard() {
               lineHeight: 1.7,
               color: "text.secondary",
               mt: 2.25
-            }}>{t("Satış məbləği sifarişlərin ilkin cəmidir. Ödənişlər və geri qaytarmalar bu göstəricidən çıxılmır.")}</Typography>
+            }}>{t("Net sales subtract returns posted this month. Customer payments and cash refunds do not change this sales figure.")}</Typography>
             </Box>
           </Card>
         </Stack>

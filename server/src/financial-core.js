@@ -140,7 +140,7 @@ async function mutate(req, scope, input, fn) {
       // Migrated financial records keep their original currency. Only an empty
       // workspace must explicitly confirm currency before its first transaction.
       let historical = false;
-      for (const model of ['order', 'purchase', 'payment', 'return']) {
+      for (const model of ['order', 'purchase', 'payment', 'return', 'customerOpeningBalance']) {
         if (await tx[model].findFirst({ select: { id: true } })) { historical = true; break; }
       }
       if (!historical) throw fail(409, 'An administrator must confirm the operating currency in Company settings before the first transaction.', 'CURRENCY_NOT_CONFIGURED');
@@ -218,10 +218,10 @@ function summary(customer) {
  const orders=customer.orders||[],returns=customer.returns||[],payments=(customer.payments||[]).filter(p=>!p.voidedAt),refunds=customer.refunds||[];
  const orderAmount=orders.reduce((n,o)=>n+(o.totalAmount==null?o.items.reduce((v,i)=>v+(i.isGift?0:Q.lineCents(minor(i.unitPrice),i.quantity)),0):minor(o.totalAmount)),0);
  const returnAmount=returns.reduce((n,r)=>n+r.items.reduce((v,i)=>v+(i.lineTotalAmount==null?Q.lineCents(minor(i.unitPrice),i.quantity):minor(i.lineTotalAmount)),0),0);
- return totals(major(orderAmount),major(returnAmount),major(payments.reduce((n,p)=>n+minor(p.amount),0)),orders.length,returns.length,payments.length,major(refunds.reduce((n,r)=>n+minor(r.amount),0)),refunds.length);
+ return totals(major(orderAmount),major(returnAmount),major(payments.reduce((n,p)=>n+minor(p.amount),0)),orders.length,returns.length,payments.length,major(refunds.reduce((n,r)=>n+minor(r.amount),0)),refunds.length,customer.openingBalance?.amount);
 }
 async function account(tx, customerId) {
-  const [orders, returns, payments, refunds] = await Promise.all([
+  const [orders, returns, payments, refunds, opening] = await Promise.all([
     tx.order.aggregate({
       where: { customerId },
       _sum: { totalAmount: true },
@@ -238,6 +238,7 @@ async function account(tx, customerId) {
       _count: true,
     }),
     tx.customerRefund.aggregate({ where: {customerId}, _sum:{amount:true}, _count:true }),
+    tx.customerOpeningBalance.findUnique({where:{customerId}}),
   ]);
   return totals(
     orders._sum.totalAmount,
@@ -248,6 +249,7 @@ async function account(tx, customerId) {
     payments._count,
     refunds._sum.amount,
     refunds._count,
+    opening?.amount,
   );
 }
 function totals(
@@ -259,15 +261,18 @@ function totals(
   paymentsCount = 0,
   refundAmount = 0,
   refundsCount = 0,
+  openingAmount = 0,
 ) {
   const orderTotal = minor(orderAmount),
     returnTotal = minor(returnAmount),
     paymentTotal = minor(paymentAmount),
     refundTotal = minor(refundAmount),
-    net = orderTotal - returnTotal - paymentTotal + refundTotal;
+    openingTotal = minor(openingAmount),
+    net = openingTotal + orderTotal - returnTotal - paymentTotal + refundTotal;
   if (![orderTotal, returnTotal, paymentTotal, net].every(Number.isSafeInteger))
     throw fail(409, "Hesab məbləği həddi aşır.");
   return {
+    openingBalance: major(openingTotal),
     orderTotal: major(orderTotal),
     returnTotal: major(returnTotal),
     paymentTotal: major(paymentTotal),

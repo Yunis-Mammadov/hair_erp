@@ -32,6 +32,6 @@ test('decimal-comma money is normalized without truncation or modifying quantiti
 });
 test('every literal translation key in client source has a dictionary entry',()=>{
  const root=path.resolve(import.meta.dirname,'../src');
- function scan(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const f=path.join(dir,entry.name);if(entry.isDirectory())scan(f);else if(/\.(js|jsx)$/.test(f)){const source=fs.readFileSync(f,'utf8');for(const match of source.matchAll(/\bt\("((?:\\.|[^"\\])*)"/g)){const key=JSON.parse('"'+match[1]+'"');assert.ok(messages[key],f+': '+key);}}}}
+ function scan(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const f=path.join(dir,entry.name);if(entry.isDirectory())scan(f);else if(/\.(js|jsx)$/.test(f)){const source=fs.readFileSync(f,'utf8');for(const match of source.matchAll(/\bt\((['"])((?:\\.|(?!\1)[^\\])*)\1/g)){const key=match[1]==='"'?JSON.parse('"'+match[2]+'"'):match[2].replace(/\\(['"\\])/g,'$1');assert.ok(messages[key]||Object.values(messages).some(row=>row.en===key),f+': '+key);}}}}
  scan(root);
 });

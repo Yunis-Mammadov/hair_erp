@@ -30,23 +30,24 @@ const PLANS = Object.freeze({
   },
 });
 // Subscription prices in the minor units of the subscription currency.
-const PRICES = Object.freeze({
-  AZ: {
-    BASIC: { currency: "AZN", MONTHLY: 5000, YEARLY: 50000 },
-    BUSINESS: { currency: "AZN", MONTHLY: 15000, YEARLY: 150000 },
-    PREMIUM: { currency: "AZN", MONTHLY: 29900, YEARLY: 250000 },
-  },
-  GLOBAL: { BASIC: { currency: "USD", MONTHLY: 1499, YEARLY: 14999 } },
-});
+const PRICES = Object.freeze(require("../../../shared/pricing.json"));
 function hasFeature(company, feature) {
   return Boolean(PLANS[company?.plan]?.features.includes(feature));
+}
+function isTrial(company) { return Boolean(company?.trialStartedAt && !company.trialConvertedAt); }
+function trialInfo(company,now=new Date()) {
+ if(!company.trialStartedAt)return null;
+ const endsAt=company.trialEndsAt;
+ return {status:company.trialConvertedAt?'converted':endsAt&&endsAt>now?'active':'expired',startedAt:company.trialStartedAt,endsAt,convertedAt:company.trialConvertedAt||null,daysRemaining:company.trialConvertedAt?0:Math.max(0,Math.ceil((+endsAt-+now)/86400000))};
 }
 function subscriptionIsActive(company, now = new Date()) {
   return Boolean(
     company?.isActive &&
+      !company.operatorSuspended &&
       company.startsAt <= now &&
       company.endsAt &&
-      company.endsAt > now,
+      company.endsAt > now &&
+      (!isTrial(company) || (company.trialEndsAt && company.trialEndsAt > now)),
   );
 }
 function publicCompany(company) {
@@ -54,7 +55,9 @@ function publicCompany(company) {
   const offer = PRICES[company.market]?.[company.plan];
   return {
     id: company.id,
+    trial: trialInfo(company),
     isDemo: company.isDemo,
+    operatorSuspended: company.operatorSuspended,
     name: company.name,
     loginEmail: company.loginEmail,
     plan: company.plan,
@@ -80,6 +83,8 @@ function publicCompany(company) {
   };
 }
 module.exports = {
+  isTrial,
+  trialInfo,
   PLANS,
   PRICES,
   hasFeature,

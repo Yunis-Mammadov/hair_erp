@@ -63,6 +63,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
   await db.exec(readFileSync(path.resolve(__dirname, "../prisma/migrations/202611110001_group5_workflows/migration.sql"), "utf8"));
   await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611120001_group6_operations/migration.sql"),"utf8"));
   await db.exec(readFileSync(path.resolve(__dirname,"../prisma/migrations/202611130001_group7_extras/migration.sql"),"utf8"));
+  await require("./helpers/current-migrations.cjs")(db, "202611130001_group7_extras");
   const wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
   await wire.start();
   process.env.DATABASE_URL = `postgresql://postgres:postgres@127.0.0.1:${wire.getServerConn().split(":")[1]}/postgres?connection_limit=1`;
@@ -183,8 +184,8 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
           data: { companyId: b.id, categoryId: cat.id, name: "B Product" },
         });
         assert.equal(PRICES.AZ.PREMIUM.YEARLY, 250000);
-        assert.equal(PRICES.GLOBAL.BASIC.MONTHLY, 1499);
-        assert.equal(PRICES.GLOBAL.BASIC.YEARLY, 14999);
+        assert.equal(PRICES.GLOBAL.BASIC.MONTHLY, 1999);
+        assert.equal(PRICES.GLOBAL.BASIC.YEARLY, 19999);
       },
     );
     await t.test(
@@ -800,7 +801,7 @@ test("Existing ERP: migration, company/PIN login, tenant isolation and Basic res
             },
           },
         );
-        assert.ok(result.stdout.includes('"amountMinor": 14999'));
+        assert.ok(result.stdout.includes('"amountMinor": 19999'));
         const created = await raw.company.findUnique({
           where: { loginEmail: "cli@zindex.invalid" },
         });

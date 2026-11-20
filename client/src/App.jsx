@@ -1,5 +1,8 @@
 import AppErrorBoundary from "./components/AppErrorBoundary";
 import { lazy, Suspense } from "react";
+const LandingPage=lazy(()=>import("./pages/LandingPage"));
+const TrialPage=lazy(()=>import("./pages/TrialPage"));
+const TrialActivatePage=lazy(()=>import("./pages/TrialActivatePage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const TeamPage = lazy(() => import("./pages/TeamPage"));
 const PlanPage = lazy(() => import("./pages/PlanPage"));
@@ -68,10 +71,11 @@ function HomePageByRole() {
   }
   return <Navigate to="/forbidden" replace />;
 }
+function RootPage(){const {user,isLoading}=useAuth();if(isLoading)return <div role="status" style={{padding:24}}>{t("Loading...")}</div>;return user?<ProtectedRoute><HomePageByRole/></ProtectedRoute>:<LandingPage/>;}
 export default function App() {
   useI18n();
   return <AppErrorBoundary><Suspense fallback={<div role="status" style={{ padding: 24 }}>{t("Loading...")}</div>}><Routes>
-    <Route path="/checkout" element={<CheckoutPage />} /><Route path="/support" element={<ServicePage />} /><Route path="/privacy" element={<ServicePage kind="privacy" />} /><Route path="/terms" element={<ServicePage kind="terms" />} /><Route path="/renew" element={<PlanPage renewal />} />
+    <Route path="/trial" element={<TrialPage/>}/><Route path="/trial/activate" element={<TrialActivatePage/>}/><Route path="/welcome" element={<LandingPage/>}/><Route path="/refunds" element={<ServicePage kind="refunds"/>}/><Route path="/checkout" element={<CheckoutPage />} /><Route path="/support" element={<ServicePage />} /><Route path="/privacy" element={<ServicePage kind="privacy" />} /><Route path="/terms" element={<ServicePage kind="terms" />} /><Route path="/renew" element={<PlanPage renewal />} />
     <Route path="/workspace/team" element={<ProtectedRoute><RoleRoute allow={["ADMIN"]}><AppShell><TeamPage /></AppShell></RoleRoute></ProtectedRoute>} />
     <Route path="/workspace/plan" element={<ProtectedRoute><RoleRoute allow={["ADMIN"]}><AppShell><PlanPage /></AppShell></RoleRoute></ProtectedRoute>} /><Route path="/workspace/settings" element={<ProtectedRoute><AppShell><SettingsPage /></AppShell></ProtectedRoute>} />
     <Route path="/login" element={<Login />} />
@@ -81,9 +85,7 @@ export default function App() {
     />
     <Route path="/forbidden" element={<Forbidden />} />
 
-    <Route path="/" element={<ProtectedRoute>
-      <HomePageByRole />
-    </ProtectedRoute>} />
+    <Route path="/" element={<RootPage/>} />
 
     {/* ADMIN + EXPEDITOR */}
 

@@ -1,3 +1,4 @@
+import SaleDetailsContent from "../components/SaleDetailsContent";
 import {validQuantity,quantityStep,chargeTotals} from '../lib/quantities.mjs';
 import LedgerDialog from "../components/LedgerDialog";
 import InvoiceDialog from "../components/InvoiceDialog";
@@ -751,12 +752,18 @@ export default function SalesHistoryPage() {
         </PageCard>
       </Box>
 
-      {canViewOrderDetail && <Dialog open={detailOpen} PaperProps={{
-      sx: {
-        borderRadius: "12px"
-      }
-    }} onClose={handleCloseDetail} fullWidth maxWidth="lg">
-          <DialogTitle>
+      {canViewOrderDetail && (<Dialog
+        open={detailOpen}
+        onClose={handleCloseDetail}
+        fullWidth
+        maxWidth="lg"
+        aria-labelledby="sale-detail-title"
+        PaperProps={{ sx: { borderRadius: { xs: '12px', sm: '16px' },
+          width: { xs: 'calc(100% - 16px)', sm: 'calc(100% - 48px)' },
+          maxWidth: 1120, m: { xs: 1, sm: 3 },
+          maxHeight: { xs: 'calc(100dvh - 16px)', sm: 'calc(100dvh - 48px)' } } }}
+      >
+          <DialogTitle id="sale-detail-title" sx={{ px: { xs: 2, sm: 3 }, py: 2, flexShrink: 0 }}> 
             <Stack direction={{
           xs: "column",
           sm: "row"
@@ -804,414 +811,263 @@ export default function SalesHistoryPage() {
             </Stack>
           </DialogTitle>
 
-          <DialogContent dividers sx={{
-        maxHeight: "80vh"
-      }}>
-            {detailLoading ? <Box display="flex" justifyContent="center" py={4}>
-                <CircularProgress />
-              </Box> : !selectedOrder ? <Typography>{t("Məlumat tapılmadı")}</Typography> : !isEditMode ? <Box>
-                {editSuccess && <Alert severity="success" sx={{
-            mb: 2
-          }}>
-                    {editSuccess}
-                  </Alert>}
+          <DialogContent dividers sx={{ p: isEditMode ? 3 : 0,
+            bgcolor: isEditMode ? 'background.paper' : '#f7f9fc',
+            minHeight: 0, overflowY: 'auto' }}>
+          {detailLoading ? <Box display="flex" justifyContent="center" py={4}>
+            <CircularProgress />
+          </Box> : !selectedOrder ? <Typography>{t("Məlumat tapılmadı")}</Typography> : !isEditMode ? (
+            <Box>
+              {editSuccess && (
+                <Alert severity="success" sx={{ m: 3, mb: 0 }}>
+                  {editSuccess}
+                </Alert>
+              )}
 
-                <Stack direction="row" spacing={2} flexWrap="wrap" sx={{
-            mb: 2
-          }}><Typography>{t("Paid")}: {formatMoney(selectedOrder.allocatedPayment)}</Typography><Typography fontWeight={600}>{t("Outstanding")}: {formatMoney(selectedOrder.remainingDebt)}</Typography></Stack>
-                <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Əsas məlumatlar")}</Typography>
+              <SaleDetailsContent
+                order={selectedOrder}
+                items={
+                  hasGiftItems
+                    ? [...normalItems, ...giftItems]
+                    : normalItems
+                }
+                formatDate={formatDate}
+                googleMapsLink={getGoogleMapsLink}
+                wazeLink={getWazeLink}
+              />
+            </Box>
+          ) : <Box>
+            {editError && <Alert severity="error" sx={{
+              mb: 2
+            }}>
+              {editError}
+            </Alert>}
 
-                <Typography>
-                  <b>{t("Qaimə nömrəsi:")}</b>{" "}
-                  {selectedOrder.invoiceNumber || formatInvoiceNumber(selectedOrder.orderNumber)}
-                </Typography>
-                <Typography>
-                  <b>{t("Tarix:")}</b> {formatDate(selectedOrder.createdAt)}
-                </Typography>
-                <Typography>
-                  <b>{t("Ödəniş növü:")}</b> {selectedOrder.paymentType || "-"}
-                </Typography>
-                <Typography>
-                  <b>{t("Qeyd:")}</b> {selectedOrder.note || "-"}
-                </Typography>
+            {editSuccess && <Alert severity="success" sx={{
+              mb: 2
+            }}>
+              {editSuccess}
+            </Alert>}
 
-                <Divider sx={{
-            my: 2
-          }} />
-
-                <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Müştəri")}</Typography>
-
-                <Typography>
-                  <b>{t("Ad:")}</b> {selectedOrder.customer?.name || "-"}
-                </Typography>
-                <Typography>
-                  <b>{t("Telefon:")}</b> {selectedOrder.customer?.phone || "-"}
-                </Typography>
-                <Typography>
-                  <b>{t("Salon:")}</b> {selectedOrder.customer?.salon || "-"}
-                </Typography>
-                <Typography>
-                  <b>{t("Ünvan:")}</b> {selectedOrder.customer?.address || "-"}
-                </Typography>
-
-                {typeof selectedOrder.customer?.lat === "number" && typeof selectedOrder.customer?.lng === "number" && <>
-                      <Typography>
-                        <Link href={getGoogleMapsLink(selectedOrder.customer.lat, selectedOrder.customer.lng)} target="_blank" rel="noreferrer" underline="hover">{t("Google Maps-də aç")}</Link>
-                      </Typography>
-                      <Typography>
-                        <Link href={getWazeLink(selectedOrder.customer.lat, selectedOrder.customer.lng)} target="_blank" rel="noreferrer" underline="hover">{t("Waze-də aç")}</Link>
-                      </Typography>
-                    </>}
-
-                <Divider sx={{
-            my: 2
-          }} />
-
-                <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Sifarişi yazan")}</Typography>
-
-                <Typography>
-                  <b>{t("Ad:")}</b>{" "}
-                  {selectedOrder.createdBy?.fullName || selectedOrder.createdBy?.email || "-"}
-                </Typography>
-                <Typography>
-                  <b>{t("Rol:")}</b> {selectedOrder.createdBy?.role || "-"}
-                </Typography>
-
-                <Divider sx={{
-            my: 2
-          }} />
+            <Stack spacing={3}>
+              <Paper variant="outlined" sx={{
+                p: 2
+              }}>
+                <Typography variant="subtitle1" fontWeight={700} mb={2}>{t("Edit məlumatları")}</Typography>
 
                 <Stack direction={{
-            xs: "column",
-            sm: "row"
-          }} spacing={1} mb={1.5}>
-                  <Chip label={t("Məhsul sayı: {value0}", {
-              value0: getItemCount(normalItems)
-            })} color="primary" variant="outlined" />
+                  xs: "column",
+                  md: "row"
+                }} spacing={2}>
+                  <TextField select label={t("Ödəniş növü")} value={editForm.paymentType} onChange={e => setEditForm(prev => ({
+                    ...prev,
+                    paymentType: e.target.value
+                  }))} fullWidth>
+                    {EDIT_PAYMENT_OPTIONS.map(option => <MenuItem key={option} value={option}>
+                      {option}
+                    </MenuItem>)}
+                  </TextField>
 
-                  {hasGiftItems && <Chip label={t("Hədiyyə məhsul sayı: {value0}", {
-              value0: getItemCount(giftItems)
-            })} color="secondary" variant="outlined" />}
+                  <TextField label={t('Discount (%)')} value={editForm.discountPercent || 0} onChange={e => setEditForm(prev => ({ ...prev, discountPercent: e.target.value }))} /><TextField label={t('Tax (%)')} value={editForm.taxPercent || 0} onChange={e => setEditForm(prev => ({ ...prev, taxPercent: e.target.value }))} />
+                  <TextField label={t("Qeyd")} value={editForm.note} onChange={e => setEditForm(prev => ({
+                    ...prev,
+                    note: e.target.value
+                  }))} fullWidth multiline minRows={2} />
+                </Stack>
+              </Paper>
 
-                  <Chip label={t("Toplam satış: {value0}", {
-              value0: formatMoney(Number(selectedOrder.totalAmount??getOrderTotal(selectedOrder.items || [])))
-            })} color="success" variant="outlined" />
+              <Paper variant="outlined" sx={{
+                p: 2
+              }}>
+                <Typography variant="subtitle1" fontWeight={700} mb={2}>{t("Məhsul əlavə et")}</Typography>
+
+                <Stack direction={{
+                  xs: "column",
+                  md: "row"
+                }} spacing={2} mb={2}>
+                  <TextField select label={t("Kateqoriya")} value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} fullWidth>
+                    <MenuItem value="">{t("Hamısı")}</MenuItem>
+                    {productCategories.map(category => <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>)}
+                  </TextField>
+
+                  <TextField label={t("Məhsul axtar")} value={productSearch} onChange={e => setProductSearch(e.target.value)} fullWidth />
+
+                  <TextField select label={t("Məhsul seç")} value={selectedProductId} onChange={e => setSelectedProductId(e.target.value)} fullWidth>
+                    <MenuItem value="">{t("Seçin")}</MenuItem>
+                    {catalogProducts.map(product => <MenuItem key={product.id} value={product.id}>
+                      {product.name}
+                      {typeof product.stock?.quantity === "number" ? ` (stok: ${product.stock.quantity})` : ""}
+                    </MenuItem>)}
+                  </TextField>
                 </Stack>
 
-                <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Satılan məhsullar")}</Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  <Button variant="contained" startIcon={<AddOutlinedIcon />} onClick={() => handleAddProductToEdit(false)} disabled={!selectedProductId}>{t("Normal məhsul əlavə et")}</Button>
+
+                  <Button variant="outlined" startIcon={<AddOutlinedIcon />} onClick={() => handleAddProductToEdit(true)} disabled={!selectedProductId}>{t("Hədiyyə məhsul əlavə et")}</Button>
+                </Stack>
+                <RecordPager pagination={catalogPagination} onChange={page => fetchProducts(productSearch, selectedCategoryId, page)} />
+              </Paper>
+
+              <Paper variant="outlined" sx={{
+                p: 2
+              }}>
+                <Stack direction={{
+                  xs: "column",
+                  sm: "row"
+                }} spacing={1} mb={2}>
+                  <Chip label={t("Normal məhsul sayı: {value0}", {
+                    value0: getItemCount(editNormalItems)
+                  })} color="primary" variant="outlined" />
+                  <Chip label={t("Hədiyyə məhsul sayı: {value0}", {
+                    value0: getItemCount(editGiftItems)
+                  })} color="secondary" variant="outlined" />
+                  <Chip label={t("Toplam satış: {value0}", {
+                    value0: formatMoney(editTotal)
+                  })} color="success" variant="outlined" />
+                </Stack>
+
+                <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Normal məhsullar")}</Typography>
 
                 <TableContainer component={Paper} variant="outlined" sx={{
-            mb: hasGiftItems ? 2 : 0
-          }}>
+                  mb: 3
+                }}>
                   <Table sx={{
-              border: "1px solid rgba(224, 224, 224, 1)",
-              "& th, & td": {
-                border: "1px solid rgba(224, 224, 224, 1)",
-                textAlign: "center",
-                verticalAlign: "middle",
-                padding: "10px"
-              },
-              "& th": {
-                fontWeight: 700,
-                backgroundColor: "#f5f5f5"
-              }
-            }}>
+                    border: "1px solid rgba(224, 224, 224, 1)",
+                    "& th, & td": {
+                      border: "1px solid rgba(224, 224, 224, 1)",
+                      textAlign: "center",
+                      verticalAlign: "middle",
+                      padding: "10px"
+                    },
+                    "& th": {
+                      fontWeight: 700,
+                      backgroundColor: "#f5f5f5"
+                    }
+                  }}>
                     <TableHead>
                       <TableRow>
                         <TableCell>{t("Məhsul")}</TableCell>
                         <TableCell>{t("Kateqoriya")}</TableCell>
+                        <TableCell>{t("Stok")}</TableCell>
                         <TableCell>{t("Miqdar")}</TableCell>
                         <TableCell>{t("Qiymət")}</TableCell>
                         <TableCell>{t("Cəm")}</TableCell>
+                        <TableCell>{t("Sil")}</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {normalItems.length === 0 ? <TableRow>
-                          <TableCell colSpan={5}>{t("Normal satış məhsulu yoxdur")}</TableCell>
-                        </TableRow> : normalItems.map(item => <TableRow key={item.id}>
-                            <TableCell>{item.product?.name || "-"}</TableCell>
-                            <TableCell>
-                              {item.product?.category?.name || "-"}
-                            </TableCell>
-                            <TableCell>{item.quantity}</TableCell>
-                            <TableCell>{formatMoney(item.unitPrice)}</TableCell>
-                            <TableCell>
-                              {formatMoney(Number(item.lineTotalAmount??Math.round(Number(item.quantity || 0)*amountValue(item.unitPrice || 0)*100)/100))}
-                            </TableCell>
-                          </TableRow>)}
+                      {editNormalItems.length === 0 ? <TableRow>
+                        <TableCell colSpan={7}>{t("Normal məhsul yoxdur")}</TableCell>
+                      </TableRow> : editNormalItems.map(item => <TableRow key={item.localKey}>
+                        <TableCell>{item.productName}</TableCell>
+                        <TableCell>{item.categoryName}</TableCell>
+                        <TableCell>
+                          {item.stockQuantity ?? "-"}
+                        </TableCell>
+                        <TableCell sx={{
+                          minWidth: 120
+                        }}>
+                          <TextField type="number" size="small" value={item.quantity} onChange={e => updateEditItem(item.localKey, {
+                            quantity: Number(e.target.value)
+                          })} fullWidth inputProps={{
+                            min: quantityStep(item.unit), step: quantityStep(item.unit)
+                          }} />
+                        </TableCell>
+                        <TableCell sx={{
+                          minWidth: 140
+                        }}>
+                          <TextField type="number" size="small" value={item.unitPrice} onChange={e => updateEditItem(item.localKey, {
+                            unitPrice: Number(e.target.value)
+                          })} fullWidth inputProps={{
+                            min: 0,
+                            step: "0.01"
+                          }} />
+                        </TableCell>
+                        <TableCell>
+                          {formatMoney(Number(item.quantity || 0) * amountValue(item.unitPrice || 0))}
+                        </TableCell>
+                        <TableCell>
+                          <IconButton color="error" onClick={() => removeEditItem(item.localKey)}>
+                            <DeleteOutlineOutlinedIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>)}
                     </TableBody>
                   </Table>
                 </TableContainer>
 
-                {hasGiftItems && <>
-                    <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Hədiyyə məhsullar")}</Typography>
+                <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Hədiyyə məhsullar")}</Typography>
 
-                    <TableContainer component={Paper} variant="outlined">
-                      <Table sx={{
-                border: "1px solid rgba(224, 224, 224, 1)",
-                "& th, & td": {
-                  border: "1px solid rgba(224, 224, 224, 1)",
-                  textAlign: "center",
-                  verticalAlign: "middle",
-                  padding: "10px"
-                },
-                "& th": {
-                  fontWeight: 700,
-                  backgroundColor: "#f5f5f5"
-                }
-              }}>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>{t("Məhsul")}</TableCell>
-                            <TableCell>{t("Kateqoriya")}</TableCell>
-                            <TableCell>{t("Miqdar")}</TableCell>
-                            <TableCell>{t("Qiymət")}</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {giftItems.map(item => <TableRow key={item.id}>
-                              <TableCell>{item.product?.name || "-"}</TableCell>
-                              <TableCell>
-                                {item.product?.category?.name || "-"}
-                              </TableCell>
-                              <TableCell>{item.quantity}</TableCell>
-                              <TableCell>{formatMoney(0)}</TableCell>
-                            </TableRow>)}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </>}
-              </Box> : <Box>
-                {editError && <Alert severity="error" sx={{
-            mb: 2
-          }}>
-                    {editError}
-                  </Alert>}
-
-                {editSuccess && <Alert severity="success" sx={{
-            mb: 2
-          }}>
-                    {editSuccess}
-                  </Alert>}
-
-                <Stack spacing={3}>
-                  <Paper variant="outlined" sx={{
-              p: 2
-            }}>
-                    <Typography variant="subtitle1" fontWeight={700} mb={2}>{t("Edit məlumatları")}</Typography>
-
-                    <Stack direction={{
-                xs: "column",
-                md: "row"
-              }} spacing={2}>
-                      <TextField select label={t("Ödəniş növü")} value={editForm.paymentType} onChange={e => setEditForm(prev => ({
-                  ...prev,
-                  paymentType: e.target.value
-                }))} fullWidth>
-                        {EDIT_PAYMENT_OPTIONS.map(option => <MenuItem key={option} value={option}>
-                            {option}
-                          </MenuItem>)}
-                      </TextField>
-
-                      <TextField label={t('Discount (%)')} value={editForm.discountPercent||0} onChange={e=>setEditForm(prev=>({...prev,discountPercent:e.target.value}))}/><TextField label={t('Tax (%)')} value={editForm.taxPercent||0} onChange={e=>setEditForm(prev=>({...prev,taxPercent:e.target.value}))}/>
-                      <TextField label={t("Qeyd")} value={editForm.note} onChange={e => setEditForm(prev => ({
-                  ...prev,
-                  note: e.target.value
-                }))} fullWidth multiline minRows={2} />
-                    </Stack>
-                  </Paper>
-
-                  <Paper variant="outlined" sx={{
-              p: 2
-            }}>
-                    <Typography variant="subtitle1" fontWeight={700} mb={2}>{t("Məhsul əlavə et")}</Typography>
-
-                    <Stack direction={{
-                xs: "column",
-                md: "row"
-              }} spacing={2} mb={2}>
-                      <TextField select label={t("Kateqoriya")} value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} fullWidth>
-                        <MenuItem value="">{t("Hamısı")}</MenuItem>
-                        {productCategories.map(category => <MenuItem key={category.id} value={category.id}>
-                            {category.name}
-                          </MenuItem>)}
-                      </TextField>
-
-                      <TextField label={t("Məhsul axtar")} value={productSearch} onChange={e => setProductSearch(e.target.value)} fullWidth />
-
-                      <TextField select label={t("Məhsul seç")} value={selectedProductId} onChange={e => setSelectedProductId(e.target.value)} fullWidth>
-                        <MenuItem value="">{t("Seçin")}</MenuItem>
-                        {catalogProducts.map(product => <MenuItem key={product.id} value={product.id}>
-                            {product.name}
-                            {typeof product.stock?.quantity === "number" ? ` (stok: ${product.stock.quantity})` : ""}
-                          </MenuItem>)}
-                      </TextField>
-                    </Stack>
-
-                    <Stack direction="row" spacing={1} flexWrap="wrap">
-                      <Button variant="contained" startIcon={<AddOutlinedIcon />} onClick={() => handleAddProductToEdit(false)} disabled={!selectedProductId}>{t("Normal məhsul əlavə et")}</Button>
-
-                      <Button variant="outlined" startIcon={<AddOutlinedIcon />} onClick={() => handleAddProductToEdit(true)} disabled={!selectedProductId}>{t("Hədiyyə məhsul əlavə et")}</Button>
-                    </Stack>
-                    <RecordPager pagination={catalogPagination} onChange={page => fetchProducts(productSearch, selectedCategoryId, page)} />
-                  </Paper>
-
-                  <Paper variant="outlined" sx={{
-              p: 2
-            }}>
-                    <Stack direction={{
-                xs: "column",
-                sm: "row"
-              }} spacing={1} mb={2}>
-                      <Chip label={t("Normal məhsul sayı: {value0}", {
-                  value0: getItemCount(editNormalItems)
-                })} color="primary" variant="outlined" />
-                      <Chip label={t("Hədiyyə məhsul sayı: {value0}", {
-                  value0: getItemCount(editGiftItems)
-                })} color="secondary" variant="outlined" />
-                      <Chip label={t("Toplam satış: {value0}", {
-                  value0: formatMoney(editTotal)
-                })} color="success" variant="outlined" />
-                    </Stack>
-
-                    <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Normal məhsullar")}</Typography>
-
-                    <TableContainer component={Paper} variant="outlined" sx={{
-                mb: 3
-              }}>
-                      <Table sx={{
-                  border: "1px solid rgba(224, 224, 224, 1)",
-                  "& th, & td": {
+                <TableContainer component={Paper} variant="outlined">
+                  <Table sx={{
                     border: "1px solid rgba(224, 224, 224, 1)",
-                    textAlign: "center",
-                    verticalAlign: "middle",
-                    padding: "10px"
-                  },
-                  "& th": {
-                    fontWeight: 700,
-                    backgroundColor: "#f5f5f5"
-                  }
-                }}>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>{t("Məhsul")}</TableCell>
-                            <TableCell>{t("Kateqoriya")}</TableCell>
-                            <TableCell>{t("Stok")}</TableCell>
-                            <TableCell>{t("Miqdar")}</TableCell>
-                            <TableCell>{t("Qiymət")}</TableCell>
-                            <TableCell>{t("Cəm")}</TableCell>
-                            <TableCell>{t("Sil")}</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {editNormalItems.length === 0 ? <TableRow>
-                              <TableCell colSpan={7}>{t("Normal məhsul yoxdur")}</TableCell>
-                            </TableRow> : editNormalItems.map(item => <TableRow key={item.localKey}>
-                                <TableCell>{item.productName}</TableCell>
-                                <TableCell>{item.categoryName}</TableCell>
-                                <TableCell>
-                                  {item.stockQuantity ?? "-"}
-                                </TableCell>
-                                <TableCell sx={{
-                        minWidth: 120
-                      }}>
-                                  <TextField type="number" size="small" value={item.quantity} onChange={e => updateEditItem(item.localKey, {
-                          quantity: Number(e.target.value)
-                        })} fullWidth inputProps={{
-                          min: quantityStep(item.unit), step:quantityStep(item.unit)
-                        }} />
-                                </TableCell>
-                                <TableCell sx={{
-                        minWidth: 140
-                      }}>
-                                  <TextField type="number" size="small" value={item.unitPrice} onChange={e => updateEditItem(item.localKey, {
-                          unitPrice: Number(e.target.value)
-                        })} fullWidth inputProps={{
-                          min: 0,
-                          step: "0.01"
-                        }} />
-                                </TableCell>
-                                <TableCell>
-                                  {formatMoney(Number(item.quantity || 0) * amountValue(item.unitPrice || 0))}
-                                </TableCell>
-                                <TableCell>
-                                  <IconButton color="error" onClick={() => removeEditItem(item.localKey)}>
-                                    <DeleteOutlineOutlinedIcon />
-                                  </IconButton>
-                                </TableCell>
-                              </TableRow>)}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
+                    "& th, & td": {
+                      border: "1px solid rgba(224, 224, 224, 1)",
+                      textAlign: "center",
+                      verticalAlign: "middle",
+                      padding: "10px"
+                    },
+                    "& th": {
+                      fontWeight: 700,
+                      backgroundColor: "#f5f5f5"
+                    }
+                  }}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>{t("Məhsul")}</TableCell>
+                        <TableCell>{t("Kateqoriya")}</TableCell>
+                        <TableCell>{t("Stok")}</TableCell>
+                        <TableCell>{t("Miqdar")}</TableCell>
+                        <TableCell>{t("Qiymət")}</TableCell>
+                        <TableCell>{t("Sil")}</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {editGiftItems.length === 0 ? <TableRow>
+                        <TableCell colSpan={6}>{t("Hədiyyə məhsul yoxdur")}</TableCell>
+                      </TableRow> : editGiftItems.map(item => <TableRow key={item.localKey}>
+                        <TableCell>{item.productName}</TableCell>
+                        <TableCell>{item.categoryName}</TableCell>
+                        <TableCell>
+                          {item.stockQuantity ?? "-"}
+                        </TableCell>
+                        <TableCell sx={{
+                          minWidth: 120
+                        }}>
+                          <TextField type="number" size="small" value={item.quantity} onChange={e => updateEditItem(item.localKey, {
+                            quantity: Number(e.target.value)
+                          })} fullWidth inputProps={{
+                            min: quantityStep(item.unit), step: quantityStep(item.unit)
+                          }} />
+                        </TableCell>
+                        <TableCell>{formatMoney(0)}</TableCell>
+                        <TableCell>
+                          <IconButton color="error" onClick={() => removeEditItem(item.localKey)}>
+                            <DeleteOutlineOutlinedIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>)}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Stack>
+          </Box>}
+        </DialogContent>
+      </Dialog>
+    )}
 
-                    <Typography variant="subtitle1" fontWeight={700} mb={1}>{t("Hədiyyə məhsullar")}</Typography>
-
-                    <TableContainer component={Paper} variant="outlined">
-                      <Table sx={{
-                  border: "1px solid rgba(224, 224, 224, 1)",
-                  "& th, & td": {
-                    border: "1px solid rgba(224, 224, 224, 1)",
-                    textAlign: "center",
-                    verticalAlign: "middle",
-                    padding: "10px"
-                  },
-                  "& th": {
-                    fontWeight: 700,
-                    backgroundColor: "#f5f5f5"
-                  }
-                }}>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>{t("Məhsul")}</TableCell>
-                            <TableCell>{t("Kateqoriya")}</TableCell>
-                            <TableCell>{t("Stok")}</TableCell>
-                            <TableCell>{t("Miqdar")}</TableCell>
-                            <TableCell>{t("Qiymət")}</TableCell>
-                            <TableCell>{t("Sil")}</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {editGiftItems.length === 0 ? <TableRow>
-                              <TableCell colSpan={6}>{t("Hədiyyə məhsul yoxdur")}</TableCell>
-                            </TableRow> : editGiftItems.map(item => <TableRow key={item.localKey}>
-                                <TableCell>{item.productName}</TableCell>
-                                <TableCell>{item.categoryName}</TableCell>
-                                <TableCell>
-                                  {item.stockQuantity ?? "-"}
-                                </TableCell>
-                                <TableCell sx={{
-                        minWidth: 120
-                      }}>
-                                  <TextField type="number" size="small" value={item.quantity} onChange={e => updateEditItem(item.localKey, {
-                          quantity: Number(e.target.value)
-                        })} fullWidth inputProps={{
-                          min: quantityStep(item.unit), step:quantityStep(item.unit)
-                        }} />
-                                </TableCell>
-                                <TableCell>{formatMoney(0)}</TableCell>
-                                <TableCell>
-                                  <IconButton color="error" onClick={() => removeEditItem(item.localKey)}>
-                                    <DeleteOutlineOutlinedIcon />
-                                  </IconButton>
-                                </TableCell>
-                              </TableRow>)}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Paper>
-                </Stack>
-              </Box>}
-          </DialogContent>
-        </Dialog>}
-
-      {printPreviewOpen && printOrder && <InvoiceDialog order={printOrder} onClose={() => {
+    {printPreviewOpen && printOrder && <InvoiceDialog order={printOrder} onClose={() => {
       setPrintPreviewOpen(false);
       setPrintOrder(null);
     }} />}
-      {collect && selectedOrder && <LedgerDialog customer={selectedOrder.customer} order={selectedOrder} onClose={() => setCollect(false)} onSaved={() => {
+    {collect && selectedOrder && <LedgerDialog customer={selectedOrder.customer} order={selectedOrder} onClose={() => setCollect(false)} onSaved={() => {
       fetchOrderDetail(selectedOrder.id);
       fetchOrders(pagination.page, appliedFilters);
     }} />}
 
-    </Box>;
+  </Box>;
 }

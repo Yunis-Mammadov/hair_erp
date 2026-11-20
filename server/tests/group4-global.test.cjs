@@ -40,6 +40,7 @@ test("Group 4: languages, currency, international customers and local dates", as
           "utf8",
         ),
       );
+    await require("./helpers/current-migrations.cjs")(db, "202611130001_group7_extras");
     wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
     await wire.start();
     process.env.DATABASE_URL =
@@ -207,7 +208,7 @@ test("Group 4: languages, currency, international customers and local dates", as
       ok(await api('/orders','POST',f.sale(),f.token,{'X-Workspace-Currency':'USD'}),201);
     });
     await t.test('purchases lock currency before the first sale',async()=>{
-      const f=await fixture();ok(await api('/purchases','POST',{items:[{productId:f.product.id,quantity:1,unitCost:2,salePrice:10}]},f.token),201);assert.equal(ok(await api('/workspace/settings','GET',null,f.token)).currencyLocked,true);assert.equal((await api('/workspace/settings','PATCH',{currency:'GBP'},f.token)).status,409);
+      const f=await fixture();ok(await api('/purchases','POST',{ supplier: "Fixture Supplier", purchaseDate: "2026-11-01", items:[{productId:f.product.id,quantity:1,unitCost:2,salePrice:10}]},f.token),201);assert.equal(ok(await api('/workspace/settings','GET',null,f.token)).currencyLocked,true);assert.equal((await api('/workspace/settings','PATCH',{currency:'GBP'},f.token)).status,409);
     });
     await t.test('invalid settings reject atomically',async()=>{
       const f=await fixture();for(const body of [{currency:'FAKE'},{timezone:'Mars/Crater'},{supportEmail:'bad'},{invoicePrefix:'bad / path'},{name:'x'},{logoUrl:'data:image/png;base64,iVBORw0KGgo='}])assert.equal((await api('/workspace/settings','PATCH',body,f.token)).status,400);
@@ -242,7 +243,7 @@ test("Group 4: languages, currency, international customers and local dates", as
     });
     await t.test('onboarding and USD Starter billing are independent of TRY transactions',async()=>{
       const f=await fixture();await raw.company.update({where:{id:f.company.id},data:{market:'GLOBAL',billingCycle:'YEARLY',currencyConfigured:false}});assert.equal(ok(await api('/workspace/onboarding','GET',null,f.token)).currencyConfigured,false);
-      const company=ok(await api('/workspace/settings','PATCH',{currency:'TRY'},f.token)).company;assert.deepEqual(company.subscriptionPrice,{currency:'USD',amountMinor:14999});assert.equal(company.currency,'TRY');
+      const company=ok(await api('/workspace/settings','PATCH',{currency:'TRY'},f.token)).company;assert.deepEqual(company.subscriptionPrice,{currency:'USD',amountMinor:19999});assert.equal(company.currency,'TRY');
       ok(await api('/orders','POST',f.sale(),f.token),201);const d=ok(await api('/workspace/onboarding','GET',null,f.token));assert.equal(d.sales,1);assert.equal(d.currencyConfigured,true);
     });
     await t.test('CSV accepts international exported phones and rejects foreign currency',async()=>{

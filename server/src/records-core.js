@@ -61,7 +61,7 @@ function orderWhere(req) {
 async function allowedCustomer(tx, req, id) {
   const customer = await tx.customer.findFirst({
     where: { ...customerWhere({ ...req, query: {} }), id },
-    include: { area: true, assignedExpeditor: { select: personSelect } },
+    include: { openingBalance: true, area: true, assignedExpeditor: { select: personSelect } },
   });
   if (!customer) throw F.fail(404, "Müştəri tapılmadı.");
   return customer;
@@ -73,9 +73,10 @@ async function summaries(tx, ids) {
   tx.return.groupBy({by:["customerId"],where,_sum:{totalAmount:true},_count:true}),
   tx.payment.groupBy({by:["customerId"],where:{...where,voidedAt:null},_sum:{amount:true},_count:true}),
   tx.customerRefund.groupBy({by:["customerId"],where,_sum:{amount:true},_count:true}),
+  tx.customerOpeningBalance.groupBy({by:["customerId"],where,_sum:{amount:true}}),
  ]);
  const maps=groups.map(rows=>new Map(rows.map(row=>[row.customerId,row])));
- return new Map(ids.map(id=>{const [o,r,p,f]=maps.map(m=>m.get(id));return [id,F.totals(o?._sum.totalAmount,r?._sum.totalAmount,p?._sum.amount,o?._count,r?._count,p?._count,f?._sum.amount,f?._count)];}));
+ return new Map(ids.map(id=>{const [o,r,p,f,b]=maps.map(m=>m.get(id));return [id,F.totals(o?._sum.totalAmount,r?._sum.totalAmount,p?._sum.amount,o?._count,r?._count,p?._count,f?._sum.amount,f?._count,b?._sum.amount)];}));
 }
 function customerSnapshot(c) {
   return {
@@ -168,34 +169,40 @@ function itemSnapshots(items, products, previous = []) {
 }
 function documentTotal(items) { return Q.priced(items).amounts.totalAmount; }
 async function orderFinancials(tx, customerId) {
- const [orders,returns,payments,refunds]=await Promise.all([
+ const [orders,returns,payments,refunds,opening]=await Promise.all([
   tx.order.findMany({where:{customerId},select:{id:true,totalAmount:true,createdAt:true},orderBy:[{createdAt:"asc"},{id:"asc"}]}),
   tx.returnItem.findMany({where:{returnDoc:{customerId}},select:{orderItemId:true,quantity:true,unitPrice:true,lineTotalAmount:true,orderItem:{select:{orderId:true}}}}),
   tx.payment.findMany({where:{customerId,voidedAt:null},select:{orderId:true,amount:true}}),
   tx.customerRefund.aggregate({where:{customerId},_sum:{amount:true}}),
+  tx.customerOpeningBalance.findUnique({where:{customerId}}),
  ]);
- return allocateFinancials(orders,returns,payments,refunds._sum.amount);
+ return allocateFinancials(withOpening(orders,opening),returns,payments,refunds._sum.amount,opening);
 }
-function allocateFinancials(orders,returns,payments,refundAmount){
+function withOpening(orders, opening) {
+ return opening && F.minor(opening.amount)>0 ? [{id:'opening:'+opening.customerId,totalAmount:opening.amount,createdAt:opening.balanceDate,type:'OPENING_BALANCE',invoiceNumber:'OPENING_BALANCE'},...orders] : orders;
+}
+function allocateFinancials(orders,returns,payments,refundAmount,opening){
  const linkedReturns=new Map(), linkedPayments=new Map();let legacy=0;
  for(const r of returns){const n=r.lineTotalAmount==null?Q.lineCents(F.minor(r.unitPrice),r.quantity):F.minor(r.lineTotalAmount);if(r.orderItemId)linkedReturns.set(r.orderItem.orderId,(linkedReturns.get(r.orderItem.orderId)||0)+n);else legacy+=n;}
  for(const p of payments)if(p.orderId)linkedPayments.set(p.orderId,(linkedPayments.get(p.orderId)||0)+F.minor(p.amount));
- let pool=payments.reduce((n,p)=>n+F.minor(p.amount),0)-F.minor(refundAmount);
+ let pool=payments.reduce((n,p)=>n+F.minor(p.amount),0)-F.minor(refundAmount)+Math.max(-F.minor(opening?.amount),0);
  const rows=orders.map(order=>{const total=F.minor(order.totalAmount);let ret=Math.min(total,linkedReturns.get(order.id)||0);const extra=Math.min(legacy,Math.max(total-ret,0));legacy-=extra;ret+=extra;const paid=Math.min(Math.max(total-ret,0),linkedPayments.get(order.id)||0,Math.max(pool,0));pool-=paid;return {id:order.id,total,ret,paid};});
  return new Map(rows.map(row=>{const extra=Math.min(Math.max(pool,0),Math.max(row.total-row.ret-row.paid,0));pool-=extra;row.paid+=extra;const debt=Math.max(row.total-row.ret-row.paid,0);return [row.id,{totalAmount:F.major(row.total),allocatedReturn:F.major(row.ret),allocatedPayment:F.major(row.paid),remainingDebt:F.major(debt),financialStatus:debt===0?"ODENIB":row.paid||row.ret?"QISMEN_ODENIB":"BORCLU"}];}));
 }
 
 
 async function orderFinancialsMany(tx,ids){
- const [orders,returns,payments,refunds]=await Promise.all([
+ const [orders,returns,payments,refunds,opening]=await Promise.all([
  tx.order.findMany({where:{customerId:{in:ids}},select:{id:true,customerId:true,totalAmount:true,createdAt:true,invoiceNumber:true,orderNumber:true},orderBy:[{createdAt:'asc'},{id:'asc'}]}),
  tx.returnItem.findMany({where:{returnDoc:{customerId:{in:ids}}},select:{quantity:true,unitPrice:true,lineTotalAmount:true,orderItemId:true,orderItem:{select:{orderId:true}},returnDoc:{select:{customerId:true}}}}),
  tx.payment.findMany({where:{customerId:{in:ids},voidedAt:null},select:{customerId:true,orderId:true,amount:true}}),
- tx.customerRefund.groupBy({by:['customerId'],where:{customerId:{in:ids}},_sum:{amount:true}})
+ tx.customerRefund.groupBy({by:['customerId'],where:{customerId:{in:ids}},_sum:{amount:true}}),
+ tx.customerOpeningBalance.findMany({where:{customerId:{in:ids}}})
  ]);
  const group=(rows,get)=>{const map=new Map();for(const row of rows){const k=get(row);if(!map.has(k))map.set(k,[]);map.get(k).push(row);}return map;};
  const o=group(orders,r=>r.customerId),r=group(returns,r=>r.returnDoc.customerId),p=group(payments,r=>r.customerId),f=new Map(refunds.map(r=>[r.customerId,r._sum.amount]));
- return new Map(ids.map(id=>[id,{orders:o.get(id)||[],amounts:allocateFinancials(o.get(id)||[],r.get(id)||[],p.get(id)||[],f.get(id))}]));
+ const b=new Map(opening.map(row=>[row.customerId,row]));
+ return new Map(ids.map(id=>{const entries=withOpening(o.get(id)||[],b.get(id));return [id,{orders:entries,amounts:allocateFinancials(entries,r.get(id)||[],p.get(id)||[],f.get(id),b.get(id))}];}));
 }
 
 module.exports = {

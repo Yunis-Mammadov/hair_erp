@@ -40,6 +40,7 @@ test("Group 7: fractional stock, taxed invoices, statements, PDF, reminders and 
           "utf8",
         ),
       );
+    await require("./helpers/current-migrations.cjs")(db, "202611130001_group7_extras");
     wire = new PGLiteSocketServer({ db, port: 0, host: "127.0.0.1" });
     await wire.start();
     process.env.DATABASE_URL =
@@ -243,8 +244,7 @@ test("Group 7: fractional stock, taxed invoices, statements, PDF, reminders and 
           await api(
             "/purchases",
             "POST",
-            {
-              items: [
+            { supplier: "Fixture Supplier", purchaseDate: "2026-11-01", items: [
                 {
                   productId: f.product.id,
                   quantity: 0.125,
@@ -425,7 +425,9 @@ test("Group 7: fractional stock, taxed invoices, statements, PDF, reminders and 
         const dashboard = ok(
           await api("/dashboard/stats", "GET", null, f.token),
         );
-        assert.equal(dashboard.revenue.value, 10.92);
+        assert.equal(dashboard.revenue.gross, 10.92);
+        assert.equal(dashboard.revenue.returns, 10.92);
+        assert.equal(dashboard.revenue.value, 0);
         assert.equal(returned, 1092);
         assert.equal(await stock(f), 10);
         const amounts = ok(

@@ -1,5 +1,42 @@
-node_modules
-# Keep environment variables out of version control
-.env
+# Dependencies
+node_modules/
 
-/generated/prisma
+# Build outputs
+dist/
+dist-ssr/
+build/
+coverage/
+
+# Development caches
+.vite/
+.vite-temp/
+.cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Uploaded files
+uploads/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.local
+
+# Local database
+prisma/dev.db
+# Database backups
+backups/
+*.dump

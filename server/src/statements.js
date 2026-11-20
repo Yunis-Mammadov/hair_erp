@@ -79,7 +79,7 @@ async function statement(tx, req, customerId) {
     {};
   const max = 10000;
   const createdAt = range.lt ? { lt: range.lt } : undefined;
-  const [orders, returns, payments, refunds] = await Promise.all([
+  const [orders, returns, payments, refunds, openingEntry] = await Promise.all([
     tx.order.findMany({
       where: { customerId, ...(createdAt ? { createdAt } : {}) },
       select: {
@@ -112,6 +112,7 @@ async function statement(tx, req, customerId) {
       select: { id: true, amount: true, createdAt: true },
       take: max + 1,
     }),
+    tx.customerOpeningBalance.findUnique({where:{customerId}}),
   ]);
   if (
     orders.length +
@@ -128,6 +129,7 @@ async function statement(tx, req, customerId) {
       "STATEMENT_LIMIT",
     );
   let events = [];
+  if(openingEntry && (!range.lt || openingEntry.balanceDate < range.lt)) events.push({id:openingEntry.id,type:'OPENING_BALANCE',date:openingEntry.balanceDate,reference:openingEntry.source,debit:Math.max(F.minor(openingEntry.amount),0),credit:Math.max(-F.minor(openingEntry.amount),0)});
   for (const o of orders)
     events.push({
       id: o.id,
@@ -174,7 +176,7 @@ async function statement(tx, req, customerId) {
       debit: F.minor(r.amount),
       credit: 0,
     });
-  const order = ["SALE", "RETURN", "PAYMENT", "PAYMENT_VOID", "REFUND"];
+  const order = ["OPENING_BALANCE", "SALE", "RETURN", "PAYMENT", "PAYMENT_VOID", "REFUND"];
   events.sort(
     (a, b) =>
       +a.date - +b.date ||

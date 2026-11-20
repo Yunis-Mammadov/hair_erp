@@ -8,6 +8,7 @@ function log(event, fields={}) {
 }
 function requestLog(req,res,next){req.requestId=randomUUID();res.set('X-Request-ID',req.requestId);const start=performance.now();res.once('finish',()=>log('http',{requestId:req.requestId,method:req.method,route:(req.baseUrl||'')+(req.route?.path||'/unmatched'),status:res.statusCode,durationMs:Math.round(performance.now()-start)}));next();}
 function validateEnvironment(env=process.env){
+ if(env.TRIAL_SIGNUP_ENABLED==='true'&&env.NODE_ENV==='production'&&!require('../trial-mail').mode(env))throw Error('Trial signup requires configured SMTP email delivery in production. Console delivery is development-only.');
  if(env.TRUST_PROXY_HOPS&&!/^[0-3]$/.test(env.TRUST_PROXY_HOPS))throw Error('TRUST_PROXY_HOPS must be an integer from 0 to 3.');
  if(env.APP_URL){let url;try{url=new URL(env.APP_URL);}catch{throw Error('APP_URL must be a valid HTTP(S) URL.');}if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.search||url.hash)throw Error('APP_URL must be an HTTP(S) URL without credentials, query or fragment.');}
  if(env.NODE_ENV==='production'){
@@ -30,6 +31,12 @@ function readiness({db,uploadsRoot}){
    await db.$queryRawUnsafe('SELECT 1');
    await db.company.findFirst({select:{id:true,timezone:true}});
    await db.billingEvent.count();
+   await db.customerOpeningBalance.count();
+   await db.auditEvent.count();
+   await db.trialInvitation.count();
+   await db.company.findFirst({select:{trialStartedAt:true,trialEndsAt:true,trialConvertedAt:true}});
+   await db.purchase.findFirst({select:{version:true,totalAmount:true,voidedAt:true}});
+   await db.customer.findFirst({select:{externalId:true}});
    const failures=await db.$queryRawUnsafe('SELECT COUNT(*)::int AS count FROM "_prisma_migrations" WHERE finished_at IS NULL AND rolled_back_at IS NULL');
    if(failures[0]?.count)throw Error('MIGRATION_FAILED');
    await fs.mkdir(uploadsRoot,{recursive:true});const file=path.join(uploadsRoot,'.ready-'+randomUUID());await fs.writeFile(file,'ready',{flag:'wx'});await fs.unlink(file);

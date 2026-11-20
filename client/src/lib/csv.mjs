@@ -2,6 +2,10 @@ import { t } from "../i18n/runtime.js";
 export function parseCSV(input) {
   const text = String(input).replace(/^\uFEFF/, "");
   if (text.length > 1000000) throw new Error(t("Fayl 1 MB-dan kiçik olmalıdır."));
+  let inQuotes=false;
+  const counts={',':0,';':0,'\t':0};
+  for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(inQuotes&&text[i+1]==='"')i++;else inQuotes=!inQuotes;}else if(!inQuotes){if(c==='\r'||c==='\n')break;if(Object.hasOwn(counts,c))counts[c]++;}}
+  const delimiter=Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0];
   const rows = [];
   let row = [],
     field = "",
@@ -27,11 +31,11 @@ export function parseCSV(input) {
       quoted = true;
       continue;
     }
-    if (c === "," || c === "\n" || c === "\r" || c === undefined) {
+    if (c === delimiter || c === "\n" || c === "\r" || c === undefined) {
       row.push(field);
       field = "";
       afterQuote = false;
-      if (c !== ",") {
+      if (c !== delimiter) {
         if (row.some((v) => v !== "")) rows.push(row);
         row = [];
         if (c === "\r" && text[i + 1] === "\n") i++;

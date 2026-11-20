@@ -6190,5 +6190,1067 @@
     "az": "SMTP məktubu rədd etdi. Alıcını və ya provayderi yoxla.",
     "tr": "SMTP iletiyi reddetti. Alıcıyı veya sağlayıcıyı kontrol edin.",
     "ru": "SMTP отклонил письмо. Проверьте получателя или провайдера."
+  },
+  "Import Excel / CSV": {
+    "en": "Import Excel / CSV",
+    "az": "Excel / CSV idxalı",
+    "tr": "Excel / CSV içe aktar",
+    "ru": "Импорт Excel / CSV"
+  },
+  "Import customers and opening balances": {
+    "en": "Import customers and opening balances",
+    "az": "Müştərilər və ilkin balansların idxalı",
+    "tr": "Müşteriler ve açılış bakiyelerini içe aktar",
+    "ru": "Импорт клиентов и начальных остатков"
+  },
+  "Import products": {
+    "en": "Import products",
+    "az": "Məhsulların idxalı",
+    "tr": "Ürünleri içe aktar",
+    "ru": "Импорт товаров"
+  },
+  "Up to 200 rows per file. One invalid row cancels the entire import. Opening balances do not create sales or stock movements.": {
+    "en": "Up to 200 rows per file. One invalid row cancels the entire import. Opening balances do not create sales or stock movements.",
+    "az": "Bir faylda ən çox 200 sətir. Bir səhv sətir bütün idxalı dayandırır. İlkin balans satış və stok hərəkəti yaratmır.",
+    "tr": "Dosya başına en fazla 200 satır. Hatalı bir satır tüm işlemi iptal eder. Açılış bakiyeleri satış veya stok hareketi oluşturmaz.",
+    "ru": "До 200 строк в файле. Одна ошибка отменяет весь импорт. Начальные остатки не создают продаж или движений склада."
+  },
+  "Use text cells for phone numbers and IDs. Use YYYY-MM-DD dates and amounts without thousands separators. Excel formulas must be pasted as values.": {
+    "en": "Use text cells for phone numbers and IDs. Use YYYY-MM-DD dates and amounts without thousands separators. Excel formulas must be pasted as values.",
+    "az": "Telefon və ID xanalarını mətn formatında saxla. Tarix YYYY-MM-DD, məbləğ minlik ayırıcısız olmalıdır. Excel düsturlarını əvvəlcə qiymətə çevir.",
+    "tr": "Telefon ve kimlikler metin olmalı. Tarih YYYY-MM-DD, tutarlar binlik ayırıcı olmadan yazılmalı. Excel formüllerini değer olarak yapıştırın.",
+    "ru": "Телефоны и коды храните как текст. Даты — YYYY-MM-DD, суммы — без разделителей тысяч. Формулы Excel замените значениями."
+  },
+  "Download template": {
+    "en": "Download template",
+    "az": "Şablonu yüklə",
+    "tr": "Şablonu indir",
+    "ru": "Скачать шаблон"
+  },
+  "Choose file": {
+    "en": "Choose file",
+    "az": "Fayl seç",
+    "tr": "Dosya seç",
+    "ru": "Выбрать файл"
+  },
+  "Import complete": {
+    "en": "Import complete",
+    "az": "İdxal tamamlandı",
+    "tr": "İçe aktarma tamamlandı",
+    "ru": "Импорт завершён"
+  },
+  "Created": {
+    "en": "Created",
+    "az": "Əlavə edildi",
+    "tr": "Oluşturuldu",
+    "ru": "Создано"
+  },
+  "Updated": {
+    "en": "Updated",
+    "az": "Yeniləndi",
+    "tr": "Güncellendi",
+    "ru": "Обновлено"
+  },
+  "Worksheet": {
+    "en": "Worksheet",
+    "az": "Excel vərəqi",
+    "tr": "Çalışma sayfası",
+    "ru": "Лист Excel"
+  },
+  "Import mode": {
+    "en": "Import mode",
+    "az": "İdxal rejimi",
+    "tr": "İçe aktarma modu",
+    "ru": "Режим импорта"
+  },
+  "Create new customers only": {
+    "en": "Create new customers only",
+    "az": "Yalnız yeni müştərilər əlavə et",
+    "tr": "Yalnızca yeni müşteriler oluştur",
+    "ru": "Только новые клиенты"
+  },
+  "Merge matching contacts by external ID or phone": {
+    "en": "Merge matching contacts by external ID or phone",
+    "az": "Xarici ID və ya telefonla uyğun kontaktları yenilə",
+    "tr": "Harici kimlik veya telefonla eşleşen kişileri güncelle",
+    "ru": "Обновить совпадения по внешнему коду или телефону"
+  },
+  "File currency if column is absent": {
+    "en": "File currency if column is absent",
+    "az": "Sütun yoxdursa faylın valyutası",
+    "tr": "Sütun yoksa dosya para birimi",
+    "ru": "Валюта файла при отсутствии столбца"
+  },
+  "Use file column": {
+    "en": "Use file column",
+    "az": "Fayldakı sütundan istifadə et",
+    "tr": "Dosya sütununu kullan",
+    "ru": "Использовать столбец файла"
+  },
+  "Balance date if column is absent": {
+    "en": "Balance date if column is absent",
+    "az": "Sütun yoxdursa balans tarixi",
+    "tr": "Sütun yoksa bakiye tarihi",
+    "ru": "Дата остатка при отсутствии столбца"
+  },
+  "Merge updates contact fields, including empty cells. Existing opening balances are never overwritten; identical balances are skipped.": {
+    "en": "Merge updates contact fields, including empty cells. Existing opening balances are never overwritten; identical balances are skipped.",
+    "az": "Yeniləmə boş xanalar daxil kontakt məlumatlarını əvəz edir. Mövcud ilkin balans dəyişmir; eyni balans təkrar əlavə edilmir.",
+    "tr": "Güncelleme boş hücreler dahil kişi alanlarını değiştirir. Mevcut açılış bakiyeleri değiştirilmez; aynı bakiyeler atlanır.",
+    "ru": "Обновление заменяет контактные поля, включая пустые. Начальные остатки не перезаписываются; одинаковые пропускаются."
+  },
+  "Choose target column": {
+    "en": "Choose target column",
+    "az": "Uyğun sahəni seç",
+    "tr": "Hedef sütunu seç",
+    "ru": "Выберите поле"
+  },
+  "Ignore this column": {
+    "en": "Ignore this column",
+    "az": "Bu sütunu idxal etmə",
+    "tr": "Bu sütunu atla",
+    "ru": "Пропустить столбец"
+  },
+  "Preview of the first 10 rows": {
+    "en": "Preview of the first 10 rows",
+    "az": "İlk 10 sətrin önbaxışı",
+    "tr": "İlk 10 satırın önizlemesi",
+    "ru": "Первые 10 строк"
+  },
+  "Validate import": {
+    "en": "Validate import",
+    "az": "İdxalı yoxla",
+    "tr": "İçe aktarmayı doğrula",
+    "ru": "Проверить импорт"
+  },
+  "Validation passed": {
+    "en": "Validation passed",
+    "az": "Yoxlama uğurludur",
+    "tr": "Doğrulama başarılı",
+    "ru": "Проверка пройдена"
+  },
+  "New opening debt": {
+    "en": "New opening debt",
+    "az": "Əlavə olunacaq ilkin borc",
+    "tr": "Yeni açılış borcu",
+    "ru": "Новый начальный долг"
+  },
+  "New opening credit": {
+    "en": "New opening credit",
+    "az": "Əlavə olunacaq ilkin kredit",
+    "tr": "Yeni açılış alacağı",
+    "ru": "Новый начальный аванс"
+  },
+  "I checked the mapping, currency, dates and balances. Commit this import.": {
+    "en": "I checked the mapping, currency, dates and balances. Commit this import.",
+    "az": "Sütunları, valyutanı, tarix və balansları yoxladım. İdxalı təsdiqləyirəm.",
+    "tr": "Sütunları, para birimini, tarihleri ve bakiyeleri kontrol ettim. İçe aktarmayı onaylıyorum.",
+    "ru": "Я проверил поля, валюту, даты и остатки. Подтверждаю импорт."
+  },
+  "Working...": {
+    "en": "Working...",
+    "az": "İşlənir...",
+    "tr": "İşleniyor...",
+    "ru": "Обработка..."
+  },
+  "Confirm import": {
+    "en": "Confirm import",
+    "az": "İdxalı təsdiqlə",
+    "tr": "İçe aktarmayı onayla",
+    "ru": "Подтвердить импорт"
+  },
+  "OPENING_BALANCE": {
+    "en": "Opening balance",
+    "az": "İlkin balans",
+    "tr": "Açılış bakiyesi",
+    "ru": "Начальный остаток"
+  },
+  "Opening debt": {
+    "en": "Opening debt",
+    "az": "İlkin borc",
+    "tr": "Açılış borcu",
+    "ru": "Начальный долг"
+  },
+  "Opening credit": {
+    "en": "Opening credit",
+    "az": "İlkin kredit",
+    "tr": "Açılış alacağı",
+    "ru": "Начальный аванс"
+  },
+  "Balance date": {
+    "en": "Balance date",
+    "az": "Balans tarixi",
+    "tr": "Bakiye tarihi",
+    "ru": "Дата остатка"
+  },
+  "External customer ID": {
+    "en": "External customer ID",
+    "az": "Xarici müştəri kodu",
+    "tr": "Harici müşteri kodu",
+    "ru": "Внешний код клиента"
+  },
+  "Salon / store": {
+    "en": "Salon / store",
+    "az": "Salon / mağaza",
+    "tr": "Salon / mağaza",
+    "ru": "Салон / магазин"
+  },
+  "Latitude": {
+    "en": "Latitude",
+    "az": "Enlik",
+    "tr": "Enlem",
+    "ru": "Широта"
+  },
+  "Longitude": {
+    "en": "Longitude",
+    "az": "Uzunluq",
+    "tr": "Boylam",
+    "ru": "Долгота"
+  },
+  "Map or ignore every column.": {
+    "en": "Map or ignore every column.",
+    "az": "Hər sütuna sahə seç və ya idxal etməməyi göstər.",
+    "tr": "Her sütunu eşleştirin veya atlayın.",
+    "ru": "Сопоставьте или пропустите каждый столбец."
+  },
+  "Import file must be smaller than 1 MB.": {
+    "en": "Import file must be smaller than 1 MB.",
+    "az": "İdxal faylı 1 MB-dan kiçik olmalıdır.",
+    "tr": "İçe aktarma dosyası 1 MB altında olmalı.",
+    "ru": "Файл импорта должен быть меньше 1 МБ."
+  },
+  "Example Excel": {
+    "en": "Example Excel",
+    "az": "Excel nümunəsi",
+    "tr": "Örnek Excel",
+    "ru": "Пример Excel"
+  },
+  "Product imports set opening inventory. Use purchase forms for later receipts. Maximum 200 rows; one invalid row cancels the entire file.": {
+    "en": "Product imports set opening inventory. Use purchase forms for later receipts. Maximum 200 rows; one invalid row cancels the entire file.",
+    "az": "Məhsul idxalı ilkin stok yaradır. Sonrakı mədaxilləri alış formasından et. Ən çox 200 sətir; səhv sətir bütün faylın idxalını dayandırır.",
+    "tr": "Ürün içe aktarma açılış stoğunu oluşturur. Sonraki girişler için alış formunu kullanın. En fazla 200 satır; hatalı bir satır tüm dosyayı iptal eder.",
+    "ru": "Импорт товаров задаёт начальный складской остаток. Последующие поступления оформляйте закупками. До 200 строк; одна ошибка отменяет весь файл."
+  },
+  "Edit customer": {
+    "en": "Edit customer",
+    "az": "Müştərini redaktə et",
+    "tr": "Müşteriyi düzenle",
+    "ru": "Редактировать клиента"
+  },
+  "Edit purchase": {
+    "en": "Edit purchase",
+    "az": "Alışı redaktə et",
+    "tr": "Alışı düzenle",
+    "ru": "Изменить закупку"
+  },
+  "Void purchase": {
+    "en": "Void purchase",
+    "az": "Alışı ləğv et",
+    "tr": "Alışı iptal et",
+    "ru": "Аннулировать закупку"
+  },
+  "Clear location": {
+    "en": "Clear location",
+    "az": "Konumu sil",
+    "tr": "Konumu temizle",
+    "ru": "Удалить местоположение"
+  },
+  "Contact changes do not rewrite past invoices, payments or opening balances.": {
+    "en": "Contact changes do not rewrite past invoices, payments or opening balances.",
+    "az": "Əlaqə məlumatlarının dəyişməsi əvvəlki qaimələri, ödənişləri və ilkin balansı dəyişmir.",
+    "tr": "İletişim değişiklikleri geçmiş faturaları, ödemeleri veya açılış bakiyesini değiştirmez.",
+    "ru": "Изменение контактов не меняет прошлые накладные, платежи и начальный баланс."
+  },
+  "Could not save changes.": {
+    "en": "Could not save changes.",
+    "az": "Dəyişikliklər saxlanılmadı.",
+    "tr": "Değişiklikler kaydedilemedi.",
+    "ru": "Не удалось сохранить изменения."
+  },
+  "Could not save purchase changes.": {
+    "en": "Could not save purchase changes.",
+    "az": "Alışdakı dəyişikliklər saxlanılmadı.",
+    "tr": "Alış değişiklikleri kaydedilemedi.",
+    "ru": "Не удалось сохранить изменения закупки."
+  },
+  "This product is already in the purchase.": {
+    "en": "This product is already in the purchase.",
+    "az": "Bu məhsul alışda artıq var.",
+    "tr": "Bu ürün alışta zaten var.",
+    "ru": "Этот товар уже есть в закупке."
+  },
+  "Purchase date": {
+    "en": "Purchase date",
+    "az": "Alış tarixi",
+    "tr": "Alış tarihi",
+    "ru": "Дата закупки"
+  },
+  "Changes are recorded in history. Stock is adjusted by the difference; amounts are recalculated by the server.": {
+    "en": "Changes are recorded in history. Stock is adjusted by the difference; amounts are recalculated by the server.",
+    "az": "Dəyişikliklər tarixçədə saxlanılır. Stok miqdar fərqi qədər dəyişir, məbləği server hesablayır.",
+    "tr": "Değişiklikler geçmişe kaydedilir. Stok fark kadar düzeltilir; tutarları sunucu hesaplar.",
+    "ru": "Изменения сохраняются в истории. Остаток корректируется на разницу; суммы рассчитывает сервер."
+  },
+  "Voiding keeps the original document and reverses its stock receipt. It is blocked if that stock is no longer available.": {
+    "en": "Voiding keeps the original document and reverses its stock receipt. It is blocked if that stock is no longer available.",
+    "az": "Ləğv ilkin sənədi saxlayır və alış miqdarını stokdan çıxır. Qalıq çatmasa, ləğv mümkün deyil.",
+    "tr": "İptal, asıl belgeyi korur ve giriş miktarını stoktan düşer. Yeterli stok yoksa işlem engellenir.",
+    "ru": "Аннулирование сохраняет документ и отменяет поступление. При нехватке остатка операция блокируется."
+  },
+  "No revisions yet.": {
+    "en": "No revisions yet.",
+    "az": "Hələ dəyişiklik edilməyib.",
+    "tr": "Henüz değişiklik yok.",
+    "ru": "Изменений пока нет."
+  },
+  "PURCHASE_EDITED": {
+    "en": "PURCHASE_EDITED",
+    "az": "Alış redaktə edilib",
+    "tr": "Alış düzenlendi",
+    "ru": "Закупка изменена"
+  },
+  "PURCHASE_VOIDED": {
+    "en": "PURCHASE_VOIDED",
+    "az": "Alış ləğv edilib",
+    "tr": "Alış iptal edildi",
+    "ru": "Закупка аннулирована"
+  },
+  "CUSTOMER_EDITED": {
+    "en": "CUSTOMER_EDITED",
+    "az": "Müştəri məlumatları redaktə edilib",
+    "tr": "Müşteri bilgileri düzenlendi",
+    "ru": "Данные клиента изменены"
+  },
+  "COMPANY_PASSWORD": {
+    "en": "COMPANY_PASSWORD",
+    "az": "Şirkətin şifrəsi yenilənib",
+    "tr": "Şirket şifresi yenilendi",
+    "ru": "Пароль компании изменён"
+  },
+  "COMPANY_SUBSCRIPTION": {
+    "en": "COMPANY_SUBSCRIPTION",
+    "az": "Abunəlik müddəti yenilənib",
+    "tr": "Abonelik süresi yenilendi",
+    "ru": "Срок подписки изменён"
+  },
+  "COMPANY_STATUS": {
+    "en": "COMPANY_STATUS",
+    "az": "Şirkətin statusu dəyişib",
+    "tr": "Şirket durumu değişti",
+    "ru": "Статус компании изменён"
+  },
+  "COMPANY_PIN_RESET": {
+    "en": "COMPANY_PIN_RESET",
+    "az": "İşçi PIN-i yenilənib",
+    "tr": "Çalışan PIN kodu yenilendi",
+    "ru": "PIN сотрудника изменён"
+  },
+  "Reset company password": {
+    "en": "Reset company password",
+    "az": "Şirkətin şifrəsini yenilə",
+    "tr": "Şirket şifresini yenile",
+    "ru": "Сменить пароль компании"
+  },
+  "Extend subscription": {
+    "en": "Extend subscription",
+    "az": "Abunəliyi uzat",
+    "tr": "Aboneliği uzat",
+    "ru": "Продлить подписку"
+  },
+  "Activate company": {
+    "en": "Activate company",
+    "az": "Şirkəti aktivləşdir",
+    "tr": "Şirketi etkinleştir",
+    "ru": "Активировать компанию"
+  },
+  "Deactivate company": {
+    "en": "Deactivate company",
+    "az": "Şirkəti deaktiv et",
+    "tr": "Şirketi devre dışı bırak",
+    "ru": "Деактивировать компанию"
+  },
+  "Company history": {
+    "en": "Company history",
+    "az": "Şirkətin tarixçəsi",
+    "tr": "Şirket geçmişi",
+    "ru": "История компании"
+  },
+  "New company password": {
+    "en": "New company password",
+    "az": "Yeni şirkət şifrəsi",
+    "tr": "Yeni şirket şifresi",
+    "ru": "Новый пароль компании"
+  },
+  "Last subscription day": {
+    "en": "Last subscription day",
+    "az": "Abunəliyin son günü",
+    "tr": "Aboneliğin son günü",
+    "ru": "Последний день подписки"
+  },
+  "This action revokes the company sessions. Record a reason before continuing.": {
+    "en": "This action revokes the company sessions. Record a reason before continuing.",
+    "az": "Bu əməliyyat şirkətin açıq sessiyalarını bağlayır. Davam etməzdən əvvəl səbəb yaz.",
+    "tr": "Bu işlem şirketin oturumlarını sonlandırır. Devam etmeden önce neden yazın.",
+    "ru": "Действие завершит сеансы компании. Укажите причину перед продолжением."
+  },
+  "Extending access does not charge a card or record a subscription payment.": {
+    "en": "Extending access does not charge a card or record a subscription payment.",
+    "az": "Müddəti uzatmaq kartdan pul tutmur və abunəlik ödənişi yaratmır.",
+    "tr": "Süreyi uzatmak karttan ücret almaz ve abonelik ödemesi oluşturmaz.",
+    "ru": "Продление доступа не списывает деньги с карты и не регистрирует оплату подписки."
+  },
+  "An expired subscription must be extended before activation.": {
+    "en": "An expired subscription must be extended before activation.",
+    "az": "Aktivləşdirməzdən əvvəl bitmiş abunəliyin müddətini uzat.",
+    "tr": "Etkinleştirmeden önce süresi dolan aboneliği uzatın.",
+    "ru": "Перед активацией продлите истёкшую подписку."
+  },
+  "Deactivation blocks company sign-in and access, including previously signed image links.": {
+    "en": "Deactivation blocks company sign-in and access, including previously signed image links.",
+    "az": "Deaktivləşdirmə şirkətə girişi və əvvəlki imzalı şəkil keçidlərini bloklayır.",
+    "tr": "Devre dışı bırakma, şirket erişimini ve önceki imzalı görsel bağlantılarını engeller.",
+    "ru": "Деактивация блокирует доступ компании и ранее подписанные ссылки на изображения."
+  },
+  "Net sales this month": {
+    "en": "Net sales this month",
+    "az": "Bu ay xalis satış",
+    "tr": "Bu ay net satış",
+    "ru": "Чистые продажи за месяц"
+  },
+  "Subject": {
+    "en": "Subject",
+    "az": "Mövzu",
+    "tr": "Konu",
+    "ru": "Тема"
+  },
+  "Message": {
+    "en": "Message",
+    "az": "Məktub",
+    "tr": "Mesaj",
+    "ru": "Сообщение"
+  },
+  "Request reference (optional)": {
+    "en": "Request reference (optional)",
+    "az": "Sorğu nömrəsi (istəyə görə)",
+    "tr": "İstek numarası (isteğe bağlı)",
+    "ru": "Номер запроса (необязательно)"
+  },
+  "Open in Gmail": {
+    "en": "Open in Gmail",
+    "az": "Gmail-də aç",
+    "tr": "Gmail'de aç",
+    "ru": "Открыть в Gmail"
+  },
+  "Open email application": {
+    "en": "Open email application",
+    "az": "E-poçt proqramında aç",
+    "tr": "E-posta uygulamasında aç",
+    "ru": "Открыть почтовую программу"
+  },
+  "The buttons open a prepared email draft. Review it and press Send in your email application. This page does not send a message automatically.": {
+    "en": "The buttons open a prepared email draft. Review it and press Send in your email application. This page does not send a message automatically.",
+    "az": "Düymələr hazırlanmış məktubu açır. Məktubu yoxla və e-poçt proqramında Göndər düyməsinə bas. Bu səhifə məktubu avtomatik göndərmir.",
+    "tr": "Düğmeler hazır bir e-posta taslağı açar. Kontrol edip e-posta uygulamasında Gönder'e basın. Bu sayfa otomatik mesaj göndermez.",
+    "ru": "Кнопки открывают черновик письма. Проверьте его и нажмите «Отправить» в почтовой программе. Страница не отправляет письма автоматически."
+  },
+  "Suspend": {
+    "en": "Suspend",
+    "az": "Deaktiv et",
+    "tr": "Devre dışı bırak",
+    "ru": "Отключить"
+  },
+  "Reversed stock receipt": {
+    "en": "Reversed stock receipt",
+    "az": "Stok girişi geri çevrilib",
+    "tr": "Stok girişi geri alındı",
+    "ru": "Поступление на склад отменено"
+  },
+  "This purchase changed. Reload it before saving.": {
+    "en": "This purchase changed. Reload it before saving.",
+    "az": "Alış dəyişib. Saxlamazdan əvvəl yenidən yüklə.",
+    "tr": "Alış değişti. Kaydetmeden önce yeniden yükleyin.",
+    "ru": "Закупка изменилась. Обновите данные перед сохранением."
+  },
+  "This customer changed. Reload the customer before saving.": {
+    "en": "This customer changed. Reload the customer before saving.",
+    "az": "Müştəri məlumatları dəyişib. Saxlamazdan əvvəl yenidən yüklə.",
+    "tr": "Müşteri bilgileri değişti. Kaydetmeden önce yeniden yükleyin.",
+    "ru": "Данные клиента изменились. Обновите их перед сохранением."
+  },
+  "This purchase has already been voided.": {
+    "en": "This purchase has already been voided.",
+    "az": "Bu alış artıq ləğv edilib.",
+    "tr": "Bu alış zaten iptal edildi.",
+    "ru": "Эта закупка уже аннулирована."
+  },
+  "Supplier is required.": {
+    "en": "Supplier is required.",
+    "az": "Təchizatçının adını yaz.",
+    "tr": "Tedarikçi adını yazın.",
+    "ru": "Укажите поставщика."
+  },
+  "Purchase date cannot be in the future.": {
+    "en": "Purchase date cannot be in the future.",
+    "az": "Alış tarixi gələcəkdə ola bilməz.",
+    "tr": "Alış tarihi gelecekte olamaz.",
+    "ru": "Дата закупки не может быть в будущем."
+  },
+  "Combine duplicate products into one line.": {
+    "en": "Combine duplicate products into one line.",
+    "az": "Təkrarlanan məhsulları bir sətirdə birləşdir.",
+    "tr": "Tekrarlanan ürünleri tek satırda birleştirin.",
+    "ru": "Объедините повторяющиеся товары в одну строку."
+  },
+  "Enter a reason with at least three characters.": {
+    "en": "Enter a reason with at least three characters.",
+    "az": "Ən az üç simvoldan ibarət səbəb yaz.",
+    "tr": "En az üç karakterlik bir neden yazın.",
+    "ru": "Укажите причину длиной не менее трёх символов."
+  },
+  "The company changed. Refresh the company list before continuing.": {
+    "en": "The company changed. Refresh the company list before continuing.",
+    "az": "Şirkət məlumatları dəyişib. Davam etməzdən əvvəl siyahını yenilə.",
+    "tr": "Şirket bilgileri değişti. Devam etmeden önce listeyi yenileyin.",
+    "ru": "Данные компании изменились. Обновите список перед продолжением."
+  },
+  "Extend the expired subscription before activating this company.": {
+    "en": "Extend the expired subscription before activating this company.",
+    "az": "Şirkəti aktivləşdirməzdən əvvəl bitmiş abunəliyi uzat.",
+    "tr": "Şirketi etkinleştirmeden önce süresi dolan aboneliği uzatın.",
+    "ru": "Продлите истёкшую подписку перед активацией компании."
+  },
+  "An archived product cannot receive more stock.": {
+    "en": "An archived product cannot receive more stock.",
+    "az": "Arxivlənmiş məhsulun stoku artırıla bilməz.",
+    "tr": "Arşivlenen ürünün stoku artırılamaz.",
+    "ru": "Нельзя увеличить остаток архивного товара."
+  },
+  "Net sales subtract returns posted this month. Customer payments and cash refunds do not change this sales figure.": {
+    "en": "Net sales subtract returns posted this month. Customer payments and cash refunds do not change this sales figure.",
+    "az": "Xalis satışdan bu ay qeydə alınmış qaytarmalar çıxılır. Müştəri ödənişləri və pul geri ödənişləri satış göstəricisini dəyişmir.",
+    "tr": "Net satıştan bu ay kaydedilen iadeler düşülür. Müşteri ödemeleri ve nakit geri ödemeler satış tutarını değiştirmez.",
+    "ru": "Из чистых продаж вычитаются возвраты, зарегистрированные в этом месяце. Платежи клиентов и возврат денег не меняют этот показатель."
+  },
+  "Start your 7-day free trial": {
+    "en": "Start your 7-day free trial",
+    "az": "7 günlük pulsuz sınağa başla",
+    "tr": "7 günlük ücretsiz denemeye başla",
+    "ru": "Начать бесплатные 7 дней"
+  },
+  "Built for small teams": {
+    "en": "Built for small teams",
+    "az": "Kiçik komandalar üçün",
+    "tr": "Küçük ekipler için",
+    "ru": "Для небольших команд"
+  },
+  "Know your stock. Track every sale. Stay on top of customer debt.": {
+    "en": "Know your stock. Track every sale. Stay on top of customer debt.",
+    "az": "Stokunu bil. Hər satışı izlə. Müştəri borclarına nəzarət et.",
+    "tr": "Stoğunu bil. Her satışı takip et. Müşteri borçlarını kontrol et.",
+    "ru": "Контролируйте остатки, продажи и долги клиентов."
+  },
+  "One workspace for inventory, purchases, sales and payments. Start with your existing customers and opening balances.": {
+    "en": "One workspace for inventory, purchases, sales and payments. Start with your existing customers and opening balances.",
+    "az": "Stok, alış, satış və ödənişlər bir yerdə. Mövcud müştərilərin və ilkin balanslarınla başla.",
+    "tr": "Stok, alış, satış ve ödemeler tek yerde. Mevcut müşterilerin ve açılış bakiyelerinle başla.",
+    "ru": "Остатки, закупки, продажи и платежи в одном месте. Начните с имеющихся клиентов и начальных остатков."
+  },
+  "No card required. No automatic charge during the trial.": {
+    "en": "No card required. No automatic charge during the trial.",
+    "az": "Kart tələb olunmur. Sınaq zamanı avtomatik ödəniş tutulmur.",
+    "tr": "Kart gerekmez. Deneme sırasında otomatik ücret alınmaz.",
+    "ru": "Карта не нужна. Во время пробного периода списаний нет."
+  },
+  "A clearer working day": {
+    "en": "A clearer working day",
+    "az": "İş günün daha aydın olsun",
+    "tr": "İş günün daha net olsun",
+    "ru": "Больше ясности в работе"
+  },
+  "Example workspace": {
+    "en": "Example workspace",
+    "az": "Nümunə iş sahəsi",
+    "tr": "Örnek çalışma alanı",
+    "ru": "Пример рабочего пространства"
+  },
+  "Everything stays connected": {
+    "en": "Everything stays connected",
+    "az": "Bütün əməliyyatlar əlaqəli qalır",
+    "tr": "Tüm işlemler birbiriyle bağlantılı",
+    "ru": "Все операции связаны"
+  },
+  "Receive goods through purchases.": {
+    "en": "Receive goods through purchases.",
+    "az": "Məhsulları alış vasitəsilə anbara qəbul et.",
+    "tr": "Ürünleri alış üzerinden depoya al.",
+    "ru": "Принимайте товары через закупки."
+  },
+  "Sales update stock automatically.": {
+    "en": "Sales update stock automatically.",
+    "az": "Satış zamanı stok avtomatik yenilənir.",
+    "tr": "Satışlar stoğu otomatik günceller.",
+    "ru": "Продажи автоматически меняют остатки."
+  },
+  "Record payments against customer debt.": {
+    "en": "Record payments against customer debt.",
+    "az": "Ödənişləri müştərinin borcundan çıx.",
+    "tr": "Ödemeleri müşteri borcundan düş.",
+    "ru": "Учитывайте платежи в счёт долга клиента."
+  },
+  "Keep invoices, returns and a clear history.": {
+    "en": "Keep invoices, returns and a clear history.",
+    "az": "Qaimələri, qaytarmaları və tarixçəni saxla.",
+    "tr": "Faturaları, iadeleri ve geçmişi sakla.",
+    "ru": "Храните накладные, возвраты и историю."
+  },
+  "Inventory without guesswork": {
+    "en": "Inventory without guesswork",
+    "az": "Stoka dəqiq nəzarət",
+    "tr": "Stokta net kontrol",
+    "ru": "Точный контроль остатков"
+  },
+  "Receive purchases, check balances and see stock movement history.": {
+    "en": "Receive purchases, check balances and see stock movement history.",
+    "az": "Alışları qəbul et, qalıqları və stok hərəkətlərinin tarixçəsini yoxla.",
+    "tr": "Alışları kaydet, bakiyeleri ve stok hareketlerini kontrol et.",
+    "ru": "Принимайте закупки, проверяйте остатки и историю движения товаров."
+  },
+  "Bring your existing customers": {
+    "en": "Bring your existing customers",
+    "az": "Mövcud müştərilərini əlavə et",
+    "tr": "Mevcut müşterilerini aktar",
+    "ru": "Перенесите имеющихся клиентов"
+  },
+  "Import Excel or CSV with customer contacts and opening debt or credit.": {
+    "en": "Import Excel or CSV with customer contacts and opening debt or credit.",
+    "az": "Excel və ya CSV ilə müştəri məlumatlarını, ilkin borc və avansı idxal et.",
+    "tr": "Excel veya CSV ile müşteri bilgilerini, açılış borçlarını ve alacaklarını aktar.",
+    "ru": "Импортируйте контакты, начальные долги и авансы из Excel или CSV."
+  },
+  "Built around your business": {
+    "en": "Built around your business",
+    "az": "Biznesinə uyğun quruluş",
+    "tr": "İşine uygun yapı",
+    "ru": "Для задач вашего бизнеса"
+  },
+  "Up to 3 active users, four interface languages, PDF invoices and your operating currency.": {
+    "en": "Up to 3 active users, four interface languages, PDF invoices and your operating currency.",
+    "az": "3-dək aktiv istifadəçi, dörd interfeys dili, PDF qaimələr və əməliyyat valyutan.",
+    "tr": "3 aktif kullanıcıya kadar, dört arayüz dili, PDF faturalar ve işlem para birimin.",
+    "ru": "До 3 активных пользователей, четыре языка, PDF-накладные и ваша рабочая валюта."
+  },
+  "Simple Starter pricing": {
+    "en": "Simple Starter pricing",
+    "az": "Sadə Starter qiymətləri",
+    "tr": "Sade Starter fiyatları",
+    "ru": "Простые цены Starter"
+  },
+  "Try the Starter plan for 7 days. Choose a subscription when you are ready.": {
+    "en": "Try the Starter plan for 7 days. Choose a subscription when you are ready.",
+    "az": "Starter paketini 7 gün sına. Hazır olanda abunəlik seç.",
+    "tr": "Starter paketini 7 gün dene. Hazır olduğunda abonelik seç.",
+    "ru": "Попробуйте Starter 7 дней. Выберите подписку, когда будете готовы."
+  },
+  "Applicable taxes and final charges are shown before payment.": {
+    "en": "Applicable taxes and final charges are shown before payment.",
+    "az": "Tətbiq olunan vergilər və yekun məbləğ ödənişdən əvvəl göstərilir.",
+    "tr": "Geçerli vergiler ve nihai tutar ödemeden önce gösterilir.",
+    "ru": "Применимые налоги и итоговая сумма показаны перед оплатой."
+  },
+  "per month": {
+    "en": "per month",
+    "az": "aylıq",
+    "tr": "aylık",
+    "ru": "в месяц"
+  },
+  "per year": {
+    "en": "per year",
+    "az": "illik",
+    "tr": "yıllık",
+    "ru": "в год"
+  },
+  "Customer balances": {
+    "en": "Customer balances",
+    "az": "Müştəri balansları",
+    "tr": "Müşteri bakiyeleri",
+    "ru": "Балансы клиентов"
+  },
+  "Stock, sales and customer balances.": {
+    "en": "Stock, sales and customer balances.",
+    "az": "Stok, satış və müştəri balansları.",
+    "tr": "Stok, satış ve müşteri bakiyeleri.",
+    "ru": "Остатки, продажи и балансы клиентов."
+  },
+  "Refund policy": {
+    "en": "Refund policy",
+    "az": "Geri ödəniş qaydası",
+    "tr": "Geri ödeme politikası",
+    "ru": "Политика возврата средств"
+  },
+  "Check your email": {
+    "en": "Check your email",
+    "az": "E-poçtunu yoxla",
+    "tr": "E-postanı kontrol et",
+    "ru": "Проверьте почту"
+  },
+  "If your email is eligible, a setup link will arrive shortly. Check your inbox and spam folder. Your trial starts after you finish creating the company.": {
+    "en": "If your email is eligible, a setup link will arrive shortly. Check your inbox and spam folder. Your trial starts after you finish creating the company.",
+    "az": "Ünvanın uyğundursa, tezliklə hesab qurma keçidi gələcək. Gələnlər və spam qovluqlarını yoxla. Sınaq şirkəti yaratdıqdan sonra başlayır.",
+    "tr": "Adresin uygunsa kurulum bağlantısı kısa süre içinde gelir. Gelen kutusunu ve spam klasörünü kontrol et. Deneme şirket kurulumundan sonra başlar.",
+    "ru": "Если адрес подходит, вскоре придёт ссылка настройки. Проверьте входящие и спам. Пробный период начнётся после создания компании."
+  },
+  "Enter a real email address. We will send a secure link so you can create your company and choose your login details.": {
+    "en": "Enter a real email address. We will send a secure link so you can create your company and choose your login details.",
+    "az": "İşlək e-poçt ünvanı yaz. Şirkətini yaratmaq və giriş məlumatlarını seçmək üçün təhlükəsiz keçid göndərəcəyik.",
+    "tr": "Geçerli bir e-posta adresi gir. Şirketini oluşturup giriş bilgilerini seçmen için güvenli bağlantı göndereceğiz.",
+    "ru": "Введите действующий адрес почты. Мы отправим безопасную ссылку для создания компании и выбора данных входа."
+  },
+  "Could not load trial settings.": {
+    "en": "Could not load trial settings.",
+    "az": "Sınaq ayarları yüklənmədi.",
+    "tr": "Deneme ayarları yüklenemedi.",
+    "ru": "Не удалось загрузить настройки пробного доступа."
+  },
+  "Could not request a trial.": {
+    "en": "Could not request a trial.",
+    "az": "Sınaq sorğusu göndərilmədi.",
+    "tr": "Deneme isteği gönderilemedi.",
+    "ru": "Не удалось запросить пробный доступ."
+  },
+  "Trial registration is not available. Contact support.": {
+    "en": "Trial registration is not available. Contact support.",
+    "az": "Sınaq qeydiyyatı hazırda açıq deyil. Dəstəklə əlaqə saxla.",
+    "tr": "Deneme kaydı şu anda açık değil. Destekle iletişime geç.",
+    "ru": "Регистрация пробного доступа недоступна. Обратитесь в поддержку."
+  },
+  "Your email address": {
+    "en": "Your email address",
+    "az": "E-poçt ünvanın",
+    "tr": "E-posta adresin",
+    "ru": "Ваш адрес почты"
+  },
+  "I want a verification email to start my trial.": {
+    "en": "I want a verification email to start my trial.",
+    "az": "Sınağa başlamaq üçün təsdiq məktubu almaq istəyirəm.",
+    "tr": "Denemeyi başlatmak için doğrulama e-postası almak istiyorum.",
+    "ru": "Я хочу получить письмо для подтверждения пробного доступа."
+  },
+  "Send setup link": {
+    "en": "Send setup link",
+    "az": "Qurulum keçidini göndər",
+    "tr": "Kurulum bağlantısını gönder",
+    "ru": "Отправить ссылку настройки"
+  },
+  "No card required. One trial per verified email address.": {
+    "en": "No card required. One trial per verified email address.",
+    "az": "Kart tələb olunmur. Hər təsdiqlənmiş e-poçt üçün bir sınaq.",
+    "tr": "Kart gerekmez. Her doğrulanmış e-posta için bir deneme.",
+    "ru": "Карта не нужна. Один пробный период на подтверждённый адрес."
+  },
+  "The verification link is valid for one hour. No company has been created yet.": {
+    "en": "The verification link is valid for one hour. No company has been created yet.",
+    "az": "Təsdiq keçidi bir saat qüvvədədir. Şirkət hələ yaradılmayıb.",
+    "tr": "Doğrulama bağlantısı bir saat geçerlidir. Henüz şirket oluşturulmadı.",
+    "ru": "Ссылка действует один час. Компания ещё не создана."
+  },
+  "Use another email or resend": {
+    "en": "Use another email or resend",
+    "az": "Başqa e-poçt yaz və ya yenidən göndər",
+    "tr": "Başka adres kullan veya yeniden gönder",
+    "ru": "Другой адрес или повторная отправка"
+  },
+  "Already have an account? Sign in": {
+    "en": "Already have an account? Sign in",
+    "az": "Hesabın var? Daxil ol",
+    "tr": "Hesabın var mı? Giriş yap",
+    "ru": "Есть аккаунт? Войти"
+  },
+  "Set up your company": {
+    "en": "Set up your company",
+    "az": "Şirkətini qur",
+    "tr": "Şirketini kur",
+    "ru": "Настройте компанию"
+  },
+  "Choose your company login and operating currency. The 7-day trial starts when you complete this form.": {
+    "en": "Choose your company login and operating currency. The 7-day trial starts when you complete this form.",
+    "az": "Şirkətin giriş məlumatlarını və əməliyyat valyutasını seç. Formanı tamamlayanda 7 günlük sınaq başlayır.",
+    "tr": "Şirket giriş bilgilerini ve işlem para birimini seç. Bu formu tamamladığında 7 günlük deneme başlar.",
+    "ru": "Выберите данные входа и рабочую валюту. Пробные 7 дней начнутся после заполнения формы."
+  },
+  "Your trial is ready": {
+    "en": "Your trial is ready",
+    "az": "Sınaq hesabın hazırdır",
+    "tr": "Deneme hesabın hazır",
+    "ru": "Пробный доступ готов"
+  },
+  "Your company has 7 days of Starter access. No payment has been taken.": {
+    "en": "Your company has 7 days of Starter access. No payment has been taken.",
+    "az": "Şirkətin 7 gün Starter paketindən istifadə edə bilər. Ödəniş tutulmayıb.",
+    "tr": "Şirketin 7 gün Starter paketini kullanabilir. Ücret alınmadı.",
+    "ru": "Компания получила Starter на 7 дней. Оплата не взималась."
+  },
+  "Company login email": {
+    "en": "Company login email",
+    "az": "Şirkətin giriş e-poçtu",
+    "tr": "Şirket giriş e-postası",
+    "ru": "Почта для входа в компанию"
+  },
+  "Trial ends": {
+    "en": "Trial ends",
+    "az": "Sınaq bitir",
+    "tr": "Deneme bitişi",
+    "ru": "Конец пробного периода"
+  },
+  "Use this company login email with the password and personal PIN you just chose. Save the login email before continuing.": {
+    "en": "Use this company login email with the password and personal PIN you just chose. Save the login email before continuing.",
+    "az": "Bu giriş e-poçtunu indicə seçdiyin şifrə və şəxsi PIN ilə istifadə et. Davam etməzdən əvvəl giriş ünvanını saxla.",
+    "tr": "Bu giriş adresini seçtiğin şifre ve kişisel PIN ile kullan. Devam etmeden önce giriş adresini kaydet.",
+    "ru": "Используйте этот адрес с выбранными паролем и PIN. Сохраните адрес входа перед продолжением."
+  },
+  "You can add your warehouse and sales teammates from Team and PINs, up to 3 active accounts.": {
+    "en": "You can add your warehouse and sales teammates from Team and PINs, up to 3 active accounts.",
+    "az": "Anbar və satış əməkdaşlarını Komanda və PIN-lər bölməsindən əlavə edə bilərsən. Limit 3 aktiv hesabdır.",
+    "tr": "Depo ve satış çalışanlarını Ekip ve PIN'ler bölümünden ekleyebilirsin. Sınır 3 aktif hesaptır.",
+    "ru": "Добавьте складских и торговых сотрудников в разделе команды и PIN. Лимит — 3 активных аккаунта."
+  },
+  "Sign in to your company": {
+    "en": "Sign in to your company",
+    "az": "Şirkət hesabına daxil ol",
+    "tr": "Şirket hesabına giriş yap",
+    "ru": "Войти в компанию"
+  },
+  "Verified email": {
+    "en": "Verified email",
+    "az": "Təsdiqlənmiş e-poçt",
+    "tr": "Doğrulanmış e-posta",
+    "ru": "Подтверждённая почта"
+  },
+  "Company code": {
+    "en": "Company code",
+    "az": "Şirkət kodu",
+    "tr": "Şirket kodu",
+    "ru": "Код компании"
+  },
+  "Your login will be {email}": {
+    "en": "Your login will be {email}",
+    "az": "Giriş ünvanın {email} olacaq",
+    "tr": "Giriş adresin {email} olacak",
+    "ru": "Ваш адрес входа: {email}"
+  },
+  "Your full name": {
+    "en": "Your full name",
+    "az": "Adın və soyadın",
+    "tr": "Adın ve soyadın",
+    "ru": "Ваше имя и фамилия"
+  },
+  "At least 12 characters.": {
+    "en": "At least 12 characters.",
+    "az": "Ən azı 12 simvol.",
+    "tr": "En az 12 karakter.",
+    "ru": "Не менее 12 символов."
+  },
+  "Confirm password": {
+    "en": "Confirm password",
+    "az": "Şifrəni təkrar yaz",
+    "tr": "Şifreyi tekrar gir",
+    "ru": "Повторите пароль"
+  },
+  "Your personal PIN": {
+    "en": "Your personal PIN",
+    "az": "Şəxsi PIN-in",
+    "tr": "Kişisel PIN kodun",
+    "ru": "Ваш личный PIN"
+  },
+  "Choose 4–8 digits. Do not use 2580, 2557 or 2534.": {
+    "en": "Choose 4–8 digits. Do not use 2580, 2557 or 2534.",
+    "az": "4–8 rəqəm seç. 2580, 2557 və 2534 istifadə etmə.",
+    "tr": "4–8 rakam seç. 2580, 2557 veya 2534 kullanma.",
+    "ru": "Выберите 4–8 цифр. Не используйте 2580, 2557 или 2534."
+  },
+  "Timezone": {
+    "en": "Timezone",
+    "az": "Saat qurşağı",
+    "tr": "Saat dilimi",
+    "ru": "Часовой пояс"
+  },
+  "I accept the Terms and have read the Privacy Policy.": {
+    "en": "I accept the Terms and have read the Privacy Policy.",
+    "az": "İstifadə şərtlərini qəbul edirəm və məxfilik qaydasını oxumuşam.",
+    "tr": "Kullanım koşullarını kabul ediyorum ve gizlilik politikasını okudum.",
+    "ru": "Я принимаю условия и ознакомился с политикой конфиденциальности."
+  },
+  "Create company and start trial": {
+    "en": "Create company and start trial",
+    "az": "Şirkəti yarat və sınağa başla",
+    "tr": "Şirketi oluştur ve denemeye başla",
+    "ru": "Создать компанию и начать пробный период"
+  },
+  "Request a new link": {
+    "en": "Request a new link",
+    "az": "Yeni keçid istə",
+    "tr": "Yeni bağlantı iste",
+    "ru": "Запросить новую ссылку"
+  },
+  "Passwords do not match.": {
+    "en": "Passwords do not match.",
+    "az": "Şifrələr uyğun gəlmir.",
+    "tr": "Şifreler eşleşmiyor.",
+    "ru": "Пароли не совпадают."
+  },
+  "Could not activate trial.": {
+    "en": "Could not activate trial.",
+    "az": "Sınaq aktivləşdirilmədi.",
+    "tr": "Deneme etkinleştirilemedi.",
+    "ru": "Не удалось активировать пробный доступ."
+  },
+  "This verification link is invalid or expired.": {
+    "en": "This verification link is invalid or expired.",
+    "az": "Təsdiq keçidi yanlışdır və ya vaxtı bitib.",
+    "tr": "Doğrulama bağlantısı geçersiz veya süresi dolmuş.",
+    "ru": "Ссылка недействительна или срок её действия истёк."
+  },
+  "Choose a plan": {
+    "en": "Choose a plan",
+    "az": "Paket seç",
+    "tr": "Paket seç",
+    "ru": "Выбрать тариф"
+  },
+  "Free trial: {days} days remaining. Ends {date}.": {
+    "en": "Free trial: {days} days remaining. Ends {date}.",
+    "az": "Pulsuz sınaq: {days} gün qalıb. Bitmə vaxtı: {date}.",
+    "tr": "Ücretsiz deneme: {days} gün kaldı. Bitiş: {date}.",
+    "ru": "Пробный доступ: осталось дней — {days}. Окончание: {date}."
+  },
+  "Your trial has ended. Choose a plan to continue using your company.": {
+    "en": "Your trial has ended. Choose a plan to continue using your company.",
+    "az": "Sınağın bitib. Şirkət hesabından istifadəyə davam etmək üçün paket seç.",
+    "tr": "Denemen sona erdi. Şirket hesabını kullanmaya devam etmek için paket seç.",
+    "ru": "Пробный период завершён. Выберите тариф для продолжения работы."
+  },
+  "Free trial active": {
+    "en": "Free trial active",
+    "az": "Pulsuz sınaq aktivdir",
+    "tr": "Ücretsiz deneme etkin",
+    "ru": "Пробный период активен"
+  },
+  "Free trial ended": {
+    "en": "Free trial ended",
+    "az": "Pulsuz sınaq bitib",
+    "tr": "Ücretsiz deneme sona erdi",
+    "ru": "Пробный период завершён"
+  },
+  "Your trial data stays in this company when you subscribe. A paid plan starts when your payment is confirmed.": {
+    "en": "Your trial data stays in this company when you subscribe. A paid plan starts when your payment is confirmed.",
+    "az": "Abunə olanda sınaqdakı məlumatların bu şirkətdə qalır. Ödəniş təsdiqlənəndə ödənişli müddət başlayır.",
+    "tr": "Abone olduğunda deneme verilerin bu şirkette kalır. Ücretli dönem ödeme onaylandığında başlar.",
+    "ru": "При оформлении подписки пробные данные сохраняются в компании. Платный период начинается после подтверждения оплаты."
+  },
+  "Online checkout is not active yet. Contact support to continue after your trial.": {
+    "en": "Online checkout is not active yet. Contact support to continue after your trial.",
+    "az": "Onlayn ödəniş hələ aktiv deyil. Sınaqdan sonra davam etmək üçün dəstəklə əlaqə saxla.",
+    "tr": "Çevrimiçi ödeme henüz etkin değil. Denemeden sonra devam etmek için destekle iletişime geç.",
+    "ru": "Онлайн-оплата пока не включена. Для продолжения после пробного периода обратитесь в поддержку."
+  },
+  "Trial email delivery is not configured.": {
+    "en": "Trial email delivery is not configured.",
+    "az": "Sınaq üçün e-poçt göndərişi sazlanmayıb.",
+    "tr": "Deneme e-posta gönderimi yapılandırılmadı.",
+    "ru": "Отправка писем пробного доступа не настроена."
+  },
+  "Too many trial requests. Please try again later.": {
+    "en": "Too many trial requests. Please try again later.",
+    "az": "Çox sınaq sorğusu göndərilib. Bir qədər sonra yoxla.",
+    "tr": "Çok fazla deneme isteği var. Daha sonra tekrar dene.",
+    "ru": "Слишком много запросов. Повторите позже."
+  },
+  "Check the trial details.": {
+    "en": "Check the trial details.",
+    "az": "Sınaq məlumatlarını yoxla.",
+    "tr": "Deneme bilgilerini kontrol et.",
+    "ru": "Проверьте данные пробного доступа."
+  },
+  "Enter a real email address you can access.": {
+    "en": "Enter a real email address you can access.",
+    "az": "Daxil ola bildiyin işlək e-poçt ünvanı yaz.",
+    "tr": "Erişebildiğin geçerli bir e-posta adresi gir.",
+    "ru": "Введите действующий адрес почты, к которому у вас есть доступ."
+  },
+  "Choose a supported language.": {
+    "en": "Choose a supported language.",
+    "az": "Dəstəklənən dil seç.",
+    "tr": "Desteklenen bir dil seç.",
+    "ru": "Выберите поддерживаемый язык."
+  },
+  "If this email is eligible, you will receive a verification link. Check your inbox and spam folder.": {
+    "en": "If this email is eligible, you will receive a verification link. Check your inbox and spam folder.",
+    "az": "Bu ünvan uyğundursa, təsdiq keçidi alacaqsan. Gələnlər və spam qovluqlarını yoxla.",
+    "tr": "Bu adres uygunsa doğrulama bağlantısı alacaksın. Gelen kutusunu ve spam klasörünü kontrol et.",
+    "ru": "Если адрес подходит, вы получите ссылку подтверждения. Проверьте входящие и спам."
+  },
+  "This trial has already been activated. Sign in to your company.": {
+    "en": "This trial has already been activated. Sign in to your company.",
+    "az": "Bu sınaq artıq aktivləşdirilib. Şirkət hesabına daxil ol.",
+    "tr": "Bu deneme zaten etkinleştirildi. Şirket hesabına giriş yap.",
+    "ru": "Пробный доступ уже активирован. Войдите в компанию."
+  },
+  "Choose a company code using letters, numbers and hyphens.": {
+    "en": "Choose a company code using letters, numbers and hyphens.",
+    "az": "Hərf, rəqəm və tiredən ibarət şirkət kodu seç.",
+    "tr": "Harf, rakam ve tire içeren bir şirket kodu seç.",
+    "ru": "Выберите код компании из букв, цифр и дефисов."
+  },
+  "Enter your name and company name.": {
+    "en": "Enter your name and company name.",
+    "az": "Adını və şirkətin adını yaz.",
+    "tr": "Adını ve şirket adını gir.",
+    "ru": "Введите своё имя и название компании."
+  },
+  "Choose currency and timezone, and accept the terms.": {
+    "en": "Choose currency and timezone, and accept the terms.",
+    "az": "Valyuta və saat qurşağını seç, şərtləri qəbul et.",
+    "tr": "Para birimini ve saat dilimini seç, koşulları kabul et.",
+    "ru": "Выберите валюту, часовой пояс и примите условия."
+  },
+  "This email has already used its trial. Sign in or contact support.": {
+    "en": "This email has already used its trial. Sign in or contact support.",
+    "az": "Bu e-poçt üçün sınaq artıq istifadə olunub. Daxil ol və ya dəstəklə əlaqə saxla.",
+    "tr": "Bu e-posta için deneme zaten kullanıldı. Giriş yap veya destekle iletişime geç.",
+    "ru": "Пробный период для этой почты уже использован. Войдите или обратитесь в поддержку."
+  },
+  "This company code or trial email is already in use. Choose another code or sign in.": {
+    "en": "This company code or trial email is already in use. Choose another code or sign in.",
+    "az": "Bu şirkət kodu və ya sınaq e-poçtu artıq istifadə olunur. Başqa kod seç və ya daxil ol.",
+    "tr": "Bu şirket kodu veya deneme e-postası kullanımda. Başka kod seç veya giriş yap.",
+    "ru": "Код компании или почта уже используется. Выберите другой код или войдите."
+  },
+  "TRIAL_ACTIVATED": {
+    "en": "TRIAL_ACTIVATED",
+    "az": "Pulsuz sınaq aktivləşdirilib",
+    "tr": "Ücretsiz deneme etkinleştirildi",
+    "ru": "Пробный доступ активирован"
+  },
+  "For a subscription refund request, contact support with your billing email and transaction reference. Never send card details.": {
+    "en": "For a subscription refund request, contact support with your billing email and transaction reference. Never send card details.",
+    "az": "Abunəlik üzrə geri ödəniş üçün ödəniş e-poçtun və əməliyyat nömrəsi ilə dəstəyə yaz. Kart məlumatlarını göndərmə.",
+    "tr": "Abonelik geri ödemesi için fatura e-postan ve işlem numaranla desteğe yaz. Kart bilgilerini gönderme.",
+    "ru": "Для запроса возврата средств напишите в поддержку, указав платёжную почту и номер операции. Не отправляйте данные карты."
+  },
+  "Refund requests are reviewed under applicable law and the payment provider rules. Canceling a subscription stops future renewals; it does not itself issue a refund.": {
+    "en": "Refund requests are reviewed under applicable law and the payment provider rules. Canceling a subscription stops future renewals; it does not itself issue a refund.",
+    "az": "Geri ödəniş sorğuları tətbiq olunan qanun və ödəniş provayderinin qaydaları ilə nəzərdən keçirilir. Abunəliyin ləğvi gələcək yenilənmələri dayandırır; özü geri ödəniş yaratmır.",
+    "tr": "Geri ödeme talepleri geçerli hukuk ve ödeme sağlayıcısının kurallarına göre incelenir. Aboneliği iptal etmek gelecekteki yenilemeleri durdurur; kendiliğinden geri ödeme oluşturmaz.",
+    "ru": "Запросы на возврат рассматриваются по применимому закону и правилам платёжного провайдера. Отмена подписки останавливает будущие продления, но сама по себе не возвращает деньги."
+  },
+  "For trial registration, we store your contact email, verification status, trial dates and hashed request identifiers to limit abuse. Verification links expire after one hour.": {
+    "en": "For trial registration, we store your contact email, verification status, trial dates and hashed request identifiers to limit abuse. Verification links expire after one hour.",
+    "az": "Sınaq qeydiyyatı üçün əlaqə e-poçtunu, təsdiq statusunu, sınaq tarixlərini və sui-istifadəni məhdudlaşdırmaq üçün heşlənmiş sorğu identifikatorlarını saxlayırıq. Təsdiq keçidləri bir saat qüvvədədir.",
+    "tr": "Deneme kaydı için iletişim e-postanızı, doğrulama durumunu, deneme tarihlerini ve kötüye kullanımı sınırlayan özetlenmiş istek tanımlayıcılarını saklarız. Doğrulama bağlantıları bir saat geçerlidir.",
+    "ru": "Для пробной регистрации мы храним контактную почту, статус подтверждения, даты пробного доступа и хешированные идентификаторы запросов для ограничения злоупотреблений. Ссылки подтверждения действуют один час."
+  },
+  "The free trial lasts 7 days from company setup. No card is required and no automatic charge is made during the trial. Access stops at expiry; company records remain available for a later subscription. Contact support for export or deletion requests.": {
+    "en": "The free trial lasts 7 days from company setup. No card is required and no automatic charge is made during the trial. Access stops at expiry; company records remain available for a later subscription. Contact support for export or deletion requests.",
+    "az": "Pulsuz sınaq şirkət qurulduqdan sonra 7 gün davam edir. Kart tələb olunmur və sınaq müddətində avtomatik ödəniş tutulmur. Müddət bitəndə giriş dayanır; şirkət məlumatları sonrakı abunəlik üçün saxlanılır. İxrac və ya silinmə üçün dəstəklə əlaqə saxla.",
+    "tr": "Ücretsiz deneme şirket kurulumu tamamlandığında başlar ve 7 gün sürer. Kart gerekmez ve deneme sırasında otomatik ödeme alınmaz. Süre bitince erişim durur; şirket kayıtları sonraki abonelik için saklanır. Dışa aktarma veya silme talepleri için destekle iletişime geçin.",
+    "ru": "Бесплатный пробный доступ длится 7 дней с момента создания компании. Карта не требуется, автоматических списаний во время пробного периода нет. По истечении срока доступ прекращается; записи компании сохраняются для последующей подписки. Для экспорта или удаления обратитесь в поддержку."
   }
 }

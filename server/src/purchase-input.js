@@ -232,11 +232,13 @@ async function recordPurchase(tx, req, input) {
       productId: product.id,
       quantity: item.quantity,
       unitCost: item.unitCost,
+      lineTotalAmount: F.money(F.major(Q.lineCents(F.minor(item.unitCost),item.quantity)),true),
     });
   }
 
   const purchase = await tx.purchase.create({
     data: {
+      totalAmount: F.money(F.major(resolved.reduce((n,i)=>n+F.minor(i.lineTotalAmount),0)),true),
       createdById: req.user.id,
       supplier: input.supplier,
       invoiceNo: input.invoiceNo,

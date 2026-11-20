@@ -23,6 +23,7 @@ import {
   PageCard,
 } from "../components/WorkspaceUI";
 
+import { ImportButton } from "../components/RecordsTools";
 import CatalogPicker from "../components/CatalogPicker";
 import { api } from "../lib/api";
 import { amountValue } from "../lib/money-input.mjs";
@@ -310,13 +311,14 @@ export default function PurchasesPage() {
         description={t(
           "Receive stock and record purchase costs.",
         )}
-        actions={
+        actions={<>
+          {admin && <ImportButton kind="products" onDone={()=>setReload(n=>n+1)}/>}
           <Button
             component={RouterLink}
             to="/warehouse/purchases-history"
           >
             {t("Purchase history")}
-          </Button>
+          </Button></>
         }
       />
 

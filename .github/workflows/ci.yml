@@ -46,10 +46,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client-18
           echo "PG_BIN=/usr/lib/postgresql/18/bin" >> "$GITHUB_ENV"
-      - run: npm run test:native
-        working-directory: server
       - run: npm test && npm run lint -- --max-warnings=0 && npm run build
         working-directory: client
+      - run: npm run test:native
+        working-directory: server
       - name: Build and run the exact production container
         run: |
           docker build --target migration -t zindex-migration-check .
@@ -59,6 +59,8 @@ jobs:
           curl --retry 20 --retry-connrefused --retry-delay 1 --fail http://127.0.0.1:7079/ready
           curl --fail http://127.0.0.1:7079/login -o /tmp/zindex-login.html
           curl --fail http://127.0.0.1:7079/api/public/service
+          curl --fail http://127.0.0.1:7079/trial -o /tmp/zindex-trial.html
+          curl --fail http://127.0.0.1:7079/api/trial/config
       - name: Container logs and cleanup
         if: always()
         run: |

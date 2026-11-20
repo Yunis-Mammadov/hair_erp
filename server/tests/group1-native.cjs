@@ -41,17 +41,7 @@ test(
         .filter((e) => e.isDirectory())
         .map((e) => e.name)
         .sort();
-      for (const migration of migrations.filter(
-        (m) =>
-          ![
-            "202611100001_group1_financials",
-            "202611100002_group3_records",
-            "202611100003_group4_global_setup",
-            "202611110001_group5_workflows",
-            "202611120001_group6_operations",
-      "202611130001_group7_extras",
-          ].includes(m),
-      ))
+      for (const migration of migrations.filter(m => m < "202611100001_group1_financials"))
         await client.query(
           await fs.readFile(
             path.join(root, migration, "migration.sql"),
@@ -86,6 +76,7 @@ test(
       await client.query(await fs.readFile(path.join(root,"202611110001_group5_workflows/migration.sql"),"utf8"));
       await client.query(await fs.readFile(path.join(root,"202611120001_group6_operations/migration.sql"),"utf8"));
       await client.query(await fs.readFile(path.join(root,"202611130001_group7_extras/migration.sql"),"utf8"));
+      await require("./helpers/current-migrations.cjs")(client, "202611130001_group7_extras");
       process.env.DATABASE_URL =
         url.toString() + (url.search ? "&" : "?") + "connection_limit=12";
       process.env.JWT_SECRET = "native-test-only-secret-with-at-least-32-bytes";
@@ -173,9 +164,10 @@ test(
         };
       }
       await t.test(
-        "29 real migrations preserve legacy IDs, money, PIN and stock",
+        "Current migrations preserve legacy IDs, money, PIN and stock",
         async () => {
-          assert.equal(migrations.length, 29);
+          assert.equal((await client.query("SELECT data_type FROM information_schema.columns WHERE table_name = 'Purchase' AND column_name = 'purchaseDate'")).rows[0].data_type, "date");
+          assert.ok((await raw.company.findUnique({where:{id:"legacy-company"}})).authVersion >= 1);
           const order = await raw.order.findUnique({
             where: { id: "preserved-order" },
           });
@@ -516,6 +508,31 @@ test(
         await Promise.all([M.processOne(raw,send),M.processOne(raw,send)]);assert.equal(calls,1);assert.equal((await raw.reminderOutbox.findUnique({where:{id:job.id}})).state,'SENT');
         const crashed=await raw.reminderOutbox.create({data:{companyId:f.company.id,customerId:f.customer.id,recipient:'customer@example.com',locale:'en',debtCents:1000n,subject:'Test',body:'Ambiguous',state:'SENDING',startedAt:new Date(Date.now()-600000)}});
         assert.equal(await M.processOne(raw,send),false);assert.equal(calls,1);assert.equal((await raw.reminderOutbox.findUnique({where:{id:crashed.id}})).state,'UNKNOWN');
+      });
+      await t.test('opening import and payment concurrency preserve one ledger and prevent overcollection',async()=>{
+        const f=await fixture();
+        const row={externalId:'native-opening',name:'Native opening',phone:'+14155559876',openingDebt:'125.50',balanceDate:'2026-01-01',currency:'USD'};
+        const body={rows:[row],mode:'merge'},key=randomUUID();
+        const imports=await Promise.all([call('/records/imports/customers',body,f.token,key),call('/records/imports/customers',body,f.token,key)]);
+        assert.ok(imports.every(r=>[200,201].includes(r.status)),JSON.stringify(imports));
+        assert.equal(await raw.customerOpeningBalance.count({where:{companyId:f.company.id}}),1);
+        const c=await raw.customer.findFirst({where:{companyId:f.company.id,externalId:'native-opening'}});
+        const payments=await Promise.all([call('/payments',{customerId:c.id,amount:100},f.token),call('/payments',{customerId:c.id,amount:100},f.token)]);
+        assert.equal(payments.filter(r=>r.status===201).length,1,JSON.stringify(payments));assert.equal(payments.filter(r=>r.status===409).length,1);
+        const list=await fetch(base+'/api/customers/'+c.id+'/profile',{headers:{Authorization:'Bearer '+f.token}}).then(r=>r.json());assert.equal(list.summary.debt,25.5);
+      });
+      await t.test('release concurrent purchase void and sale never consume the same receipt twice',async()=>{
+        const f=await fixture(0);const receipt=await call('/purchases',{supplier:'Native receipt',items:[{productId:f.product.id,quantity:2,unitCost:1,salePrice:10}]},f.token);assert.equal(receipt.status,201);const id=receipt.body.purchase.id;
+        const results=await Promise.all([call('/purchases/'+id+'/void',{expectedVersion:0,reason:'Wrong receipt'},f.token),call('/orders',f.sale(1),f.token)]);assert.deepEqual(results.map(r=>r.status).sort((a,b)=>a-b),[results[0].status===200?200:201,409]);
+        const p=await raw.purchase.findUnique({where:{id}}),balance=await raw.stock.findUnique({where:{productId:f.product.id}}),sold=await raw.order.count({where:{companyId:f.company.id}});assert.equal(Number(balance.quantity),p.voidedAt?0:1);assert.equal(sold,p.voidedAt?0:1);assert.equal(await raw.auditEvent.count({where:{entityId:id}}),p.voidedAt?1:0);
+      });
+      await t.test('release concurrent duplicate purchase void returns one result and one stock reversal',async()=>{
+        const f=await fixture(0),receipt=await call('/purchases',{supplier:'Duplicate receipt',items:[{productId:f.product.id,quantity:2,unitCost:1,salePrice:10}]},f.token);assert.equal(receipt.status,201);const id=receipt.body.purchase.id,key=randomUUID(),body={expectedVersion:0,reason:'Duplicate invoice'};
+        const replies=await Promise.all([call('/purchases/'+id+'/void',body,f.token,key),call('/purchases/'+id+'/void',body,f.token,key)]);assert.deepEqual(replies.map(r=>r.status),[200,200]);assert.equal(replies.filter(r=>r.body.replayed).length,1);assert.equal(await raw.auditEvent.count({where:{entityId:id}}),1);assert.equal(Number((await raw.stock.findUnique({where:{productId:f.product.id}})).quantity),0);
+      });
+      await t.test('release concurrent customer edits refuse stale values rather than losing a change',async()=>{
+        const f=await fixture();const c=await raw.customer.findUnique({where:{id:f.customer.id}}),body={name:'First edit',expectedUpdatedAt:c.updatedAt.toISOString()};
+        const replies=await Promise.all([call('/customers/'+c.id+'/contact',body,f.token,randomUUID(),'PATCH'),call('/customers/'+c.id+'/contact',{...body,name:'Second edit'},f.token,randomUUID(),'PATCH')]);assert.deepEqual(replies.map(r=>r.status).sort(),[200,409]);assert.equal(await raw.auditEvent.count({where:{entityId:c.id}}),1);
       });
     } finally {
       if (server) await new Promise((r) => server.close(r));

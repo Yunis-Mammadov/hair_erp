@@ -8,6 +8,7 @@ const W = require("../workspace-core");
 const R = require("../records-core");
 const router = express.Router();
 const customerInclude = {
+  openingBalance: true,
   area: true,
   assignedExpeditor: { select: R.personSelect },
 };
@@ -20,6 +21,7 @@ const paymentInclude = {
   createdBy: { select: R.personSelect },
 };
 router.use(requireAuth);
+require("../customer-edit")(router);
 router.get(
   "/lookup",
   requireRole("ADMIN", "EXPEDITOR", "WAREHOUSE", "DRIVER"),

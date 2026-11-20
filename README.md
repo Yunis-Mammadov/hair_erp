@@ -1,34 +1,42 @@
-> Son yeniləmə: **audit + 7-ci qrup**. [Quraşdırma və yeni funksiyalar](GROUP7-RELEASE.md).
-
 # z-Index Starter
 
-Multi-tenant inventory, sales, customers and receivables. React 19, Express 5, Prisma 6.19.3 and PostgreSQL. Global Starter pricing is USD 14.99 monthly / USD 149.99 annually.
+Complete source release: **2026-11-15 — launch operations**. React 19, Express 5, Prisma 6.19.3, PostgreSQL 18, Node 24. Global Starter: **USD 19.99 monthly / USD 199.99 yearly**. Azerbaijan prices are unchanged. `shared/pricing.json` is the shared source of subscription prices; workspace operating currency is independent.
 
-## Existing installation
+## Upgrade an existing installation
 
-See [final audit fixes](AUDIT-FIXES.md) and the [Windows upgrade guide](docs/audit-fixes/QURASDIRMA.md). The upgrade has no new database migration. Preserve the existing environment and uploads.
+Follow [BASLA_BURADAN.md](BASLA_BURADAN.md). Stop app and worker processes, back up the database **and uploads**, preserve private `.env` files and images, install locked dependencies, run `prisma migrate deploy`, then generate Prisma Client. This release adds migration `202611150003_launch_operations` on top of the previous opening-balance and session migrations. Never use `migrate reset` or `db push` on business data.
 
-## New local development installation
+## Included in this release
 
-1. Use Node 24.15+ (24.x) and a running PostgreSQL server. Create an empty dedicated database.
-2. Copy `server/.env.example` to `server/.env`; set the database URL and a cryptographically random JWT secret of at least 32 bytes. Do not commit real credentials.
-3. In `server`, run `npm ci`, `npx prisma migrate deploy`, then `npx prisma generate`.
-4. Provision company/admin credentials using the existing `company:create` operator command. No public self-registration or default production PIN is provided.
-5. In `client`, run `npm ci`. The default `/api` URL proxies to local port 7079 in development; `client/.env.example` shows the override.
-6. Run `npm run dev` in each folder. Sign in and confirm the operating currency before the first financial transaction.
+- Customer contact edit with stale-record protection; invoice snapshots and opening balances remain historical.
+- Admin purchase correction/void with a mandatory reason, stock reconciliation, revision history and repeat-request protection.
+- Operator company search/pagination, password and worker PIN recovery, manual subscription extension, activation/deactivation and audit history. Operator secret stays server-side and in browser memory only.
+- Support email draft composer for Gmail or the user's mail app. Customers review and send the draft themselves; no SMTP credentials are required for this support workflow.
+- Private company logo on the dashboard and in PDF invoices.
+- Monthly net sales: sales posted this month less returns posted this month, in the company's timezone. Payments and customer cash refunds do not subtract from sales again.
+- Previous audited accounting, tenant isolation, Excel/CSV opening-balance import, four languages, purchasing workflow, invoice detail redesign and Group 7 features.
 
-## Checks
+## New local installation
+
+Use an empty dedicated PostgreSQL database. Copy `server/.env.example` to `server/.env`; configure the database and independently generated server secrets. From `server`, run `npm ci`, `npx prisma migrate deploy`, `npx prisma generate`, `npm run dev`. From `client`, run `npm ci` and `npm run dev`. Open `/operator/companies` to provision companies using your private operator secret; no public registration or shared default production PIN is provided.
+
+## Verification
 
 ```sh
-node server/scripts/check-repository.cjs
 npm --prefix server test
 npm --prefix client test
 npm --prefix client run lint -- --max-warnings=0
 npm --prefix client run build
 ```
 
-Native database checks use a dedicated local database ending in `_test` via `NATIVE_DATABASE_URL`. Backup tests also require PostgreSQL 18 `pg_dump` and `pg_restore`. Do not point test variables at business databases.
+Native checks require a dedicated localhost database ending in `_test`, set through `NATIVE_DATABASE_URL`, and PostgreSQL 18 backup tools via `PG_BIN`:
 
-## Production
+```sh
+npm --prefix server run test:native
+```
 
-See [deployment](docs/audit-fixes/DEPLOY.md). Automated tests and container smoke checks are defined in `.github/workflows/ci.yml`. A local passing test suite does not substitute for the target hosting, browser, printer and payment-provider acceptance tests.
+They test concurrency, backup/restore, all migrations on a clean database and the production file layout with built UI. The Git index guard runs inside your actual checkout using `npm --prefix server run repo:check`. Old files in remote Git history require separate remediation; a source ZIP cannot erase them.
+
+## Deployment and remaining activation
+
+[DEPLOYMENT.md](DEPLOYMENT.md) describes persistent database/uploads, HTTPS, operator setup and acceptance checks. Docker and CI files are included. **Paddle is deliberately left in manual mode.** Hosting, DNS, real email delivery from Gmail, mobile geolocation and physical printing still need checks in the actual customer environment. Test results and practical limits are in [TEST_NETICELERI.md](TEST_NETICELERI.md).

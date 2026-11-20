@@ -28,6 +28,7 @@ COPY server/package*.json ./
 RUN npm ci --omit=dev --ignore-scripts
 COPY --from=dependencies /app/server/node_modules/.prisma ./node_modules/.prisma
 COPY --from=dependencies /app/server/src ./src
+COPY --from=dependencies /app/server/scripts ./scripts
 COPY --from=dependencies /app/server/assets ./assets
 COPY --from=dependencies /app/shared /app/shared
 COPY --from=web /app/client/dist /app/client/dist

@@ -82,6 +82,7 @@ app.get("/health", (req, res) => {
 
 app.get('/ready',readiness({db:require('./prismaClient').platformPrisma,uploadsRoot:require('./upload-access').uploadsRoot}));
 
+app.use("/api/trial", require("./routes/trial.routes").router);
 app.use("/api/auth", authRoutes);
 
 app.use(
