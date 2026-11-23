@@ -7252,5 +7252,107 @@
     "az": "Pulsuz sınaq şirkət qurulduqdan sonra 7 gün davam edir. Kart tələb olunmur və sınaq müddətində avtomatik ödəniş tutulmur. Müddət bitəndə giriş dayanır; şirkət məlumatları sonrakı abunəlik üçün saxlanılır. İxrac və ya silinmə üçün dəstəklə əlaqə saxla.",
     "tr": "Ücretsiz deneme şirket kurulumu tamamlandığında başlar ve 7 gün sürer. Kart gerekmez ve deneme sırasında otomatik ödeme alınmaz. Süre bitince erişim durur; şirket kayıtları sonraki abonelik için saklanır. Dışa aktarma veya silme talepleri için destekle iletişime geçin.",
     "ru": "Бесплатный пробный доступ длится 7 дней с момента создания компании. Карта не требуется, автоматических списаний во время пробного периода нет. По истечении срока доступ прекращается; записи компании сохраняются для последующей подписки. Для экспорта или удаления обратитесь в поддержку."
+  },
+  "Workspace overview": {
+    "en": "Workspace overview",
+    "az": "İş sahəsinin icmalı",
+    "tr": "Çalışma alanı özeti",
+    "ru": "Обзор рабочего пространства"
+  },
+  "Inventory": {
+    "en": "Inventory",
+    "az": "Anbar qalığı",
+    "tr": "Stok",
+    "ru": "Запасы"
+  },
+  "Purchase received": {
+    "en": "Purchase received",
+    "az": "Alış anbara qəbul edildi",
+    "tr": "Satın alma stoğa alındı",
+    "ru": "Закупка поступила на склад"
+  },
+  "Payment received": {
+    "en": "Payment received",
+    "az": "Ödəniş qəbul edildi",
+    "tr": "Ödeme alındı",
+    "ru": "Платёж получен"
+  },
+  "Recent activity": {
+    "en": "Recent activity",
+    "az": "Son əməliyyatlar",
+    "tr": "Son işlemler",
+    "ru": "Последние операции"
+  },
+  "active companies use z-Index": {
+    "en": "active companies use z-Index",
+    "az": "aktiv şirkət z-Index-dən istifadə edir",
+    "tr": "aktif şirket z-Index kullanıyor",
+    "ru": "активных компаний используют z-Index"
+  },
+  "Example data": {
+    "en": "Example data",
+    "az": "Nümunə məlumat",
+    "tr": "Örnek veri",
+    "ru": "Пример данных"
+  },
+  "Inventory & sales software": {
+    "en": "Inventory & sales software",
+    "az": "Anbar və satış proqramı",
+    "tr": "Stok ve satış yazılımı",
+    "ru": "Учёт запасов и продаж"
+  },
+  "Stock, sales and customer balances in one place.": {
+    "en": "Stock, sales and customer balances in one place.",
+    "az": "Stok, satış və müştəri balansları bir yerdə.",
+    "tr": "Stok, satış ve müşteri bakiyeleri tek yerde.",
+    "ru": "Запасы, продажи и балансы клиентов в одном месте."
+  },
+  "Track what comes in, what sells and what customers owe. Import your existing customers and balances to get started.": {
+    "en": "Track what comes in, what sells and what customers owe. Import your existing customers and balances to get started.",
+    "az": "Anbara daxil olan malları, satışları və müştəri borclarını izləyin. Mövcud müştəriləri və balansları idxal edib işə başlayın.",
+    "tr": "Stok girişlerini, satışları ve müşteri borçlarını takip edin. Mevcut müşterilerinizi ve bakiyelerini içe aktararak başlayın.",
+    "ru": "Отслеживайте поступления, продажи и долги клиентов. Для начала импортируйте клиентов и их балансы."
+  },
+  "See pricing": {
+    "en": "See pricing",
+    "az": "Qiymətlərə bax",
+    "tr": "Fiyatları gör",
+    "ru": "Смотреть цены"
+  },
+  "What you can do with z-Index": {
+    "en": "What you can do with z-Index",
+    "az": "z-Index ilə nələr edə bilərsiniz?",
+    "tr": "z-Index ile neler yapabilirsiniz?",
+    "ru": "Возможности z-Index"
+  },
+  "Up to 3 active users": {
+    "en": "Up to 3 active users",
+    "az": "3 aktiv istifadəçiyə qədər",
+    "tr": "En fazla 3 aktif kullanıcı",
+    "ru": "До 3 активных пользователей"
+  },
+  "PDF invoices": {
+    "en": "PDF invoices",
+    "az": "PDF qaimələr",
+    "tr": "PDF faturalar",
+    "ru": "Счета в PDF"
+  },
+  "Excel and CSV import": {
+    "en": "Excel and CSV import",
+    "az": "Excel və CSV idxalı",
+    "tr": "Excel ve CSV içe aktarma",
+    "ru": "Импорт Excel и CSV"
+  },
+  "12 monthly payments": {
+    "en": "12 monthly payments",
+    "az": "12 aylıq ödəniş",
+    "tr": "12 aylık ödeme",
+    "ru": "12 ежемесячных платежей"
+  },
+  "Save {amount}": {
+    "en": "Save {amount}",
+    "az": "{amount} qənaət",
+    "tr": "{amount} tasarruf",
+    "ru": "Экономия {amount}"
   }
 }

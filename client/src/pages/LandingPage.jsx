@@ -14,14 +14,10 @@ import ReceiptLongOutlined from "@mui/icons-material/ReceiptLongOutlined";
 import WalletOutlined from "@mui/icons-material/WalletOutlined";
 import PublicLayout from "../components/PublicLayout";
 import { useI18n } from "../i18n/useI18n";
-import { formatNumber } from "../i18n/runtime";
+import { formatNumber, formatSubscriptionPrice } from "../i18n/runtime";
 import { api } from "../lib/api";
 import prices from "../../../shared/pricing.json";
 import "./landing.css";
-
-const starter = prices.GLOBAL.BASIC;
-const twelveMonths = starter.MONTHLY * 12;
-const yearlySavings = twelveMonths - starter.YEARLY;
 
 const features = [
   {
@@ -121,10 +117,13 @@ function CompanyCount({ t }) {
 }
 
 export default function LandingPage() {
-  const { t, money } = useI18n();
+  const { t, money, language } = useI18n();
   const [cycle, setCycle] = useState("MONTHLY");
+  const starter = prices[language === "az" ? "AZ" : "GLOBAL"].BASIC;
   const yearly = cycle === "YEARLY";
-  const usd = (minorUnits) => money(minorUnits / 100, starter.currency);
+  const twelveMonths = starter.MONTHLY * 12;
+  const yearlySavings = twelveMonths - starter.YEARLY;
+  const price = (amountMinor) => formatSubscriptionPrice(amountMinor, starter.currency);
 
   return (
     <PublicLayout>
@@ -181,18 +180,18 @@ export default function LandingPage() {
             <button type="button" className="landing-billing-option" aria-pressed={yearly} aria-label={t("Yearly billing")} aria-describedby="landing-yearly-discount" onClick={() => setCycle("YEARLY")}>
               <CalendarMonthRounded aria-hidden="true" />
               <span>{t("Yearly billing")}</span>
-              <span id="landing-yearly-discount" className="landing-billing-discount">{t("Save {amount}", { amount: usd(yearlySavings) })}</span>
+              <span id="landing-yearly-discount" className="landing-billing-discount">{t("Save {amount}", { amount: price(yearlySavings) })}</span>
             </button>
           </div>
 
           <div className="landing-price-details" aria-live="polite">
             <div className="landing-price">
-              <strong>{usd(starter[cycle])}</strong>
+              <strong>{price(starter[cycle])}</strong>
               <span>{yearly ? t("per year") : t("per month")}</span>
             </div>
             {yearly && (
               <div className="landing-price-reference">
-                <s>{usd(twelveMonths)}</s>
+                <s>{price(twelveMonths)}</s>
                 <span>{t("12 monthly payments")}</span>
               </div>
             )}

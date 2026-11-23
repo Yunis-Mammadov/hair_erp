@@ -32,6 +32,16 @@ export const locale = () => languages.find(l => l.code === state.language).local
 export function formatMoney(value, currency = state.currency) {
   return new Intl.NumberFormat(locale(), {style:"currency",currency,minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value || 0));
 }
+export function formatSubscriptionPrice(amountMinor, currency) {
+  if (currency !== "AZN") return formatMoney(amountMinor / 100, currency);
+  return new Intl.NumberFormat(locale(), {
+    style: "currency",
+    currency,
+    currencyDisplay: "code",
+    minimumFractionDigits: amountMinor % 100 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(amountMinor / 100);
+}
 export function formatDate(value, withTime = true, timezone = state.timezone) {
   if (!value || !Number.isFinite(new Date(value).getTime())) return "—";
   return new Intl.DateTimeFormat(locale(), {dateStyle:"medium", ...(withTime ? {timeStyle:"short"} : {}), timeZone:timezone}).format(new Date(value));

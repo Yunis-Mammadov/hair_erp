@@ -50,7 +50,9 @@ router.post('/activate',limitAll(10,15*60000),route(async(req,res)=>{
   if(row.usedAt){if(row.requestHash!==requestHash||!row.companyId)throw F.fail(409,'This trial has already been activated. Sign in to your company.','TRIAL_ALREADY_USED');const c=await tx.company.findUniqueOrThrow({where:{id:row.companyId}});return {replayed:true,company:publicCompany(c)};}
   const exists=await tx.company.findFirst({where:{OR:[{trialEmail:row.email},{loginEmail:row.email}]},select:{id:true}});if(exists)throw F.fail(409,'This email has already used its trial. Sign in or contact support.','TRIAL_ALREADY_USED');
   const startsAt=new Date(),trialEndsAt=new Date(+startsAt+7*DAY);
-  const company=await tx.company.create({data:{name:input.name,loginEmail:input.code+'@zindex.com',passwordHash,plan:'BASIC',market:'GLOBAL',currency:input.currency,currencyConfigured:true,timezone:input.timezone,locale:input.locale,isActive:true,isDemo:false,startsAt,endsAt:trialEndsAt,trialEmail:row.email,trialStartedAt:startsAt,trialEndsAt,trialTermsVersion:TERMS_VERSION}});
+  // Keep the local offer if the verification link is opened in a browser with a different language.
+  const market=row.locale==='az'||input.locale==='az'?'AZ':'GLOBAL';
+  const company=await tx.company.create({data:{name:input.name,loginEmail:input.code+'@zindex.com',passwordHash,plan:'BASIC',market,currency:input.currency,currencyConfigured:true,timezone:input.timezone,locale:input.locale,isActive:true,isDemo:false,startsAt,endsAt:trialEndsAt,trialEmail:row.email,trialStartedAt:startsAt,trialEndsAt,trialTermsVersion:TERMS_VERSION}});
   await tx.user.create({data:{companyId:company.id,fullName:input.adminName,role:'ADMIN',pinHash,isActive:true}});
   await tx.trialInvitation.update({where:{id:row.id},data:{usedAt:startsAt,companyId:company.id,requestHash}});
   await tx.trialInvitation.updateMany({where:{email:row.email,id:{not:row.id},usedAt:null},data:{usedAt:startsAt,companyId:company.id}});

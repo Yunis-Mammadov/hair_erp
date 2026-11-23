@@ -69,10 +69,18 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
    assert.equal(picker.textContent, 'Azərbaycanca');
    assert.equal(localStorage.getItem('z-index-language'), 'az');
    assert.equal(document.querySelector('h1').textContent, 'Stok, satış və müştəri balansları bir yerdə.');
+   const price = document.querySelector('.landing-price strong');
+   assert.equal(price.textContent, '50\u00a0AZN');
+   const yearly = document.querySelectorAll('.landing-billing-option')[1];
+   assert.match(yearly.textContent, /100\sAZN/);
+   await React.act(async () => yearly.click());
+   assert.equal(price.textContent, '500\u00a0AZN');
+   assert.equal(document.querySelector('.landing-price-reference s').textContent, '600\u00a0AZN');
    await React.act(async () => picker.click());
    assert.equal(document.querySelector('[role="menuitemradio"][lang="az"]').getAttribute('aria-checked'), 'true');
    await React.act(async () => document.querySelector('[role="menuitemradio"][lang="en"]').click());
    assert.equal(picker.textContent, 'English');
+   assert.equal(price.textContent, '$199.99');
   });
   await t.test('landing shows the active company claim only with confirmed counts',async()=>{
    await render(C.Landing,'/');
@@ -84,5 +92,22 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
   });
   await t.test('trial countdown disappears after conversion',async()=>{await render(C.Banner);assert.match(document.body.textContent,/7 days remaining/);assert.ok(document.querySelector('a[href="/workspace/plan"]'));globalThis.__trialUser={role:'ADMIN',company:{trial:{...trial,status:'converted'}}};await render(C.Banner);assert.equal(document.getElementById('root').textContent,'');});
   await t.test('active trial can upgrade; active prepaid company cannot pay twice',async()=>{await render(C.Plan);assert.equal(field('Real billing email').value,'owner@example.com');assert.equal(button('Open secure checkout').disabled,false);assert.match(document.body.textContent,/Free trial active/);billing={...billing,company:{...billing.company,trial:null}};await render(C.Plan);assert.equal(button('Open secure checkout').disabled,true);assert.match(document.body.textContent,/prepaid plan is still active/);});
+  await t.test('the local plan shows both AZN offers and the struck-through monthly total with checkout disabled', async () => {
+   billing = {
+    ...billing,
+    enabled: false,
+    company: {...billing.company, market: 'AZ', trial, subscriptionPrice: {currency: 'AZN', amountMinor: 5000}},
+    offers: {currency: 'AZN', MONTHLY: 5000, YEARLY: 50000},
+   };
+   C.runtime.setLanguage('az');
+   await render(C.Plan, '/workspace/plan');
+   assert.match(document.body.textContent, /50\sAZN/);
+   assert.match(document.body.textContent, /500\sAZN/);
+   assert.equal(document.querySelector('s')?.textContent, '600\u00a0AZN');
+   assert.doesNotMatch(document.body.textContent, /19[,.]99/);
+   await React.act(async () => C.runtime.setLanguage('en'));
+   assert.match(document.body.textContent, /AZN\s500/);
+   assert.equal(button('Open secure checkout'), undefined);
+  });
  }finally{if(root)await React.act(async()=>root.unmount());dom.window.close();delete globalThis.__trialApi;delete globalThis.__trialUser;await fs.rm(folder,{recursive:true,force:true});}
 });

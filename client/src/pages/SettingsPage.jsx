@@ -5,6 +5,7 @@ import { PageLayout, PageHeader, PageCard } from "../components/WorkspaceUI";
 import { useAuth } from "../features/auth/useAuth";
 import { api } from "../lib/api";
 import { useI18n } from "../i18n/useI18n";
+import { formatSubscriptionPrice } from "../i18n/runtime";
 const fields = [["name","Company name"],["address","Company address"],["phone","Company phone"],["supportEmail","Contact email"],["taxId","Tax ID"],["invoicePrefix","Invoice prefix"]];
 const zones=["UTC","Asia/Baku","Europe/Istanbul","Europe/Moscow","Europe/London","Europe/Berlin","Europe/Paris","Europe/Warsaw","America/New_York","America/Chicago","America/Los_Angeles","Asia/Dubai","Asia/Almaty","Australia/Sydney"];
 export default function SettingsPage() {
@@ -41,7 +42,7 @@ export default function SettingsPage() {
       <TextField select label={t("Time zone")} value={form.timezone||'UTC'} disabled={!admin||busy} onChange={e=>change('timezone',e.target.value)}>{[...new Set([form.timezone,...zones])].filter(Boolean).map(zone=><MenuItem key={zone} value={zone}>{zone}</MenuItem>)}</TextField>
       {admin&&<Box><Button variant="contained" type="submit" disabled={busy}>{busy?t("Saving..."):t("Save settings")}</Button></Box>}
     </Stack></Box></PageCard>
-    <PageCard sx={{p:3,alignSelf:'start'}}><Stack spacing={2}><Typography component="h2" variant="h6">{t("Subscription")}</Typography>{admin&&<Button component={RouterLink} to="/workspace/plan">{t("Plan and renewal")}</Button>}<Chip label={user.company.market==='GLOBAL'?'Starter':user.company.plan} sx={{alignSelf:'start'}}/><Typography variant="h5">{money((form.subscriptionPrice?.amountMinor||0)/100,form.subscriptionPrice?.currency||'USD')}</Typography><Typography color="text.secondary">{t(form.billingCycle==='YEARLY'?'Yearly billing':'Monthly billing')}</Typography><Typography>{t("Expires")}: {date(form.endsAt,false)}</Typography><Typography>{t("Active account limit")}: {form.limits?.maxUsers}</Typography><Alert severity="info">{t("Subscription billing currency is separate from your operating currency.")}</Alert></Stack></PageCard>
+    <PageCard sx={{p:3,alignSelf:'start'}}><Stack spacing={2}><Typography component="h2" variant="h6">{t("Subscription")}</Typography>{admin&&<Button component={RouterLink} to="/workspace/plan">{t("Plan and renewal")}</Button>}<Chip label={form.plan==='BASIC'?'Starter':form.plan} sx={{alignSelf:'start'}}/><Typography variant="h5">{form.subscriptionPrice?formatSubscriptionPrice(form.subscriptionPrice.amountMinor,form.subscriptionPrice.currency):'—'}</Typography><Typography color="text.secondary">{t(form.billingCycle==='YEARLY'?'Yearly billing':'Monthly billing')}</Typography><Typography>{t("Expires")}: {date(form.endsAt,false)}</Typography><Typography>{t("Active account limit")}: {form.limits?.maxUsers}</Typography><Alert severity="info">{t("Subscription billing currency is separate from your operating currency.")}</Alert></Stack></PageCard>
     </Box>}
   </PageLayout>;
 }
