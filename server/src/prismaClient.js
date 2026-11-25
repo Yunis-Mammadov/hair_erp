@@ -1,7 +1,7 @@
 const { PrismaClient, Prisma } = require("@prisma/client");
 const { getCompanyId } = require("./tenant-context");
 // Reject an old generated client before accepting business requests.
-const requiredFields={TrialInvitation:["tokenHash","usedAt","phone"],Company:["timezone","logoUrl","isDemo","operatorSuspended","trialStartedAt","trialEndsAt","trialConvertedAt","trialPhone"],Purchase:["version","voidedAt","totalAmount"],AuditEvent:["action"],Product:["unit"],ReminderOutbox:["state"],Payment:["orderId","voidedAt"],CustomerRefund:["amount"],CustomerOpeningBalance:["amount","balanceDate"],Customer:["externalId"],BillingEvent:["state"]};
+const requiredFields={TrialPhoneChallenge:["providerOtpId","verifyUntil","verifiedCodeHash"],TrialInvitation:["tokenHash","usedAt","phone"],Company:["timezone","logoUrl","isDemo","operatorSuspended","trialStartedAt","trialEndsAt","trialConvertedAt","trialPhone"],Purchase:["version","voidedAt","totalAmount"],AuditEvent:["action"],Product:["unit"],ReminderOutbox:["state"],Payment:["orderId","voidedAt"],CustomerRefund:["amount"],CustomerOpeningBalance:["amount","balanceDate"],Customer:["externalId"],BillingEvent:["state"]};
 for(const [name,fields]of Object.entries(requiredFields)){
  const model=Prisma.dmmf.datamodel.models.find(m=>m.name===name);
  if(fields.some(field=>!model?.fields.some(f=>f.name===field)))throw new Error("Prisma Client is out of date. Stop the backend, run npx prisma generate in server, then restart it.");
@@ -17,7 +17,7 @@ function quantityNumbers(value,key) {
 const platformPrisma = new PrismaClient().$extends({query:{$allOperations:async({args,query})=>quantityNumbers(await query(args))}});
 const tenantModels = new Set(
   Prisma.dmmf.datamodel.models
-    .filter((model) => !["Company","TrialInvitation"].includes(model.name))
+    .filter((model) => !["Company","TrialInvitation","TrialPhoneChallenge"].includes(model.name))
     .map((model) => model.name),
 );
 const modelFields = new Map(

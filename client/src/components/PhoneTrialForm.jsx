@@ -3,19 +3,16 @@ import {Link as RouterLink, useNavigate} from 'react-router-dom';
 import {Alert, Box, Button, Checkbox, FormControlLabel, Link, Stack, TextField, Typography} from '@mui/material';
 import {useI18n} from '../i18n/useI18n';
 import {api} from '../lib/api';
-import {sendTrialSms} from '../lib/trial-phone';
 
 export default function PhoneTrialForm() {
   const {t, language} = useI18n();
   const navigate = useNavigate();
-  const captcha = useRef(null);
   const mounted = useRef(false);
   const pending = useRef(false);
-  const proof = useRef(null);
   const [phone, setPhone] = useState('+994 ');
   const [code, setCode] = useState('');
   const [consent, setConsent] = useState(false);
-  const [verifyCode, setVerifyCode] = useState(null);
+  const [verification, setVerification] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const compact = phone.trim().replace(/[\s()-]/g, '');
@@ -29,35 +26,22 @@ export default function PhoneTrialForm() {
 
   async function submit(event) {
     event.preventDefault();
-    if (pending.current || !validPhone || !consent || (verifyCode && !/^\d{6}$/.test(code))) return;
+    if (pending.current || !validPhone || !consent || (verification && !/^\d{6}$/.test(code))) return;
     pending.current = true;
     setBusy(true);
     setError('');
     try {
-      if (verifyCode) {
-        proof.current ??= await verifyCode(code);
-        if (!mounted.current) return;
-        const {data} = await api.post('/trial/phone/verify', {idToken: proof.current, locale: language}, {anonymous: true});
-        proof.current = null;
+      if (verification) {
+        const {data} = await api.post('/trial/phone/verify', {challenge: verification.challenge, code}, {anonymous: true});
         if (mounted.current) navigate('/trial/activate#token=' + data.token, {replace: true});
       } else {
-        const confirm = await sendTrialSms(number, language, captcha.current);
-        if (mounted.current && confirm) setVerifyCode(() => confirm);
+        const {data} = await api.post('/trial/phone/request', {phone: number, locale: language, consent}, {anonymous: true});
+        if (mounted.current) setVerification(data);
       }
     } catch (failure) {
       if (!mounted.current) return;
-      const message = {
-        'auth/invalid-verification-code': 'That SMS code is incorrect.',
-        'auth/code-expired': 'That SMS code expired. Request a new code.',
-        'auth/session-expired': 'That SMS code expired. Request a new code.',
-        'auth/too-many-requests': 'Too many trial requests. Please try again later.',
-      }[failure.code];
-      if (failure.response?.status === 401) {
-        proof.current = null;
-        setVerifyCode(null);
-        setCode('');
-      }
-      setError(failure.response?.data?.message || t(message || 'Phone verification is temporarily unavailable. Please try again.'));
+      if (failure.response?.status === 410) reset();
+      setError(failure.response?.data?.message || t('Phone verification is temporarily unavailable. Please try again.'));
     } finally {
       pending.current = false;
       if (mounted.current) setBusy(false);
@@ -65,8 +49,7 @@ export default function PhoneTrialForm() {
   }
 
   function reset() {
-    proof.current = null;
-    setVerifyCode(null);
+    setVerification(null);
     setCode('');
     setError('');
   }
@@ -75,10 +58,18 @@ export default function PhoneTrialForm() {
     <Box component="form" onSubmit={submit}>
       <Stack spacing={2}>
         {error && <Alert severity="error">{error}</Alert>}
-        {verifyCode ? (
+        {verification ? (
           <>
-            <Typography>{t('We sent a code to {phone}.', {phone: number})}</Typography>
-            <TextField label={t('SMS code')} value={code} onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            {verification.actionUrl ? (
+              <>
+                <Typography>{t('Open WhatsApp and send the prepared message to receive your code.')}</Typography>
+                <Button href={verification.actionUrl} target="_blank" rel="noopener noreferrer" variant="outlined">{t('Open WhatsApp')}</Button>
+              </>
+            ) : (
+              <Typography>{t('We sent a code to {phone}.', {phone: number})}</Typography>
+            )}
+            <TextField label={verification.channel === 'whatsapp' ? t('WhatsApp code') : t('SMS code')}
+              value={code} onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
               autoComplete="one-time-code" slotProps={{htmlInput: {inputMode: 'numeric', maxLength: 6}}} required disabled={busy} />
             <Button type="submit" variant="contained" disabled={busy || code.length !== 6}>{t('Verify phone number')}</Button>
             <Button onClick={reset} disabled={busy}>{t('Change number or resend code')}</Button>
@@ -88,11 +79,10 @@ export default function PhoneTrialForm() {
             <TextField label={t('Phone number')} type="tel" value={phone} onChange={e => setPhone(e.target.value)}
               autoComplete="tel" helperText={t('Use an Azerbaijan (+994) phone number.')} required disabled={busy} />
             <FormControlLabel control={<Checkbox checked={consent} onChange={e => setConsent(e.target.checked)} disabled={busy} />}
-              label={<Typography variant="body2">{t('I agree to Firebase processing my number and sending an SMS code.')} <Link component={RouterLink} to="/privacy">{t('Privacy')}</Link></Typography>} />
-            <Button type="submit" variant="contained" disabled={busy || !consent || !validPhone}>{t('Send SMS code')}</Button>
+              label={<Typography variant="body2">{t('I agree to OTP.com processing my number and sending a verification code.')} <Link component={RouterLink} to="/privacy">{t('Privacy')}</Link></Typography>} />
+            <Button type="submit" variant="contained" disabled={busy || !consent || !validPhone}>{t('Send verification code')}</Button>
           </>
         )}
-        <div ref={captcha} />
       </Stack>
     </Box>
   );

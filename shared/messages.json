@@ -7385,17 +7385,17 @@
     "tr": "Azerbaycan (+994) telefon numarası gir.",
     "ru": "Введите номер телефона Азербайджана (+994)."
   },
-  "I agree to Firebase processing my number and sending an SMS code.": {
-    "en": "I agree to Firebase processing my number and sending an SMS code.",
-    "az": "Firebase-in nömrəmi emal etməsinə və SMS kodu göndərməsinə razıyam.",
-    "tr": "Firebase'in numaramı işlemesine ve SMS kodu göndermesine izin veriyorum.",
-    "ru": "Я согласен на обработку номера в Firebase и получение СМС-кода."
+  "I agree to OTP.com processing my number and sending a verification code.": {
+    "en": "I agree to OTP.com processing my number and sending a verification code.",
+    "az": "OTP.com-un nömrəmi emal etməsinə və təsdiq kodu göndərməsinə razıyam.",
+    "tr": "OTP.com'un numaramı işlemesine ve doğrulama kodu göndermesine izin veriyorum.",
+    "ru": "Я даю согласие на обработку номера сервисом OTP.com и отправку кода подтверждения."
   },
-  "Send SMS code": {
-    "en": "Send SMS code",
-    "az": "SMS kodu göndər",
-    "tr": "SMS kodu gönder",
-    "ru": "Отправить СМС-код"
+  "Send verification code": {
+    "en": "Send verification code",
+    "az": "Təsdiq kodunu göndər",
+    "tr": "Doğrulama kodu gönder",
+    "ru": "Отправить код подтверждения"
   },
   "We sent a code to {phone}.": {
     "en": "We sent a code to {phone}.",
@@ -7421,17 +7421,17 @@
     "tr": "Numarayı değiştir veya kodu yeniden gönder",
     "ru": "Изменить номер или отправить код повторно"
   },
-  "That SMS code is incorrect.": {
-    "en": "That SMS code is incorrect.",
-    "az": "SMS kodu yanlışdır.",
-    "tr": "SMS kodu hatalı.",
-    "ru": "Неверный СМС-код."
+  "That verification code is incorrect.": {
+    "en": "That verification code is incorrect.",
+    "az": "Təsdiq kodu yanlışdır.",
+    "tr": "Doğrulama kodu hatalı.",
+    "ru": "Неверный код подтверждения."
   },
-  "That SMS code expired. Request a new code.": {
-    "en": "That SMS code expired. Request a new code.",
-    "az": "SMS kodunun vaxtı bitib. Yeni kod istə.",
-    "tr": "SMS kodunun süresi doldu. Yeni kod iste.",
-    "ru": "Срок действия СМС-кода истёк. Запросите новый код."
+  "This verification code has expired or has no attempts left. Request a new code.": {
+    "en": "This verification code has expired or has no attempts left. Request a new code.",
+    "az": "Kodun müddəti bitib və ya cəhd limiti dolub. Yeni kod istəyin.",
+    "tr": "Kodun süresi doldu veya deneme hakkı kalmadı. Yeni bir kod isteyin.",
+    "ru": "Срок действия кода истёк или попытки закончились. Запросите новый код."
   },
   "Phone verification is temporarily unavailable. Please try again.": {
     "en": "Phone verification is temporarily unavailable. Please try again.",
@@ -7439,11 +7439,11 @@
     "tr": "Telefon doğrulama geçici olarak kullanılamıyor. Tekrar dene.",
     "ru": "Подтверждение телефона временно недоступно. Попробуйте ещё раз."
   },
-  "Verify your phone number again to continue.": {
-    "en": "Verify your phone number again to continue.",
-    "az": "Davam etmək üçün telefon nömrəni yenidən təsdiqlə.",
-    "tr": "Devam etmek için telefon numaranı tekrar doğrula.",
-    "ru": "Подтвердите номер телефона повторно, чтобы продолжить."
+  "Confirm that you agree to receive a verification code.": {
+    "en": "Confirm that you agree to receive a verification code.",
+    "az": "Təsdiq kodunu almağa razı olduğunuzu təsdiqləyin.",
+    "tr": "Doğrulama kodu almayı kabul ettiğinizi onaylayın.",
+    "ru": "Подтвердите согласие на получение кода."
   },
   "This phone number has already used its trial. Sign in or contact support.": {
     "en": "This phone number has already used its trial. Sign in or contact support.",
@@ -7481,10 +7481,28 @@
     "tr": "Başka bir numara doğrula",
     "ru": "Подтвердить другой номер"
   },
-  "If you register by phone, we keep the verified number and Google Firebase processes it to deliver the verification code and help prevent abuse.": {
-    "en": "If you register by phone, we keep the verified number and Google Firebase processes it to deliver the verification code and help prevent abuse.",
-    "az": "Telefonla qeydiyyatdan keçəndə təsdiqlənmiş nömrəni saxlayırıq. Google Firebase kodu göndərmək və sui-istifadənin qarşısını almağa kömək etmək üçün nömrəni emal edir.",
-    "tr": "Telefonla kayıt olduğunda doğrulanan numarayı saklarız. Google Firebase kodu göndermek ve kötüye kullanımı önlemeye yardımcı olmak için numarayı işler.",
-    "ru": "При регистрации по телефону мы сохраняем подтверждённый номер, а Google Firebase обрабатывает его для отправки кода и предотвращения злоупотреблений."
+  "If you register by phone, we keep the verified number. OTP.com processes your phone number and IP address to deliver the code and help prevent abuse.": {
+    "en": "If you register by phone, we keep the verified number. OTP.com processes your phone number and IP address to deliver the code and help prevent abuse.",
+    "az": "Telefonla qeydiyyatdan keçəndə təsdiqlənmiş nömrəni saxlayırıq. OTP.com kodu göndərmək və sui-istifadənin qarşısını almağa kömək etmək üçün telefon nömrənizi və IP ünvanınızı emal edir.",
+    "tr": "Telefonla kayıt olduğunuzda doğrulanan numarayı saklarız. OTP.com kodu göndermek ve kötüye kullanımı önlemeye yardımcı olmak için telefon numaranızı ve IP adresinizi işler.",
+    "ru": "При регистрации по телефону мы сохраняем подтверждённый номер. OTP.com обрабатывает номер телефона и IP-адрес для отправки кода и защиты от злоупотреблений."
+  },
+  "WhatsApp code": {
+    "en": "WhatsApp code",
+    "az": "WhatsApp kodu",
+    "tr": "WhatsApp kodu",
+    "ru": "Код WhatsApp"
+  },
+  "Open WhatsApp": {
+    "en": "Open WhatsApp",
+    "az": "WhatsApp-ı aç",
+    "tr": "WhatsApp’ı aç",
+    "ru": "Открыть WhatsApp"
+  },
+  "Open WhatsApp and send the prepared message to receive your code.": {
+    "en": "Open WhatsApp and send the prepared message to receive your code.",
+    "az": "Kodu almaq üçün WhatsApp-ı açın və hazır mesajı göndərin.",
+    "tr": "Kodu almak için WhatsApp’ı açın ve hazırlanan mesajı gönderin.",
+    "ru": "Откройте WhatsApp и отправьте готовое сообщение, чтобы получить код."
   }
 }

@@ -34,6 +34,7 @@ function readiness({db,uploadsRoot}){
    await db.customerOpeningBalance.count();
    await db.auditEvent.count();
    await db.trialInvitation.count();
+   await db.trialPhoneChallenge.findFirst({select:{id:true}});
    await db.company.findFirst({select:{trialStartedAt:true,trialEndsAt:true,trialConvertedAt:true,trialPhone:true}});
    await db.purchase.findFirst({select:{version:true,totalAmount:true,voidedAt:true}});
    await db.customer.findFirst({select:{externalId:true}});

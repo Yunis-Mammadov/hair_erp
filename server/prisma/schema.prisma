@@ -685,3 +685,19 @@ model TrialInvitation {
  @@index([ipHash,createdAt])
  @@index([expiresAt])
 }
+
+model TrialPhoneChallenge {
+ id String @id
+ phone String
+ locale String
+ ipHash String
+ providerOtpId String? @unique
+ createdAt DateTime @default(now())
+ expiresAt DateTime
+ attempts Int @default(0)
+ verifyUntil DateTime?
+ verifiedCodeHash String?
+ @@index([phone,createdAt])
+ @@index([ipHash,createdAt])
+ @@index([createdAt])
+}

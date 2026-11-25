@@ -34,6 +34,38 @@ test('Native PostgreSQL: concurrent trial activation, hard expiry and signup int
    assert.equal(results.filter(r=>r.status===201).length,1,JSON.stringify(results));assert.ok(results.every(r=>[201,409].includes(r.status)),JSON.stringify(results));assert.equal(await db.company.count({where:{trialEmail:email}}),1);
    assert.equal(await db.company.count({where:{loginEmail:{in:['native-two-a@zindex.com','native-two-b@zindex.com']}}}),1);
   });
+  await t.test('concurrent phone requests send one code and create one invitation',async()=>{
+   const originalFetch=global.fetch;
+   let sends=0,checks=0;
+   process.env.TRIAL_PHONE_ENABLED='true';
+   process.env.OTP_COM_API_KEY='otp_test_fixture';
+   global.fetch=async(url,options)=>{
+    if(!url.startsWith('https://api.otp.com/api/v1/otp/')) return originalFetch(url,options);
+    if(url.endsWith('/send')){
+     sends++;
+     return Response.json({otp_id:'native-fixture',channel:'sms',status:'pending',completion:'code'});
+    }
+    checks++;
+    return Response.json({otp_id:'native-fixture',status:'approved',matched:true});
+   };
+   try{
+    ip++;
+    const phone='+994000000000';
+    const results=await Promise.all(Array.from({length:4},()=>call('/phone/request',{phone,consent:true})));
+    assert.deepEqual(results.map(result=>result.status).sort(),[200,429,429,429]);
+    assert.equal(sends,1);
+    const challenge=results.find(result=>result.status===200).data.challenge;
+    const resultsVerify=await Promise.all(Array.from({length:2},()=>call('/phone/verify',{challenge,code:'601238'})));
+    assert.ok(resultsVerify.some(result=>result.status===200));
+    assert.ok(resultsVerify.every(result=>[200,429].includes(result.status)));
+    assert.equal(checks,1);
+    assert.equal(await db.trialInvitation.count({where:{phone}}),1);
+   }finally{
+    global.fetch=originalFetch;
+    delete process.env.TRIAL_PHONE_ENABLED;
+    delete process.env.OTP_COM_API_KEY;
+   }
+  });
   await t.test('database refuses partial dates; exact boundary revokes access without deleting records',async()=>{
    const c=await db.company.findUnique({where:{trialEmail:'native-one@example.com'}}),{subscriptionIsActive}=require('../src/config/plans');
    assert.equal(subscriptionIsActive(c,new Date(+c.trialEndsAt-1)),true);assert.equal(subscriptionIsActive(c,c.trialEndsAt),false);

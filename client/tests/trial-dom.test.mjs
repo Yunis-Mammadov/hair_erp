@@ -11,14 +11,14 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
  const dom=new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>',{url:'http://localhost/trial/activate#token='+'a'.repeat(64)});
  for(const key of ['window','document','HTMLElement','HTMLInputElement','HTMLTextAreaElement','Element','Node','MutationObserver','DocumentFragment','Event','MouseEvent','localStorage','sessionStorage'])globalThis[key]=dom.window[key];
  Object.defineProperty(globalThis,'navigator',{value:dom.window.navigator,configurable:true});globalThis.IS_REACT_ACT_ENVIRONMENT=true;globalThis.getComputedStyle=window.getComputedStyle.bind(window);globalThis.requestAnimationFrame=cb=>setTimeout(cb,0);globalThis.cancelAnimationFrame=clearTimeout;window.matchMedia=q=>({matches:false,media:q,addEventListener(){},removeEventListener(){}});
- const calls=[];let available=true,phoneEnabled=false,badLink=false,activeCompanies=null,root,React,key=0;
+ const calls=[];let available=true,phoneEnabled=false,badLink=false,activeCompanies=null,phoneChannel='sms',actionUrl=null,root,React,key=0;
  const trial={status:'active',startedAt:new Date().toISOString(),endsAt:new Date(Date.now()+7*86400000).toISOString()};
  let billing={enabled:true,active:true,hasSubscription:false,status:'manual',billingEmail:'owner@example.com',company:{plan:'BASIC',market:'GLOBAL',endsAt:trial.endsAt,trial,limits:{maxUsers:3},subscriptionPrice:{currency:'USD',amountMinor:1999}}};
  globalThis.__trialUser={role:'ADMIN',company:{trial}};
- globalThis.__trialApi={get:async(...a)=>{calls.push(['get',...a]);return {data:a[0]==='/trial/config'?{enabled:available,currencies:['USD','EUR','AZN'],trialDays:7,phoneEnabled}:a[0]==='/public/stats'?{activeCompanies}:billing};},post:async(...a)=>{calls.push(['post',...a]);if(a[0]==='/trial/phone/verify')return {data:{token:'c'.repeat(64)}};if(a[0]==='/trial/inspect'){if(badLink)throw {response:{data:{message:'This verification link is invalid or expired.'}}};return {data:a[1].token==='c'.repeat(64)?{phone:'+994000000000'}:{email:'owner@example.com'}};}if(a[0]==='/trial/activate')return {data:{company:{loginEmail:'my-shop@zindex.com',trial}}};return {data:{}};}};
+ globalThis.__trialApi={get:async(...a)=>{calls.push(['get',...a]);return {data:a[0]==='/trial/config'?{enabled:available,currencies:['USD','EUR','AZN'],trialDays:7,phoneEnabled}:a[0]==='/public/stats'?{activeCompanies}:billing};},post:async(...a)=>{calls.push(['post',...a]);if(a[0]==='/trial/phone/request')return {data:{challenge:'d'.repeat(64),channel:phoneChannel,actionUrl}};if(a[0]==='/trial/phone/verify'){if(a[1].code!=='601238')throw {response:{status:400,data:{message:'That verification code is incorrect.'}}};return {data:{token:'c'.repeat(64)}};}if(a[0]==='/trial/inspect'){if(badLink)throw {response:{data:{message:'This verification link is invalid or expired.'}}};return {data:a[1].token==='c'.repeat(64)?{phone:'+994000000000'}:{email:'owner@example.com'}};}if(a[0]==='/trial/activate')return {data:{company:{loginEmail:'my-shop@zindex.com',trial}}};return {data:{}};}};
  try{
   const outfile=path.join(folder,'components.cjs');
-  await build({stdin:{contents:'import React from "react";import {createRoot} from "react-dom/client";import {MemoryRouter,Routes,Route} from "react-router-dom";import Request from "./src/pages/TrialPage";import Activate from "./src/pages/TrialActivatePage";import Banner from "./src/components/TrialBanner";import Landing from "./src/pages/LandingPage";import Plan from "./src/pages/PlanPage";import * as runtime from "./src/i18n/runtime";const PhoneFlow=()=> <Routes><Route path="/trial" element={<Request/>}/><Route path="/trial/activate" element={<Activate/>}/></Routes>;export {React,createRoot,MemoryRouter,Request,Activate,Banner,Landing,Plan,PhoneFlow,runtime};',loader:'jsx',resolveDir:client},outfile,bundle:true,loader:{'.css':'empty'},platform:'node',format:'cjs',jsx:'automatic',define:{'import.meta.env':'{}'},external:['react','react/*','react-dom','react-dom/*','@mui/material','@mui/material/*','@mui/system','@mui/system/*','@mui/utils','@emotion/*'],logLevel:'silent',plugins:[{name:'fixtures',setup(b){b.onResolve({filter:/(^|\/)(api|useAuth|trial-phone)$/},a=>({path:a.path.split('/').at(-1),namespace:'fixture'}));b.onLoad({filter:/.*/,namespace:'fixture'},a=>({contents:a.path==='useAuth'?'export const useAuth=()=>({user:globalThis.__trialUser});':a.path==='trial-phone'?'export const sendTrialSms=(...a)=>globalThis.__trialSms(...a);':'export const api={get:(...a)=>globalThis.__trialApi.get(...a),post:(...a)=>globalThis.__trialApi.post(...a)};',loader:'js'}));}}]});
+  await build({stdin:{contents:'import React from "react";import {createRoot} from "react-dom/client";import {MemoryRouter,Routes,Route} from "react-router-dom";import Request from "./src/pages/TrialPage";import Activate from "./src/pages/TrialActivatePage";import Banner from "./src/components/TrialBanner";import Landing from "./src/pages/LandingPage";import Plan from "./src/pages/PlanPage";import * as runtime from "./src/i18n/runtime";const PhoneFlow=()=> <Routes><Route path="/trial" element={<Request/>}/><Route path="/trial/activate" element={<Activate/>}/></Routes>;export {React,createRoot,MemoryRouter,Request,Activate,Banner,Landing,Plan,PhoneFlow,runtime};',loader:'jsx',resolveDir:client},outfile,bundle:true,loader:{'.css':'empty'},platform:'node',format:'cjs',jsx:'automatic',define:{'import.meta.env':'{}'},external:['react','react/*','react-dom','react-dom/*','@mui/material','@mui/material/*','@mui/system','@mui/system/*','@mui/utils','@emotion/*'],logLevel:'silent',plugins:[{name:'fixtures',setup(b){b.onResolve({filter:/(^|\/)(api|useAuth)$/},a=>({path:a.path.split('/').at(-1),namespace:'fixture'}));b.onLoad({filter:/.*/,namespace:'fixture'},a=>({contents:a.path==='useAuth'?'export const useAuth=()=>({user:globalThis.__trialUser});':'export const api={get:(...a)=>globalThis.__trialApi.get(...a),post:(...a)=>globalThis.__trialApi.post(...a)};',loader:'js'}));}}]});
   const C=createRequire(import.meta.url)(outfile);React=C.React;C.runtime.setLanguage('en');C.runtime.setWorkspace(null);root=C.createRoot(document.getElementById('root'));
   const render=async(component,entry='/trial')=>React.act(async()=>root.render(React.createElement(C.MemoryRouter,{key:++key,initialEntries:[entry]},React.createElement(component))));
   const button=s=>[...document.querySelectorAll('button')].find(b=>b.textContent===s);
@@ -111,30 +111,22 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
   });
   await t.test('phone signup requires consent, verifies a code and opens company setup without email',async()=>{
    phoneEnabled=true;
-   const sms=[];
-   globalThis.__trialSms=async(phone,language)=>{
-    sms.push([phone,language]);
-    return async code=>{
-     if(code!=='601238')throw {code:'auth/invalid-verification-code'};
-     return 'firebase-test-proof';
-    };
-   };
    await render(C.PhoneFlow);
    assert.ok(button('Register with email'));
    await React.act(async()=>button('Register with phone').click());
    await set('Phone number','+994 00 000 00 00');
-   assert.equal(button('Send SMS code').disabled,true);
+   assert.equal(button('Send verification code').disabled,true);
    await React.act(async()=>document.querySelector('input[type=checkbox]').click());
    await submit();
-   assert.deepEqual(sms,[['+994000000000','en']]);
+   assert.deepEqual(calls.at(-1),['post','/trial/phone/request',{phone:'+994000000000',locale:'en',consent:true},{anonymous:true}]);
    assert.equal(button('Verify phone number').disabled,true);
    await set('SMS code','000000');
    await submit();
-   assert.match(document.body.textContent,/That SMS code is incorrect/);
-   assert.ok(!calls.some(call=>call[1]==='/trial/phone/verify'));
+   assert.match(document.body.textContent,/That verification code is incorrect/);
+   assert.equal(calls.at(-1)[2].code,'000000');
    await set('SMS code','601238');
    await submit();
-   assert.deepEqual(calls.find(call=>call[1]==='/trial/phone/verify'),['post','/trial/phone/verify',{idToken:'firebase-test-proof',locale:'en'},{anonymous:true}]);
+   assert.deepEqual(calls.findLast(call=>call[1]==='/trial/phone/verify'),['post','/trial/phone/verify',{challenge:'d'.repeat(64),code:'601238'},{anonymous:true}]);
    assert.match(document.body.textContent,/Verified phone number.*\+994000000000/);
    assert.equal(field('Your email address'),undefined);
    await set('Company name','SMS Shop');
@@ -150,5 +142,18 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
    assert.equal(activation[2].token,'c'.repeat(64));
    assert.match(document.body.textContent,/Company login ID/);
   });
- }finally{if(root)await React.act(async()=>root.unmount());dom.window.close();delete globalThis.__trialApi;delete globalThis.__trialUser;delete globalThis.__trialSms;await fs.rm(folder,{recursive:true,force:true});}
+  await t.test('WhatsApp code-back renders a chat link and a code input',async()=>{
+   phoneChannel='whatsapp';
+   actionUrl='https://wa.me/123456789?text=verify';
+   await render(C.PhoneFlow);
+   await React.act(async()=>button('Register with phone').click());
+   await set('Phone number','0500000000');
+   await React.act(async()=>document.querySelector('input[type=checkbox]').click());
+   await submit();
+   const chatLink=[...document.querySelectorAll('a')].find(a=>a.textContent==='Open WhatsApp');
+   assert.equal(chatLink.href,actionUrl);
+   assert.ok(field('WhatsApp code'));
+   assert.equal(field('SMS code'),undefined);
+  });
+ }finally{if(root)await React.act(async()=>root.unmount());dom.window.close();delete globalThis.__trialApi;delete globalThis.__trialUser;await fs.rm(folder,{recursive:true,force:true});}
 });
