@@ -7354,5 +7354,137 @@
     "az": "{amount} qənaət",
     "tr": "{amount} tasarruf",
     "ru": "Экономия {amount}"
+  },
+  "Register with email": {
+    "en": "Register with email",
+    "az": "E-poçtla qeydiyyat",
+    "tr": "E-postayla kayıt",
+    "ru": "Регистрация по почте"
+  },
+  "Register with phone": {
+    "en": "Register with phone",
+    "az": "Telefonla qeydiyyat",
+    "tr": "Telefonla kayıt",
+    "ru": "Регистрация по телефону"
+  },
+  "Verify your phone number to create your company.": {
+    "en": "Verify your phone number to create your company.",
+    "az": "Şirkət hesabını yaratmaq üçün telefon nömrəni təsdiqlə.",
+    "tr": "Şirket hesabını oluşturmak için telefon numaranı doğrula.",
+    "ru": "Подтвердите номер телефона, чтобы создать компанию."
+  },
+  "Phone number": {
+    "en": "Phone number",
+    "az": "Telefon nömrəsi",
+    "tr": "Telefon numarası",
+    "ru": "Номер телефона"
+  },
+  "Use an Azerbaijan (+994) phone number.": {
+    "en": "Use an Azerbaijan (+994) phone number.",
+    "az": "Azərbaycan (+994) nömrəsi daxil et.",
+    "tr": "Azerbaycan (+994) telefon numarası gir.",
+    "ru": "Введите номер телефона Азербайджана (+994)."
+  },
+  "I agree to Firebase processing my number and sending an SMS code.": {
+    "en": "I agree to Firebase processing my number and sending an SMS code.",
+    "az": "Firebase-in nömrəmi emal etməsinə və SMS kodu göndərməsinə razıyam.",
+    "tr": "Firebase'in numaramı işlemesine ve SMS kodu göndermesine izin veriyorum.",
+    "ru": "Я согласен на обработку номера в Firebase и получение СМС-кода."
+  },
+  "Send SMS code": {
+    "en": "Send SMS code",
+    "az": "SMS kodu göndər",
+    "tr": "SMS kodu gönder",
+    "ru": "Отправить СМС-код"
+  },
+  "We sent a code to {phone}.": {
+    "en": "We sent a code to {phone}.",
+    "az": "Kodu {phone} nömrəsinə göndərdik.",
+    "tr": "Kodu {phone} numarasına gönderdik.",
+    "ru": "Мы отправили код на номер {phone}."
+  },
+  "SMS code": {
+    "en": "SMS code",
+    "az": "SMS kodu",
+    "tr": "SMS kodu",
+    "ru": "Код из СМС"
+  },
+  "Verify phone number": {
+    "en": "Verify phone number",
+    "az": "Telefon nömrəsini təsdiqlə",
+    "tr": "Telefon numarasını doğrula",
+    "ru": "Подтвердить номер телефона"
+  },
+  "Change number or resend code": {
+    "en": "Change number or resend code",
+    "az": "Nömrəni dəyiş və ya kodu yenidən göndər",
+    "tr": "Numarayı değiştir veya kodu yeniden gönder",
+    "ru": "Изменить номер или отправить код повторно"
+  },
+  "That SMS code is incorrect.": {
+    "en": "That SMS code is incorrect.",
+    "az": "SMS kodu yanlışdır.",
+    "tr": "SMS kodu hatalı.",
+    "ru": "Неверный СМС-код."
+  },
+  "That SMS code expired. Request a new code.": {
+    "en": "That SMS code expired. Request a new code.",
+    "az": "SMS kodunun vaxtı bitib. Yeni kod istə.",
+    "tr": "SMS kodunun süresi doldu. Yeni kod iste.",
+    "ru": "Срок действия СМС-кода истёк. Запросите новый код."
+  },
+  "Phone verification is temporarily unavailable. Please try again.": {
+    "en": "Phone verification is temporarily unavailable. Please try again.",
+    "az": "Telefon təsdiqi müvəqqəti əlçatan deyil. Yenidən cəhd et.",
+    "tr": "Telefon doğrulama geçici olarak kullanılamıyor. Tekrar dene.",
+    "ru": "Подтверждение телефона временно недоступно. Попробуйте ещё раз."
+  },
+  "Verify your phone number again to continue.": {
+    "en": "Verify your phone number again to continue.",
+    "az": "Davam etmək üçün telefon nömrəni yenidən təsdiqlə.",
+    "tr": "Devam etmek için telefon numaranı tekrar doğrula.",
+    "ru": "Подтвердите номер телефона повторно, чтобы продолжить."
+  },
+  "This phone number has already used its trial. Sign in or contact support.": {
+    "en": "This phone number has already used its trial. Sign in or contact support.",
+    "az": "Bu nömrə ilə artıq sınaq hesabı açılıb. Hesaba daxil ol və ya dəstəyə yaz.",
+    "tr": "Bu numarayla deneme hakkı zaten kullanıldı. Giriş yap veya destekle iletişime geç.",
+    "ru": "Пробный период для этого номера уже использован. Войдите или обратитесь в поддержку."
+  },
+  "This company code or trial phone is already in use. Choose another code or sign in.": {
+    "en": "This company code or trial phone is already in use. Choose another code or sign in.",
+    "az": "Bu şirkət kodu və ya telefon nömrəsi artıq istifadə olunur. Başqa kod seç və ya hesaba daxil ol.",
+    "tr": "Bu şirket kodu veya telefon numarası zaten kullanılıyor. Başka bir kod seç veya giriş yap.",
+    "ru": "Этот код компании или номер телефона уже используется. Выберите другой код или войдите."
+  },
+  "Company login ID": {
+    "en": "Company login ID",
+    "az": "Şirkətin giriş adı",
+    "tr": "Şirket giriş kimliği",
+    "ru": "Логин компании"
+  },
+  "Save this company login ID. You will use it with your company password and personal PIN.": {
+    "en": "Save this company login ID. You will use it with your company password and personal PIN.",
+    "az": "Bu giriş adını saxla. Hesaba şirkət şifrən və şəxsi PIN-inlə birlikdə daxil olacaqsan.",
+    "tr": "Bu şirket giriş kimliğini kaydet. Şirket şifren ve kişisel PIN'inle birlikte kullanacaksın.",
+    "ru": "Сохраните логин компании. Для входа также понадобятся пароль компании и личный ПИН."
+  },
+  "Verified phone number": {
+    "en": "Verified phone number",
+    "az": "Təsdiqlənmiş telefon nömrəsi",
+    "tr": "Doğrulanmış telefon numarası",
+    "ru": "Подтверждённый номер телефона"
+  },
+  "Verify another number": {
+    "en": "Verify another number",
+    "az": "Başqa nömrəni təsdiqlə",
+    "tr": "Başka bir numara doğrula",
+    "ru": "Подтвердить другой номер"
+  },
+  "If you register by phone, we keep the verified number and Google Firebase processes it to deliver the verification code and help prevent abuse.": {
+    "en": "If you register by phone, we keep the verified number and Google Firebase processes it to deliver the verification code and help prevent abuse.",
+    "az": "Telefonla qeydiyyatdan keçəndə təsdiqlənmiş nömrəni saxlayırıq. Google Firebase kodu göndərmək və sui-istifadənin qarşısını almağa kömək etmək üçün nömrəni emal edir.",
+    "tr": "Telefonla kayıt olduğunda doğrulanan numarayı saklarız. Google Firebase kodu göndermek ve kötüye kullanımı önlemeye yardımcı olmak için numarayı işler.",
+    "ru": "При регистрации по телефону мы сохраняем подтверждённый номер, а Google Firebase обрабатывает его для отправки кода и предотвращения злоупотреблений."
   }
 }

@@ -14,6 +14,59 @@ test('Seven-day verified-email trials: isolation, exact expiry, conversion and r
   await t.test('terms, private PIN, strong password and valid setup fields are mandatory',async()=>{ip++;for(const changed of [{acceptedTerms:false},{pin:'2580'},{password:'short'},{timezone:'bad/zone'},{currency:'XXX'},{code:'A@bad'},{trialConvertedAt:new Date().toISOString()}])assert.equal((await api('/trial/activate','POST',{...setup(setupToken),...changed})).status,400);assert.equal(await raw.company.count({where:{trialEmail:'owner@trial-example.com'}}),0);});
   await t.test('activation creates an empty, separate Starter workspace for exactly 168 hours',async()=>{ip++;const r=ok(await api('/trial/activate','POST',setup(setupToken)),201);company=r.company;assert.equal(company.loginEmail,'trial-shop@zindex.com');assert.equal(company.isDemo,false);assert.equal(company.trial.status,'active');assert.equal(+new Date(company.trial.endsAt)-+new Date(company.trial.startedAt),7*86400000);assert.equal(company.trial.daysRemaining,7);assert.ok(!JSON.stringify(company).includes('trialEmail'));assert.equal(await raw.user.count({where:{companyId:company.id}}),1);assert.equal(await raw.product.count({where:{companyId:company.id}}),0);assert.equal(await raw.order.count({where:{companyId:company.id}}),0);const c=await raw.company.findUnique({where:{id:company.id}});assert.equal(c.trialTermsVersion,'2026-11-20');assert.equal(c.trialEmail,'owner@trial-example.com');assert.equal(c.endsAt.toISOString(),company.trial.endsAt);});
   await t.test('lost activation responses replay one account; changed payloads cannot reuse the link',async()=>{assert.equal(ok(await api('/trial/activate','POST',setup(setupToken))).replayed,true);assert.equal(await raw.company.count({where:{trialEmail:'owner@trial-example.com'}}),1);assert.equal((await api('/trial/activate','POST',{...setup(setupToken),name:'Other name'})).status,409);assert.equal(await raw.auditEvent.count({where:{companyId:company.id,action:'TRIAL_ACTIVATED'}}),1);});
+  await t.test('SMS trials require a fresh signed Firebase phone token and preserve one trial per number',async()=>{
+   ip++;
+   assert.equal(ok(await api('/trial/config')).phoneEnabled,false);
+   assert.equal((await api('/trial/phone/verify','POST',{idToken:'<invalid>'})).status,503);
+   const {generateKeyPairSync}=require('node:crypto');
+   const {publicKey,privateKey}=generateKeyPairSync('rsa',{modulusLength:2048});
+   const {projectId}=require('../../shared/firebase-web.json');
+   const jwt=require('jsonwebtoken'),now=Math.floor(Date.now()/1000);
+   const phone='+994000000000';
+   const sign=overrides=>jwt.sign({
+    sub:'fixture-phone-user',aud:projectId,iss:'https://securetoken.google.com/'+projectId,
+    iat:now,exp:now+1000,auth_time:now,phone_number:phone,firebase:{sign_in_provider:'phone'},
+    ...overrides,
+   },privateKey,{algorithm:'RS256',keyid:'fixture-key'});
+   const verify=(idToken,extra={})=>api('/trial/phone/verify','POST',{idToken,locale:'en',...extra});
+   process.env.TRIAL_PHONE_ENABLED='true';
+   global.fetch=async(url,...options)=>String(url).startsWith('https://www.googleapis.com/robot/v1/metadata/x509/')
+    ? Response.json({'fixture-key':publicKey.export({type:'spki',format:'pem'})},{headers:{'Cache-Control':'max-age=600'}})
+    : originalFetch(url,...options);
+   try{
+    assert.equal(ok(await api('/trial/config')).phoneEnabled,true);
+    const validParts=sign().split('.');
+    validParts[2]=(validParts[2][0]==='a'?'b':'a')+validParts[2].slice(1);
+    for(const idToken of ['invalid',validParts.join('.'),sign({exp:now-1}),sign({aud:'different-project'}),
+      sign({auth_time:now-301}),sign({phone_number:'+16505553434'}),sign({phone_number:123}),
+      sign({firebase:{sign_in_provider:'password'}})]) assert.equal((await verify(idToken)).status,401);
+    assert.equal((await verify(sign(),{phone:'+994000000001'})).status,400);
+    ip++;
+    const token=ok(await verify(sign())).token;
+    const parallelToken=ok(await verify(sign())).token;
+    assert.equal(await raw.company.count({where:{trialPhone:phone}}),0);
+    const inspected=ok(await api('/trial/inspect','POST',{token}));
+    assert.equal(inspected.phone,phone);
+    assert.equal(inspected.email,undefined);
+    const input={...setup(token),code:'sms-trial-shop',currency:'AZN'};
+    const activated=ok(await api('/trial/activate','POST',input),201).company;
+    assert.equal(activated.market,'AZ');
+    assert.equal(activated.loginEmail,'sms-trial-shop@zindex.com');
+    assert.equal(activated.trial.status,'active');
+    assert.ok(!JSON.stringify(activated).includes(phone));
+    const stored=await raw.company.findUnique({where:{trialPhone:phone}});
+    assert.equal(stored.trialEmail,null);
+    assert.equal(stored.trialPhone,phone);
+    assert.equal(ok(await api('/trial/activate','POST',input)).replayed,true);
+    assert.equal((await api('/trial/activate','POST',{...input,token:parallelToken,code:'sms-trial-again'})).status,409);
+    assert.equal((await verify(sign())).status,409);
+    const login=ok(await api('/auth/company-login','POST',{email:activated.loginEmail,password:input.password}));
+    const {token:localSession}=ok(await api('/auth/pin-login','POST',{pin:input.pin},login.loginToken));
+    const billing=ok(await api('/billing','GET',null,localSession));
+    assert.equal(billing.billingEmail,'');
+    assert.deepEqual(billing.offers,{currency:'AZN',MONTHLY:5000,YEARLY:50000});
+   }finally{global.fetch=originalFetch;delete process.env.TRIAL_PHONE_ENABLED;}
+  });
   await t.test('claimed emails cannot restart a trial and bot honeypots send nothing',async()=>{ip++;const n=mail.length;ok(await api('/trial/request','POST',{email:'owner@trial-example.com'}));ok(await api('/trial/request','POST',{email:'bot@example.com',website:'https://spam.example.com'}));assert.equal(mail.length,n);assert.equal(await raw.trialInvitation.count({where:{email:'bot@example.com'}}),0);});
   await t.test('cooldowns and IP limits also count successful requests',async()=>{ip++;const n=mail.length;for(let k=0;k<3;k++)ok(await api('/trial/request','POST',{email:'cooldown@example.com'}));assert.equal(mail.length,n+1);for(let k=0;k<5;k++)ok(await api('/trial/request','POST',{email:`ip-limit-${k}@example.com`}));assert.equal((await api('/trial/request','POST',{email:'ip-over@example.com'})).status,429);});
   await t.test('company-code collisions roll back all writes and leave the verification link usable',async()=>{const token=await invitation('code-clash@example.com');assert.equal((await api('/trial/activate','POST',setup(token))).status,409);assert.equal((await raw.trialInvitation.findFirst({where:{email:'code-clash@example.com'}})).usedAt,null);assert.notEqual(ok(await api('/trial/activate','POST',{...setup(token),code:'another-shop'}),201).company.id,company.id);});

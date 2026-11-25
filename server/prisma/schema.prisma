@@ -32,6 +32,7 @@ enum ProductUnit {
 
 model Company {
  trialEmail String? @unique
+ trialPhone String? @unique
  trialStartedAt DateTime?
  trialEndsAt DateTime?
  trialConvertedAt DateTime?
@@ -668,7 +669,8 @@ model AuditEvent {
 
 model TrialInvitation {
  id String @id @default(cuid())
- email String
+ email String?
+ phone String?
  tokenHash String @unique
  locale String @default("en")
  ipHash String
@@ -679,6 +681,7 @@ model TrialInvitation {
  requestHash String?
  company Company? @relation(fields:[companyId],references:[id],onDelete:Restrict)
  @@index([email,createdAt])
+ @@index([phone,createdAt])
  @@index([ipHash,createdAt])
  @@index([expiresAt])
 }
