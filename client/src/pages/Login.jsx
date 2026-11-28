@@ -1,3 +1,4 @@
+import trialPolicy from "../../../shared/trial.json";
 import {Link as RouterLink} from "react-router-dom";
 import LanguagePicker from "../i18n/LanguagePicker";
 import { useI18n } from "../i18n/useI18n";
@@ -309,7 +310,7 @@ export default function Login() {
             }}>{t("Başqa şirkətlə daxil ol")}</Button>}
             </Stack>
           </Box>
-        <Stack direction="row" justifyContent="center" flexWrap="wrap" gap={1} sx={{mt:2}}>{[['/trial','Start your 7-day free trial'],['/renew','Renew subscription'],['/support','Support'],['/privacy','Privacy'],['/terms','Terms']].map(([to,label])=><Button component={RouterLink} to={to} size="small" key={to}>{t(label)}</Button>)}</Stack></Paper>
+        <Stack direction="row" justifyContent="center" flexWrap="wrap" gap={1} sx={{mt:2}}>{[['/trial','Start your {days}-day free trial'],['/renew','Renew subscription'],['/support','Support'],['/privacy','Privacy'],['/terms','Terms']].map(([to,label])=><Button component={RouterLink} to={to} size="small" key={to}>{t(label,{days:trialPolicy.days})}</Button>)}</Stack></Paper>
 
         <Typography sx={{
         mt: 2.75,

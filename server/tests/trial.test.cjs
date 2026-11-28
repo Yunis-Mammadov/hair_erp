@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path'),{PGlite}=require('@electric-sql/pglite'),{PGLiteSocketServer}=require('@electric-sql/pglite-socket'),{createHmac,randomUUID}=require('node:crypto');
-test('Seven-day verified-email trials: isolation, exact expiry, conversion and rate limits',async t=>{
+test('Verified trials and company subscriptions: isolation, exact expiry, conversion and rate limits',async t=>{
  const db=new PGlite();await db.waitReady;let wire,raw,server,originalSend;const originalFetch=global.fetch;
  try{
   await db.exec(await fs.readFile(path.join(__dirname,'fixtures/legacy-schema.sql'),'utf8'));await require('./helpers/current-migrations.cjs')(db,'202611070000');wire=new PGLiteSocketServer({db,port:0,host:'127.0.0.1'});await wire.start();
@@ -12,12 +12,14 @@ test('Seven-day verified-email trials: isolation, exact expiry, conversion and r
   await t.test('email request creates no company, exposes no token and stores only its hash',async()=>{const count=await raw.company.count();const r=ok(await api('/trial/request','POST',{email:'Owner@trial-example.com',locale:'en'}));setupToken=mail.at(-1).token;assert.equal(mail.at(-1).email,'owner@trial-example.com');assert.equal(mail.at(-1).locale,'en');assert.equal(await raw.company.count(),count);assert.ok(!JSON.stringify(r).includes(setupToken));const p=await raw.trialInvitation.findFirst({where:{email:'owner@trial-example.com'}});assert.notEqual(p.tokenHash,setupToken);assert.equal(p.ipHash.length,64);assert.ok(!JSON.stringify(p).includes('10.1.0.'));assert.equal(ok(await api('/trial/inspect','POST',{token:setupToken})).email,'owner@trial-example.com');});
   await t.test('bad email, unsupported language and forged or expired links reject without provisioning',async()=>{for(const email of ['wrong','a@b.invalid','bad\r\nbcc:hello@example.com'])assert.equal((await api('/trial/request','POST',{email})).status,400);ip++;assert.equal((await api('/trial/request','POST',{email:'good@example.com',locale:'pl'})).status,400);assert.equal((await api('/trial/inspect','POST',{token:'bad'})).status,400);assert.equal((await api('/trial/inspect','POST',{token:'a'.repeat(64)})).status,410);const token=await invitation('expired@example.com');await raw.trialInvitation.updateMany({where:{email:'expired@example.com'},data:{expiresAt:new Date(Date.now()-1)}});assert.equal((await api('/trial/inspect','POST',{token})).status,410);assert.equal((await api('/trial/activate','POST',setup(token))).status,410);});
   await t.test('terms, private PIN, strong password and valid setup fields are mandatory',async()=>{ip++;for(const changed of [{acceptedTerms:false},{pin:'2580'},{password:'short'},{timezone:'bad/zone'},{currency:'XXX'},{code:'A@bad'},{trialConvertedAt:new Date().toISOString()}])assert.equal((await api('/trial/activate','POST',{...setup(setupToken),...changed})).status,400);assert.equal(await raw.company.count({where:{trialEmail:'owner@trial-example.com'}}),0);});
-  await t.test('activation creates an empty, separate Starter workspace for exactly 168 hours',async()=>{ip++;const r=ok(await api('/trial/activate','POST',setup(setupToken)),201);company=r.company;assert.equal(company.loginEmail,'trial-shop@zindex.com');assert.equal(company.isDemo,false);assert.equal(company.trial.status,'active');assert.equal(+new Date(company.trial.endsAt)-+new Date(company.trial.startedAt),7*86400000);assert.equal(company.trial.daysRemaining,7);assert.ok(!JSON.stringify(company).includes('trialEmail'));assert.equal(await raw.user.count({where:{companyId:company.id}}),1);assert.equal(await raw.product.count({where:{companyId:company.id}}),0);assert.equal(await raw.order.count({where:{companyId:company.id}}),0);const c=await raw.company.findUnique({where:{id:company.id}});assert.equal(c.trialTermsVersion,'2026-11-20');assert.equal(c.trialEmail,'owner@trial-example.com');assert.equal(c.endsAt.toISOString(),company.trial.endsAt);});
+  await t.test('activation creates an empty, separate Starter workspace for exactly 336 hours',async()=>{ip++;const r=ok(await api('/trial/activate','POST',setup(setupToken)),201);company=r.company;assert.equal(company.loginEmail,'trial-shop@zindex.com');assert.equal(company.isDemo,false);assert.equal(company.trial.status,'active');assert.equal(+new Date(company.trial.endsAt)-+new Date(company.trial.startedAt),14*86400000);assert.equal(company.trial.daysRemaining,14);assert.ok(!JSON.stringify(company).includes('trialEmail'));assert.equal(await raw.user.count({where:{companyId:company.id}}),1);assert.equal(await raw.product.count({where:{companyId:company.id}}),0);assert.equal(await raw.order.count({where:{companyId:company.id}}),0);const c=await raw.company.findUnique({where:{id:company.id}});assert.equal(c.trialTermsVersion,'2026-11-28');assert.equal(c.trialEmail,'owner@trial-example.com');assert.equal(c.endsAt.toISOString(),company.trial.endsAt);});
   await t.test('lost activation responses replay one account; changed payloads cannot reuse the link',async()=>{assert.equal(ok(await api('/trial/activate','POST',setup(setupToken))).replayed,true);assert.equal(await raw.company.count({where:{trialEmail:'owner@trial-example.com'}}),1);assert.equal((await api('/trial/activate','POST',{...setup(setupToken),name:'Other name'})).status,409);assert.equal(await raw.auditEvent.count({where:{companyId:company.id,action:'TRIAL_ACTIVATED'}}),1);});
   await t.test('OTP.com verifies SMS and WhatsApp before issuing a trial invitation',async()=>{
    ip++;
    process.env.TRIAL_PHONE_ENABLED='true';
-   assert.equal(ok(await api('/trial/config')).phoneEnabled,false);
+   const config=ok(await api('/trial/config'));
+   assert.equal(config.phoneEnabled,false);
+   assert.equal(config.trialDays,14);
    const send = (phone, extra) => api('/trial/phone/request','POST',{phone,locale:'az',consent:true,...extra});
    const verify = (challenge, code='601238') => api('/trial/phone/verify','POST',{challenge,code});
    const phone='+994000000000';
@@ -84,12 +86,14 @@ test('Seven-day verified-email trials: isolation, exact expiry, conversion and r
     assert.equal(await raw.company.count({where:{trialPhone:phone}}),0);
     const inspected=ok(await api('/trial/inspect','POST',{token}));
     assert.equal(inspected.phone,phone);
+    assert.equal(inspected.trialDays,14);
     assert.equal(inspected.email,undefined);
     const input={...setup(token),code:'sms-trial-shop',currency:'AZN'};
     const activated=ok(await api('/trial/activate','POST',input),201).company;
     assert.equal(activated.market,'AZ');
     assert.equal(activated.loginEmail,'sms-trial-shop@zindex.com');
     assert.equal(activated.trial.status,'active');
+    assert.equal(+new Date(activated.trial.endsAt)-+new Date(activated.trial.startedAt),14*86400000);
     assert.ok(!JSON.stringify(activated).includes(phone));
     const stored=await raw.company.findUnique({where:{trialPhone:phone}});
     assert.equal(stored.trialEmail,null);
@@ -128,7 +132,7 @@ test('Seven-day verified-email trials: isolation, exact expiry, conversion and r
   await t.test('company-code collisions roll back all writes and leave the verification link usable',async()=>{const token=await invitation('code-clash@example.com');assert.equal((await api('/trial/activate','POST',setup(token))).status,409);assert.equal((await raw.trialInvitation.findFirst({where:{email:'code-clash@example.com'}})).usedAt,null);assert.notEqual(ok(await api('/trial/activate','POST',{...setup(token),code:'another-shop'}),201).company.id,company.id);});
   await t.test('choosing Azerbaijani before or after verification creates a local billing offer', async () => {
    assert.equal(company.market, 'GLOBAL');
-   assert.deepEqual(company.subscriptionPrice, {currency: 'USD', amountMinor: 1999});
+   assert.deepEqual(company.subscriptionPrice, {currency: 'USD', amountMinor: 0});
    for (const [requestLocale, setupLocale] of [['az', 'en'], ['en', 'az']]) {
     const code = 'local-shop-' + requestLocale;
     const token = await invitation(code + '@example.com', requestLocale);
@@ -137,7 +141,7 @@ test('Seven-day verified-email trials: isolation, exact expiry, conversion and r
     const {company: local} = ok(await api('/trial/activate', 'POST', input), 201);
     assert.equal(local.market, 'AZ');
     assert.equal(local.currency, 'USD');
-    assert.deepEqual(local.subscriptionPrice, {currency: 'AZN', amountMinor: 5000});
+    assert.deepEqual(local.subscriptionPrice, {currency: 'AZN', amountMinor: 0});
     const login = ok(await api('/auth/company-login', 'POST', {email: local.loginEmail, password: input.password}));
     const {token: localSession} = ok(await api('/auth/pin-login', 'POST', {pin: input.pin}, login.loginToken));
     const billing = ok(await api('/billing', 'GET', null, localSession));
@@ -149,11 +153,56 @@ test('Seven-day verified-email trials: isolation, exact expiry, conversion and r
   let checkout;
   await t.test('active trials can open a future Paddle checkout without becoming paid prematurely',async()=>{ip++;Object.assign(process.env,{BILLING_PROVIDER:'paddle',PADDLE_ENVIRONMENT:'sandbox',PADDLE_MONTHLY_PRICE_ID:'pri_trial_month',PADDLE_YEARLY_PRICE_ID:'pri_trial_year',PADDLE_WEBHOOK_SECRET:'trial-test-only-webhook',PADDLE_CHECKOUT_URL:'https://app.example.invalid/checkout'});global.fetch=async(url,options)=>{if(String(url).startsWith('https://sandbox-api.paddle.com/prices/'))return {ok:true,json:async()=>({data:{status:'active',unit_price:{currency_code:'USD',amount:'1999'},billing_cycle:{frequency:1,interval:'month'},trial_period:null}})};if(String(url)==='https://sandbox-api.paddle.com/transactions')return {ok:true,json:async()=>({data:{id:'txn_trialtest',checkout:{url:'https://checkout.example.invalid/pay'}}})};return originalFetch(url,options);};assert.equal(ok(await api('/billing/checkout','POST',{cycle:'MONTHLY',email:'owner@trial-example.com'},session)).url,'https://checkout.example.invalid/pay');checkout=await raw.billingCheckout.findFirst({where:{companyId:company.id}});assert.equal((await raw.company.findUnique({where:{id:company.id}})).trialConvertedAt,null);assert.equal(await raw.payment.count({where:{companyId:company.id}}),0);});
   await t.test('an unpaid canceled checkout cannot shorten the original free trial',async()=>{const c=await raw.company.findUnique({where:{loginEmail:'another-shop@zindex.com'}});await raw.billingAccount.create({data:{companyId:c.id,subscriptionId:'sub_unpaid',customerId:'ctm_unpaid',status:'trialing'}});await raw.$transaction(tx=>require('../src/ops/billing').applyEvent(tx,{event_type:'subscription.canceled',occurred_at:new Date().toISOString(),data:{id:'sub_unpaid',customer_id:'ctm_unpaid',status:'canceled'}}));const after=await raw.company.findUnique({where:{id:c.id}});assert.equal(+after.endsAt,+c.endsAt);assert.equal(after.trialConvertedAt,null);});
-  await t.test('deadline blocks old sessions and login even when normal subscription expiry is extended directly',async()=>{await raw.customer.create({data:{companyId:company.id,name:'Trial data retained'}});await raw.company.update({where:{id:company.id},data:{trialStartedAt:new Date(Date.now()-8*86400000),trialEndsAt:new Date(Date.now()-1000),endsAt:new Date(Date.now()+30*86400000)}});assert.equal((await api('/auth/me','GET',null,session)).status,403);assert.equal((await api('/customers','POST',{name:'Blocked after expiry'},session)).status,403);assert.equal((await api('/auth/company-login','POST',{email:company.loginEmail,password:setup('').password})).status,403);assert.equal(await raw.customer.count({where:{companyId:company.id}}),1);});
+  await t.test('deadline blocks old sessions and login even when normal subscription expiry is extended directly',async()=>{await raw.customer.create({data:{companyId:company.id,name:'Trial data retained'}});await raw.company.update({where:{id:company.id},data:{trialStartedAt:new Date(Date.now()-15*86400000),trialEndsAt:new Date(Date.now()-1000),endsAt:new Date(Date.now()+30*86400000)}});assert.equal((await api('/auth/me','GET',null,session)).status,403);assert.equal((await api('/customers','POST',{name:'Blocked after expiry'},session)).status,403);assert.equal((await api('/auth/company-login','POST',{email:company.loginEmail,password:setup('').password})).status,403);assert.equal(await raw.customer.count({where:{companyId:company.id}}),1);});
   let renewal;
   await t.test('expired trials retain restricted renewal access and verified billing email',async()=>{ip++;renewal=ok(await api('/billing/renewal-login','POST',{email:company.loginEmail,password:setup('').password,pin:'684921'})).token;const r=ok(await api('/billing','GET',null,renewal));assert.equal(r.company.trial.status,'expired');assert.equal(r.billingEmail,'owner@trial-example.com');assert.equal((await api('/customers','GET',null,renewal)).status,401);});
   await t.test('a valid payment event converts the same company and preserves records; forged events cannot',async()=>{const event={event_id:'evt_trialpaid',event_type:'subscription.activated',occurred_at:new Date().toISOString(),data:{id:'sub_trialtest',customer_id:'ctm_trialtest',transaction_id:checkout.transactionId,custom_data:{checkout_ref:checkout.id},status:'active',items:[{quantity:1,price:{id:'pri_trial_month'}}],current_billing_period:{starts_at:new Date().toISOString(),ends_at:new Date(Date.now()+30*86400000).toISOString()}}};const body=JSON.stringify(event),ts=String(Math.floor(Date.now()/1000)),sig=createHmac('sha256',process.env.PADDLE_WEBHOOK_SECRET).update(ts+':'+body).digest('hex');assert.equal((await api('/webhooks/paddle','POST',body,null,{'Paddle-Signature':'bad'})).status,400);assert.equal((await raw.company.findUnique({where:{id:company.id}})).trialConvertedAt,null);ok(await api('/webhooks/paddle','POST',body,null,{'Paddle-Signature':`ts=${ts};h1=${sig}`}));await require('../src/ops/billing').processEvents(raw);const c=await raw.company.findUnique({where:{id:company.id}});assert.ok(c.trialConvertedAt);assert.equal(c.trialEmail,'owner@trial-example.com');assert.equal(await raw.customer.count({where:{companyId:company.id}}),1);assert.equal(ok(await api('/auth/me','GET',null,session)).company.trial.status,'converted');assert.equal(await raw.payment.count({where:{companyId:company.id}}),0);});
   await t.test('operator manual activation converts a trial without faking a payment',async()=>{process.env.BILLING_PROVIDER='manual';const c=await raw.company.findUnique({where:{loginEmail:'another-shop@zindex.com'}});const r=ok(await api(`/operator/companies/${c.id}/subscription`,'PATCH',{expectedAuthVersion:c.authVersion,endsOn:'2030-01-01',billingCycle:'YEARLY',reason:'Manual subscription access'},process.env.PLATFORM_OWNER_SECRET,{'Idempotency-Key':randomUUID()}));assert.ok(r.company.trialConvertedAt);assert.equal(await raw.payment.count({where:{companyId:c.id}}),0);});
+  await t.test('operator-created plans persist their prices and allow renewal at the assigned terms', async () => {
+   const owner=process.env.PLATFORM_OWNER_SECRET;
+   const baseInput={name:'Operator provisioned store',password:'OperatorTestPassword!',pins:{ADMIN:'683417',WAREHOUSE:'683418',EXPEDITOR:'683419'},market:'AZ',currency:'USD',timezone:'Asia/Baku'};
+   const create=(subscriptionType,extra={})=>api('/operator/companies','POST',{...baseInput,code:'provision-'+subscriptionType.toLowerCase(),subscriptionType,...extra},owner);
+   ip++;
+   assert.equal((await create('CUSTOM')).status,400);
+   assert.equal((await create('CUSTOM',{customMonthlyPriceMinor:0})).status,400);
+   assert.equal((await create('CUSTOM',{customMonthlyPriceMinor:3550,market:'GLOBAL'})).status,400);
+   assert.equal((await create('YEARLY',{customMonthlyPriceMinor:3550})).status,400);
+   for (const [type, amountMinor] of [['TRIAL',0],['MONTHLY',5000],['YEARLY',50000],['CUSTOM',3550]]) {
+    ip++;
+    const {company:created}=ok(await create(type,type==='CUSTOM'?{customMonthlyPriceMinor:amountMinor}:{}),201);
+    const login=ok(await api('/auth/company-login','POST',{email:created.loginEmail,password:baseInput.password}));
+    const {token}=ok(await api('/auth/pin-login','POST',{pin:baseInput.pins.ADMIN},login.loginToken));
+    const billing=ok(await api('/billing','GET',null,token));
+    assert.equal(billing.company.subscriptionType,type);
+    assert.equal(billing.company.billingCycle,type==='YEARLY'?'YEARLY':'MONTHLY');
+    assert.equal(billing.company.currency,'USD');
+    assert.deepEqual(billing.company.subscriptionPrice,{currency:'AZN',amountMinor});
+    const current=await raw.company.findUniqueOrThrow({where:{id:created.id}});
+    assert.equal(await raw.user.count({where:{companyId:created.id}}),3);
+
+    if(type==='TRIAL'){
+     assert.equal(+current.endsAt-+current.startsAt,14*86400000);
+     assert.equal(+current.endsAt,+current.trialEndsAt);
+     assert.equal(billing.company.trial.status,'active');
+     assert.equal(await raw.payment.count({where:{companyId:created.id}}),0);
+    }else{
+     assert.equal(current.trialStartedAt,null);
+     assert.ok(+current.endsAt-+current.startsAt>=(type==='YEARLY'?365:28)*86400000);
+    }
+    if(type==='CUSTOM'){
+     assert.deepEqual(billing.offers,{currency:'AZN',MONTHLY:3550});
+     assert.equal(billing.enabled,false);
+     const renew=(input)=>api('/operator/companies/'+created.id+'/subscription','PATCH',input,owner,{'Idempotency-Key':randomUUID()});
+     const renewal={endsOn:'2030-01-31',billingCycle:'MONTHLY',reason:'Manual renewal',expectedAuthVersion:current.authVersion};
+     const kept=ok(await renew(renewal)).company;
+     assert.equal(kept.subscriptionType,'CUSTOM');
+     assert.deepEqual(kept.subscriptionPrice,{currency:'AZN',amountMinor:3550});
+     const yearly=ok(await renew({...renewal,billingCycle:'YEARLY',expectedAuthVersion:kept.authVersion})).company;
+     assert.equal(yearly.customMonthlyPriceMinor,null);
+     assert.deepEqual(yearly.subscriptionPrice,{currency:'AZN',amountMinor:50000});
+    }
+   }
+  });
   await t.test('SMTP errors do not expose a token or create a company; retry is possible after cooldown',async()=>{ip++;const count=await raw.company.count(),n=mail.length;Mail.sendVerification=async()=>{throw Error('SMTP private credential failure');};const r=ok(await api('/trial/request','POST',{email:'mail-fail@example.com'}));assert.ok(!JSON.stringify(r).includes('SMTP'));assert.equal(await raw.company.count(),count);assert.equal(mail.length,n);Mail.sendVerification=async message=>{mail.push(message);};await raw.trialInvitation.updateMany({where:{email:'mail-fail@example.com'},data:{createdAt:new Date(Date.now()-70000)}});ok(await api('/trial/request','POST',{email:'mail-fail@example.com'}));assert.equal(mail.length,n+1);});
   await t.test('console delivery is development-only, signup can be disabled and scoped clients cannot read tokens',async()=>{assert.equal(require('../src/trial-mail').mode({...process.env,NODE_ENV:'production'}),null);assert.throws(()=>require('../src/ops/runtime').validateEnvironment({...process.env,NODE_ENV:'production'}),/SMTP/);await assert.rejects(require('../src/tenant-context').runWithCompany(company.id,async()=>await require('../src/prismaClient').prisma.trialInvitation.findMany()),/icazəli/);process.env.TRIAL_SIGNUP_ENABLED='false';assert.equal(ok(await api('/trial/config')).enabled,false);assert.equal((await api('/trial/request','POST',{email:'disabled@example.com'})).status,503);});
  }finally{global.fetch=originalFetch;if(originalSend)require('../src/trial-mail').sendVerification=originalSend;if(server)await new Promise(r=>server.close(r));if(raw)await raw.$disconnect();if(wire)await wire.stop();await db.close();}

@@ -50,7 +50,12 @@ async function billingAuth(req,res,next){
 router.use('/api/billing',billingAuth,(_req,res,next)=>{res.set('Cache-Control','no-store');next();});
 router.get('/api/billing',route(async(req,res)=>{
  const company=req.billingCompany,account=await db.billingAccount.findUnique({where:{companyId:company.id}});
- res.json({company:publicCompany(company),active:subscriptionIsActive(company),status:account?.status||'manual',cancelAt:account?.cancelAt,enabled:!company.isDemo&&process.env.BILLING_PROVIDER==='paddle'&&company.market==='GLOBAL'&&company.plan==='BASIC',hasSubscription:!!account?.subscriptionId,offers:PRICES[company.market]?.[company.plan],billingEmail:account?.billingEmail||company.trialEmail||'',support:publicService()});
+ const record=publicCompany(company);
+ const {subscriptionType,subscriptionPrice}=record;
+ const offers=subscriptionType==='CUSTOM'
+  ? {currency:subscriptionPrice.currency,MONTHLY:subscriptionPrice.amountMinor}
+  : PRICES[company.market]?.[company.plan];
+ res.json({company:record,active:subscriptionIsActive(company),status:account?.status||'manual',cancelAt:account?.cancelAt,enabled:!company.isDemo&&process.env.BILLING_PROVIDER==='paddle'&&company.market==='GLOBAL'&&company.plan==='BASIC',hasSubscription:!!account?.subscriptionId,offers,billingEmail:account?.billingEmail||company.trialEmail||'',support:publicService()});
 }));
 router.post('/api/billing/checkout',require('express').json({limit:'4kb'}),route(async(req,res)=>{
  const company=req.billingCompany,{cycle,email}=req.body||{};

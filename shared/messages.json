@@ -6731,11 +6731,11 @@
     "tr": "Net satıştan bu ay kaydedilen iadeler düşülür. Müşteri ödemeleri ve nakit geri ödemeler satış tutarını değiştirmez.",
     "ru": "Из чистых продаж вычитаются возвраты, зарегистрированные в этом месяце. Платежи клиентов и возврат денег не меняют этот показатель."
   },
-  "Start your 7-day free trial": {
-    "en": "Start your 7-day free trial",
-    "az": "7 günlük pulsuz sınağa başla",
-    "tr": "7 günlük ücretsiz denemeye başla",
-    "ru": "Начать бесплатные 7 дней"
+  "Start your {days}-day free trial": {
+    "en": "Start your {days}-day free trial",
+    "az": "{days} günlük pulsuz sınağa başla",
+    "tr": "{days} günlük ücretsiz denemeye başla",
+    "ru": "Начать бесплатные {days} дней"
   },
   "Built for small teams": {
     "en": "Built for small teams",
@@ -6845,11 +6845,11 @@
     "tr": "Sade Starter fiyatları",
     "ru": "Простые цены Starter"
   },
-  "Try the Starter plan for 7 days. Choose a subscription when you are ready.": {
-    "en": "Try the Starter plan for 7 days. Choose a subscription when you are ready.",
-    "az": "Starter paketini 7 gün sına. Hazır olanda abunəlik seç.",
-    "tr": "Starter paketini 7 gün dene. Hazır olduğunda abonelik seç.",
-    "ru": "Попробуйте Starter 7 дней. Выберите подписку, когда будете готовы."
+  "Try the Starter plan for {days} days. Choose a subscription when you are ready.": {
+    "en": "Try the Starter plan for {days} days. Choose a subscription when you are ready.",
+    "az": "Starter paketini {days} gün sına. Hazır olanda abunəlik seç.",
+    "tr": "Starter paketini {days} gün dene. Hazır olduğunda abonelik seç.",
+    "ru": "Попробуйте Starter {days} дней. Выберите подписку, когда будете готовы."
   },
   "Applicable taxes and final charges are shown before payment.": {
     "en": "Applicable taxes and final charges are shown before payment.",
@@ -6971,11 +6971,11 @@
     "tr": "Şirketini kur",
     "ru": "Настройте компанию"
   },
-  "Choose your company login and operating currency. The 7-day trial starts when you complete this form.": {
-    "en": "Choose your company login and operating currency. The 7-day trial starts when you complete this form.",
-    "az": "Şirkətin giriş məlumatlarını və əməliyyat valyutasını seç. Formanı tamamlayanda 7 günlük sınaq başlayır.",
-    "tr": "Şirket giriş bilgilerini ve işlem para birimini seç. Bu formu tamamladığında 7 günlük deneme başlar.",
-    "ru": "Выберите данные входа и рабочую валюту. Пробные 7 дней начнутся после заполнения формы."
+  "Choose your company login and operating currency. The {days}-day trial starts when you complete this form.": {
+    "en": "Choose your company login and operating currency. The {days}-day trial starts when you complete this form.",
+    "az": "Şirkətin giriş məlumatlarını və əməliyyat valyutasını seç. Formanı tamamlayanda {days} günlük sınaq başlayır.",
+    "tr": "Şirket giriş bilgilerini ve işlem para birimini seç. Bu formu tamamladığında {days} günlük deneme başlar.",
+    "ru": "Выберите данные входа и рабочую валюту. Пробные {days} дней начнутся после заполнения формы."
   },
   "Your trial is ready": {
     "en": "Your trial is ready",
@@ -6983,11 +6983,11 @@
     "tr": "Deneme hesabın hazır",
     "ru": "Пробный доступ готов"
   },
-  "Your company has 7 days of Starter access. No payment has been taken.": {
-    "en": "Your company has 7 days of Starter access. No payment has been taken.",
-    "az": "Şirkətin 7 gün Starter paketindən istifadə edə bilər. Ödəniş tutulmayıb.",
-    "tr": "Şirketin 7 gün Starter paketini kullanabilir. Ücret alınmadı.",
-    "ru": "Компания получила Starter на 7 дней. Оплата не взималась."
+  "Your company has {days} days of Starter access. No payment has been taken.": {
+    "en": "Your company has {days} days of Starter access. No payment has been taken.",
+    "az": "Şirkətin {days} gün Starter paketindən istifadə edə bilər. Ödəniş tutulmayıb.",
+    "tr": "Şirketin {days} gün Starter paketini kullanabilir. Ücret alınmadı.",
+    "ru": "Компания получила Starter на {days} дней. Оплата не взималась."
   },
   "Company login email": {
     "en": "Company login email",
@@ -7247,11 +7247,11 @@
     "tr": "Deneme kaydı için iletişim e-postanızı, doğrulama durumunu, deneme tarihlerini ve kötüye kullanımı sınırlayan özetlenmiş istek tanımlayıcılarını saklarız. Doğrulama bağlantıları bir saat geçerlidir.",
     "ru": "Для пробной регистрации мы храним контактную почту, статус подтверждения, даты пробного доступа и хешированные идентификаторы запросов для ограничения злоупотреблений. Ссылки подтверждения действуют один час."
   },
-  "The free trial lasts 7 days from company setup. No card is required and no automatic charge is made during the trial. Access stops at expiry; company records remain available for a later subscription. Contact support for export or deletion requests.": {
-    "en": "The free trial lasts 7 days from company setup. No card is required and no automatic charge is made during the trial. Access stops at expiry; company records remain available for a later subscription. Contact support for export or deletion requests.",
-    "az": "Pulsuz sınaq şirkət qurulduqdan sonra 7 gün davam edir. Kart tələb olunmur və sınaq müddətində avtomatik ödəniş tutulmur. Müddət bitəndə giriş dayanır; şirkət məlumatları sonrakı abunəlik üçün saxlanılır. İxrac və ya silinmə üçün dəstəklə əlaqə saxla.",
-    "tr": "Ücretsiz deneme şirket kurulumu tamamlandığında başlar ve 7 gün sürer. Kart gerekmez ve deneme sırasında otomatik ödeme alınmaz. Süre bitince erişim durur; şirket kayıtları sonraki abonelik için saklanır. Dışa aktarma veya silme talepleri için destekle iletişime geçin.",
-    "ru": "Бесплатный пробный доступ длится 7 дней с момента создания компании. Карта не требуется, автоматических списаний во время пробного периода нет. По истечении срока доступ прекращается; записи компании сохраняются для последующей подписки. Для экспорта или удаления обратитесь в поддержку."
+  "The free trial lasts {days} days from company setup. No card is required and no automatic charge is made during the trial. Access stops at expiry; company records remain available for a later subscription. Contact support for export or deletion requests.": {
+    "en": "The free trial lasts {days} days from company setup. No card is required and no automatic charge is made during the trial. Access stops at expiry; company records remain available for a later subscription. Contact support for export or deletion requests.",
+    "az": "Pulsuz sınaq şirkət qurulduqdan sonra {days} gün davam edir. Kart tələb olunmur və sınaq müddətində avtomatik ödəniş tutulmur. Müddət bitəndə giriş dayanır; şirkət məlumatları sonrakı abunəlik üçün saxlanılır. İxrac və ya silinmə üçün dəstəklə əlaqə saxla.",
+    "tr": "Ücretsiz deneme şirket kurulumu tamamlandığında başlar ve {days} gün sürer. Kart gerekmez ve deneme sırasında otomatik ödeme alınmaz. Süre bitince erişim durur; şirket kayıtları sonraki abonelik için saklanır. Dışa aktarma veya silme talepleri için destekle iletişime geçin.",
+    "ru": "Бесплатный пробный доступ длится {days} дней с момента создания компании. Карта не требуется, автоматических списаний во время пробного периода нет. По истечении срока доступ прекращается; записи компании сохраняются для последующей подписки. Для экспорта или удаления обратитесь в поддержку."
   },
   "Workspace overview": {
     "en": "Workspace overview",
@@ -7522,5 +7522,47 @@
     "az": "Kataloqdan seç və ya yeni məhsulun adını yaz.",
     "tr": "Katalogdan seç veya yeni ürünün adını yaz.",
     "ru": "Выберите товар из каталога или введите название нового."
+  },
+  "Enter a positive custom monthly price in AZN.": {
+    "en": "Enter a positive custom monthly price in AZN.",
+    "az": "Xüsusi aylıq qiyməti AZN ilə və sıfırdan böyük daxil et.",
+    "tr": "AZN cinsinden sıfırdan büyük bir aylık fiyat girin.",
+    "ru": "Укажите положительную ежемесячную цену в AZN."
+  },
+  "Choose a valid market and subscription type.": {
+    "en": "Choose a valid market and subscription type.",
+    "az": "Düzgün satış bazarı və abunəlik növü seç.",
+    "tr": "Geçerli bir pazar ve abonelik türü seçin.",
+    "ru": "Выберите подходящий рынок и тип подписки."
+  },
+  "Subscription type": {
+    "en": "Subscription type",
+    "az": "Abunəlik növü",
+    "tr": "Abonelik türü",
+    "ru": "Тип подписки"
+  },
+  "Custom monthly plan": {
+    "en": "Custom monthly plan",
+    "az": "Xüsusi aylıq abunəlik",
+    "tr": "Özel aylık abonelik",
+    "ru": "Индивидуальная ежемесячная подписка"
+  },
+  "Custom monthly price (AZN)": {
+    "en": "Custom monthly price (AZN)",
+    "az": "Xüsusi aylıq qiymət (AZN)",
+    "tr": "Özel aylık fiyat (AZN)",
+    "ru": "Индивидуальная ежемесячная цена (AZN)"
+  },
+  "Prices after the trial": {
+    "en": "Prices after the trial",
+    "az": "Sınaqdan sonrakı qiymətlər",
+    "tr": "Deneme sonrası fiyatlar",
+    "ru": "Цены после пробного периода"
+  },
+  "Free trial": {
+    "en": "Free trial",
+    "az": "Ödənişsiz sınaq",
+    "tr": "Ücretsiz deneme",
+    "ru": "Бесплатный пробный период"
   }
 }

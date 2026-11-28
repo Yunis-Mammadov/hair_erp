@@ -35,7 +35,7 @@ function readiness({db,uploadsRoot}){
    await db.auditEvent.count();
    await db.trialInvitation.count();
    await db.trialPhoneChallenge.findFirst({select:{id:true}});
-   await db.company.findFirst({select:{trialStartedAt:true,trialEndsAt:true,trialConvertedAt:true,trialPhone:true}});
+   await db.company.findFirst({select:{trialStartedAt:true,trialEndsAt:true,trialConvertedAt:true,trialPhone:true,customMonthlyPriceMinor:true}});
    await db.purchase.findFirst({select:{version:true,totalAmount:true,voidedAt:true}});
    await db.customer.findFirst({select:{externalId:true}});
    const failures=await db.$queryRawUnsafe('SELECT COUNT(*)::int AS count FROM "_prisma_migrations" WHERE finished_at IS NULL AND rolled_back_at IS NULL');

@@ -1,3 +1,4 @@
+import trialPolicy from "../../../shared/trial.json";
 import {useEffect,useState} from 'react';
 import {Alert,Box,Button,Checkbox,CircularProgress,FormControlLabel,Link,Paper,Stack,TextField,Typography} from '@mui/material';
 import {Link as RouterLink} from 'react-router-dom';
@@ -12,7 +13,7 @@ export default function TrialPage(){
  useEffect(()=>{let live=true;api.get('/trial/config',{anonymous:true}).then(r=>{if(live){setConfig(r.data);setError('');}}).catch(e=>{if(live)setError(e.response?.data?.message||t('Could not load trial settings.'));});return()=>{live=false;};},[t,reload]);
  async function submit(e){e.preventDefault();if(busy||!confirm)return;setBusy(true);setError('');try{await api.post('/trial/request',{email,locale:language,website},{anonymous:true});setSent(true);}catch(e){setError(e.response?.data?.message||t('Could not request a trial.'));}finally{setBusy(false);}}
  return <PublicLayout><Paper variant="outlined" sx={{maxWidth:560,mx:'auto',p:{xs:3,sm:4},borderRadius:3}}>
- <Typography component="h1" variant="h4" fontWeight={650}>{t(sent&&!phoneMode?'Check your email':'Start your 7-day free trial')}</Typography>
+ <Typography component="h1" variant="h4" fontWeight={650}>{t(sent&&!phoneMode?'Check your email':'Start your {days}-day free trial',{days:config?.trialDays??trialPolicy.days})}</Typography>
  <Typography color="text.secondary" sx={{mt:1.5,mb:3}}>{t(phoneMode?'Verify your phone number to create your company.':sent?'If your email is eligible, a setup link will arrive shortly. Check your inbox and spam folder. Your trial starts after you finish creating the company.':'Enter a real email address. We will send a secure link so you can create your company and choose your login details.')}</Typography>
  {config?.enabled&&config.phoneEnabled&&<Stack direction="row" spacing={1} sx={{mb:2.5}}>
   <Button aria-pressed={!phoneMode} variant={phoneMode?'outlined':'contained'} disabled={busy} onClick={()=>setUsePhone(false)}>{t('Register with email')}</Button>

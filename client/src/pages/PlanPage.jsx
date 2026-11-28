@@ -1,7 +1,7 @@
 import pricing from '../../../shared/pricing.json';
 import {useEffect,useState} from 'react';
 import {Link as RouterLink} from 'react-router-dom';
-import {Alert,Box,Button,MenuItem,Stack,TextField,Typography} from '@mui/material';
+import {Alert,Box,Button,Chip,MenuItem,Stack,TextField,Typography} from '@mui/material';
 import {PageLayout,PageHeader,PageCard} from '../components/WorkspaceUI';
 import {useI18n} from '../i18n/useI18n';
 import {formatSubscriptionPrice} from '../i18n/runtime';
@@ -12,22 +12,32 @@ export default function PlanPage({renewal=false}){
  const currentPrice=data?.company.subscriptionPrice;
  const localOffer=offer.currency==='AZN';
  const trialStatus=data?.company.trial?.status;
+ const trialPlan=trialStatus==='active'||trialStatus==='expired';
+ const typeLabel=trialPlan?'Free trial':data?.company.subscriptionType==='CUSTOM'?'Custom monthly plan':data?.company.billingCycle==='YEARLY'?'Yearly billing':'Monthly billing';
  const offerPrice=amountMinor=>formatSubscriptionPrice(amountMinor,offer.currency);
  const headers=token?{Authorization:'Bearer '+token}:undefined;
- useEffect(()=>{if(renewal&&!token)return;let live=true;api.get('/billing',{headers:token?{Authorization:'Bearer '+token}:undefined}).then(r=>{if(live){setData(r.data);setEmail(r.data.billingEmail||'');setError('');}}).catch(e=>{if(live)setError(e.response?.data?.message||t('Could not load subscription.'));});return()=>{live=false;};},[token,renewal,reload,t]);
+ useEffect(()=>{if(renewal&&!token)return;let live=true;api.get('/billing',{headers:token?{Authorization:'Bearer '+token}:undefined}).then(r=>{if(live){setData(r.data);setCycle(r.data.company.billingCycle==='YEARLY'?'YEARLY':'MONTHLY');setEmail(r.data.billingEmail||'');setError('');}}).catch(e=>{if(live)setError(e.response?.data?.message||t('Could not load subscription.'));});return()=>{live=false;};},[token,renewal,reload,t]);
  async function signIn(event){event.preventDefault();setBusy(true);setError('');try{const r=await api.post('/billing/renewal-login',credentials,{anonymous:true});setToken(r.data.token);setCredentials({email:'',password:'',pin:''});}catch(e){setError(e.response?.data?.message||t('Could not sign in.'));}finally{setBusy(false);}}
  async function open(kind){setBusy(true);setError('');try{const r=await api.post('/billing/'+kind,kind==='checkout'?{cycle,email}:{},{headers});const url=new URL(r.data.url);if(url.protocol!=='https:')throw Error('URL');window.location.assign(url.href);}catch(e){setError(e.response?.data?.message||t('Could not open billing.'));}finally{setBusy(false);}}
  return <PageLayout><PageHeader title={t('Plan and renewal')} description={t('Subscription payments are separate from sales recorded in your company.')}/>{error&&<Alert severity="error" sx={{mb:2}}>{error}</Alert>}
  {renewal&&!token?<PageCard sx={{p:3,maxWidth:520,mx:'auto'}}><Box component="form" onSubmit={signIn}><Stack spacing={2}><Typography>{t('Expired subscription? Sign in with company credentials and an administrator PIN.')}</Typography>{[['email','Company email'],['password','Company password'],['pin','Admin PIN']].map(([key,label])=><TextField key={key} label={t(label)} type={key==='email'?'email':'password'} value={credentials[key]} onChange={e=>setCredentials(x=>({...x,[key]:e.target.value}))} required disabled={busy} inputProps={{maxLength:key==='pin'?8:254}}/>)}<Button type="submit" variant="contained" disabled={busy}>{t('Continue')}</Button><Button component={RouterLink} to="/login">{t('Back to sign in')}</Button></Stack></Box></PageCard>:!data?<Typography>{t('Loading...')}</Typography>:<PageCard sx={{p:3,maxWidth:720}}><Stack spacing={2}>
- <Typography variant="h5">{data.company.plan==='BASIC'?'Starter':data.company.plan}</Typography>
+ <Stack direction="row" spacing={1} alignItems="center">
+  <Typography variant="h5">{data.company.plan==='BASIC'?'Starter':data.company.plan}</Typography>
+  <Chip label={t(typeLabel)} size="small" color={trialPlan?'info':'default'}/>
+ </Stack>
  <Alert severity={data.active?'success':'warning'}>{t(trialStatus==='active'?'Free trial active':trialStatus==='expired'?'Free trial ended':data.active?'Subscription active':'Subscription expired')}</Alert>
  <Typography>{t('Expires')}: {date(data.company.endsAt,false)}</Typography>
  <Typography>{t('Status')}: {t(data.status)}</Typography>
  {data.cancelAt&&<Alert severity="info">{t('Cancellation scheduled')}: {date(data.cancelAt,false)}</Alert>}
  {trialStatus&&trialStatus!=='converted'&&<Alert severity="info">{t('Your trial data stays in this company when you subscribe. A paid plan starts when your payment is confirmed.')}</Alert>}
  <Typography>{t('Active account limit')}: {data.company.limits.maxUsers}</Typography>
- {(!localOffer||!trialStatus||trialStatus==='converted')&&<Typography>{t('Current subscription price')}: {currentPrice?formatSubscriptionPrice(currentPrice.amountMinor,currentPrice.currency):'—'}</Typography>}
- {localOffer&&<Stack direction={{xs:'column',sm:'row'}} spacing={1.5}>
+ <Box sx={{p:2,border:1,borderColor:'divider',borderRadius:2}}>
+  <Typography color="text.secondary">{t('Current subscription price')}</Typography>
+  <Typography variant="h5">{currentPrice?formatSubscriptionPrice(currentPrice.amountMinor,currentPrice.currency):'—'}</Typography>
+ </Box>
+ {localOffer&&trialPlan&&<Stack spacing={1.5}>
+  <Typography variant="subtitle2">{t('Prices after the trial')}</Typography>
+  <Stack direction={{xs:'column',sm:'row'}} spacing={1.5}>
   <Box sx={{flex:1,p:2,border:1,borderColor:'divider',borderRadius:2}}>
    <Typography color="text.secondary">{t('Monthly billing')}</Typography>
    <Typography variant="h5">{offerPrice(offer.MONTHLY)}</Typography>
@@ -37,8 +47,9 @@ export default function PlanPage({renewal=false}){
    <Typography variant="h5">{offerPrice(offer.YEARLY)}</Typography>
    {offer.YEARLY<offer.MONTHLY*12&&<Typography variant="body2" color="text.secondary"><s>{offerPrice(offer.MONTHLY*12)}</s>{' · '}{t('12 monthly payments')}</Typography>}
   </Box>
+  </Stack>
  </Stack>}
- {data.enabled?(data.hasSubscription&&data.status!=='canceled'?<Button variant="contained" onClick={()=>open('portal')} disabled={busy}>{t('Manage subscription and payment method')}</Button>:<><TextField select label={t('Billing cycle')} value={cycle} onChange={e=>setCycle(e.target.value)}><MenuItem value="MONTHLY">{t('Monthly billing')} · {offerPrice(offer.MONTHLY)}</MenuItem><MenuItem value="YEARLY">{t('Yearly billing')} · {offerPrice(offer.YEARLY)}</MenuItem></TextField><TextField label={t('Real billing email')} type="email" value={email} onChange={e=>setEmail(e.target.value)}/><Button variant="contained" onClick={()=>open('checkout')} disabled={busy||!email||(data.active&&trialStatus!=='active')}>{t('Open secure checkout')}</Button>{data.active&&trialStatus!=='active'&&<Alert severity="info">{t('Your prepaid plan is still active. Contact support for early renewal.')}</Alert>}</>):<Alert severity="info">{t('Online checkout is not active yet. Contact support to continue after your trial.')}</Alert>}
+ {data.enabled?(data.hasSubscription&&data.status!=='canceled'?<Button variant="contained" onClick={()=>open('portal')} disabled={busy}>{t('Manage subscription and payment method')}</Button>:<><TextField select label={t('Billing cycle')} value={cycle} onChange={e=>setCycle(e.target.value)}><MenuItem value="MONTHLY">{t('Monthly billing')} · {offerPrice(offer.MONTHLY)}</MenuItem><MenuItem value="YEARLY">{t('Yearly billing')} · {offerPrice(offer.YEARLY)}</MenuItem></TextField><TextField label={t('Real billing email')} type="email" value={email} onChange={e=>setEmail(e.target.value)}/><Button variant="contained" onClick={()=>open('checkout')} disabled={busy||!email||(data.active&&trialStatus!=='active')}>{t('Open secure checkout')}</Button>{data.active&&trialStatus!=='active'&&<Alert severity="info">{t('Your prepaid plan is still active. Contact support for early renewal.')}</Alert>}</>):<Alert severity="info">{t(trialPlan?'Online checkout is not active yet. Contact support to continue after your trial.':'Contact support to renew your plan.')}</Alert>}
  <Button disabled={busy} onClick={()=>setReload(x=>x+1)}>{t('Refresh status')}</Button><Button component={RouterLink} to="/support">{t('Support')}</Button>{renewal&&<Button component={RouterLink} to="/login">{t('Back to sign in')}</Button>}</Stack></PageCard>}
  </PageLayout>;
 }

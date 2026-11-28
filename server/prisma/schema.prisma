@@ -51,6 +51,7 @@ model Company {
   plan                     Plan                @default(BASIC)
   market                   BillingMarket       @default(AZ)
   billingCycle             BillingCycle        @default(MONTHLY)
+  customMonthlyPriceMinor  Int?
   currency                 String              @default("AZN")
   locale                   String              @default("en")
   timezone                 String              @default("UTC")

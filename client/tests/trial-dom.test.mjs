@@ -12,10 +12,10 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
  for(const key of ['window','document','HTMLElement','HTMLInputElement','HTMLTextAreaElement','Element','Node','MutationObserver','DocumentFragment','Event','MouseEvent','localStorage','sessionStorage'])globalThis[key]=dom.window[key];
  Object.defineProperty(globalThis,'navigator',{value:dom.window.navigator,configurable:true});globalThis.IS_REACT_ACT_ENVIRONMENT=true;globalThis.getComputedStyle=window.getComputedStyle.bind(window);globalThis.requestAnimationFrame=cb=>setTimeout(cb,0);globalThis.cancelAnimationFrame=clearTimeout;window.matchMedia=q=>({matches:false,media:q,addEventListener(){},removeEventListener(){}});
  const calls=[];let available=true,phoneEnabled=false,badLink=false,activeCompanies=null,phoneChannel='sms',actionUrl=null,root,React,key=0;
- const trial={status:'active',startedAt:new Date().toISOString(),endsAt:new Date(Date.now()+7*86400000).toISOString()};
- let billing={enabled:true,active:true,hasSubscription:false,status:'manual',billingEmail:'owner@example.com',company:{plan:'BASIC',market:'GLOBAL',endsAt:trial.endsAt,trial,limits:{maxUsers:3},subscriptionPrice:{currency:'USD',amountMinor:1999}}};
+ const trial={status:'active',startedAt:new Date().toISOString(),endsAt:new Date(Date.now()+14*86400000).toISOString()};
+ let billing={enabled:true,active:true,hasSubscription:false,status:'manual',billingEmail:'owner@example.com',company:{plan:'BASIC',market:'GLOBAL',endsAt:trial.endsAt,trial,limits:{maxUsers:3},subscriptionPrice:{currency:'USD',amountMinor:0}}};
  globalThis.__trialUser={role:'ADMIN',company:{trial}};
- globalThis.__trialApi={get:async(...a)=>{calls.push(['get',...a]);return {data:a[0]==='/trial/config'?{enabled:available,currencies:['USD','EUR','AZN'],trialDays:7,phoneEnabled}:a[0]==='/public/stats'?{activeCompanies}:billing};},post:async(...a)=>{calls.push(['post',...a]);if(a[0]==='/trial/phone/request')return {data:{challenge:'d'.repeat(64),channel:phoneChannel,actionUrl}};if(a[0]==='/trial/phone/verify'){if(a[1].code!=='601238')throw {response:{status:400,data:{message:'That verification code is incorrect.'}}};return {data:{token:'c'.repeat(64)}};}if(a[0]==='/trial/inspect'){if(badLink)throw {response:{data:{message:'This verification link is invalid or expired.'}}};return {data:a[1].token==='c'.repeat(64)?{phone:'+994000000000'}:{email:'owner@example.com'}};}if(a[0]==='/trial/activate')return {data:{company:{loginEmail:'my-shop@zindex.com',trial}}};return {data:{}};}};
+ globalThis.__trialApi={get:async(...a)=>{calls.push(['get',...a]);return {data:a[0]==='/trial/config'?{enabled:available,currencies:['USD','EUR','AZN'],trialDays:14,phoneEnabled}:a[0]==='/public/stats'?{activeCompanies}:billing};},post:async(...a)=>{calls.push(['post',...a]);if(a[0]==='/trial/phone/request')return {data:{challenge:'d'.repeat(64),channel:phoneChannel,actionUrl}};if(a[0]==='/trial/phone/verify'){if(a[1].code!=='601238')throw {response:{status:400,data:{message:'That verification code is incorrect.'}}};return {data:{token:'c'.repeat(64)}};}if(a[0]==='/trial/inspect'){if(badLink)throw {response:{data:{message:'This verification link is invalid or expired.'}}};return {data:a[1].token==='c'.repeat(64)?{phone:'+994000000000'}:{email:'owner@example.com'}};}if(a[0]==='/trial/activate')return {data:{company:{loginEmail:'my-shop@zindex.com',trial}}};return {data:{}};}};
  try{
   const outfile=path.join(folder,'components.cjs');
   await build({stdin:{contents:'import React from "react";import {createRoot} from "react-dom/client";import {MemoryRouter,Routes,Route} from "react-router-dom";import Request from "./src/pages/TrialPage";import Activate from "./src/pages/TrialActivatePage";import Banner from "./src/components/TrialBanner";import Landing from "./src/pages/LandingPage";import Plan from "./src/pages/PlanPage";import * as runtime from "./src/i18n/runtime";const PhoneFlow=()=> <Routes><Route path="/trial" element={<Request/>}/><Route path="/trial/activate" element={<Activate/>}/></Routes>;export {React,createRoot,MemoryRouter,Request,Activate,Banner,Landing,Plan,PhoneFlow,runtime};',loader:'jsx',resolveDir:client},outfile,bundle:true,loader:{'.css':'empty'},platform:'node',format:'cjs',jsx:'automatic',define:{'import.meta.env':'{}'},external:['react','react/*','react-dom','react-dom/*','@mui/material','@mui/material/*','@mui/system','@mui/system/*','@mui/utils','@emotion/*'],logLevel:'silent',plugins:[{name:'fixtures',setup(b){b.onResolve({filter:/(^|\/)(api|useAuth)$/},a=>({path:a.path.split('/').at(-1),namespace:'fixture'}));b.onLoad({filter:/.*/,namespace:'fixture'},a=>({contents:a.path==='useAuth'?'export const useAuth=()=>({user:globalThis.__trialUser});':'export const api={get:(...a)=>globalThis.__trialApi.get(...a),post:(...a)=>globalThis.__trialApi.post(...a)};',loader:'js'}));}}]});
@@ -36,6 +36,7 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
    const yearly = document.querySelector('button[aria-label="Yearly billing"]');
    const price = document.querySelector('.landing-price strong');
    assert.match(document.body.textContent, /No card required/);
+   assert.match(document.body.textContent, /14-day free trial/);
    assert.equal(monthly.getAttribute('aria-pressed'), 'true');
    assert.match(yearly.textContent, /Save \$39\.89/);
    assert.equal(price.textContent, '$19.99');
@@ -90,17 +91,18 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
    assert.match(document.body.textContent,/25 active companies use z-Index/);
    assert.doesNotMatch(document.body.textContent,/Example data/);
   });
-  await t.test('trial countdown disappears after conversion',async()=>{await render(C.Banner);assert.match(document.body.textContent,/7 days remaining/);assert.ok(document.querySelector('a[href="/workspace/plan"]'));globalThis.__trialUser={role:'ADMIN',company:{trial:{...trial,status:'converted'}}};await render(C.Banner);assert.equal(document.getElementById('root').textContent,'');});
+  await t.test('trial countdown disappears after conversion',async()=>{await render(C.Banner);assert.match(document.body.textContent,/14 days remaining/);assert.ok(document.querySelector('a[href="/workspace/plan"]'));globalThis.__trialUser={role:'ADMIN',company:{trial:{...trial,status:'converted'}}};await render(C.Banner);assert.equal(document.getElementById('root').textContent,'');});
   await t.test('active trial can upgrade; active prepaid company cannot pay twice',async()=>{await render(C.Plan);assert.equal(field('Real billing email').value,'owner@example.com');assert.equal(button('Open secure checkout').disabled,false);assert.match(document.body.textContent,/Free trial active/);billing={...billing,company:{...billing.company,trial:null}};await render(C.Plan);assert.equal(button('Open secure checkout').disabled,true);assert.match(document.body.textContent,/prepaid plan is still active/);});
   await t.test('the local plan shows both AZN offers and the struck-through monthly total with checkout disabled', async () => {
    billing = {
     ...billing,
     enabled: false,
-    company: {...billing.company, market: 'AZ', trial, subscriptionPrice: {currency: 'AZN', amountMinor: 5000}},
+    company: {...billing.company, market: 'AZ', trial, subscriptionPrice: {currency: 'AZN', amountMinor: 0}},
     offers: {currency: 'AZN', MONTHLY: 5000, YEARLY: 50000},
    };
    C.runtime.setLanguage('az');
    await render(C.Plan, '/workspace/plan');
+   assert.match(document.body.textContent, /0\sAZN/);
    assert.match(document.body.textContent, /50\sAZN/);
    assert.match(document.body.textContent, /500\sAZN/);
    assert.equal(document.querySelector('s')?.textContent, '600\u00a0AZN');
@@ -108,6 +110,20 @@ test('Trial signup UI: consent, verification, safe setup, pricing and renewal',a
    await React.act(async () => C.runtime.setLanguage('en'));
    assert.match(document.body.textContent, /AZN\s500/);
    assert.equal(button('Open secure checkout'), undefined);
+  });
+  await t.test('paid local plans display their selected amount, including a custom monthly plan', async () => {
+   for(const [type, cycle, price, label] of [
+    ['MONTHLY','MONTHLY',5000,'Monthly billing'],
+    ['YEARLY','YEARLY',50000,'Yearly billing'],
+    ['CUSTOM','MONTHLY',3550,'Custom monthly plan'],
+   ]){
+    billing={...billing,company:{...billing.company,trial:null,billingCycle:cycle,subscriptionType:type,subscriptionPrice:{currency:'AZN',amountMinor:price}}};
+    await render(C.Plan,'/workspace/plan');
+    assert.ok(document.body.textContent.includes(label));
+    assert.ok(document.body.textContent.includes(C.runtime.formatSubscriptionPrice(price,'AZN')));
+    assert.doesNotMatch(document.body.textContent,/Prices after the trial|12 monthly payments/);
+    assert.equal(button('Open secure checkout'),undefined);
+   }
   });
   await t.test('phone signup requires consent, verifies a code and opens company setup without email',async()=>{
    phoneEnabled=true;

@@ -4,7 +4,7 @@ const { readFileSync } = require("node:fs");
 const bcrypt = require("bcrypt");
 const { Prisma } = require("@prisma/client");
 const { platformPrisma: db } = require("../src/prismaClient");
-const { PRICES } = require("../src/config/plans");
+const { PRICES, trialEnd, validCustomMonthlyPrice } = require("../src/config/plans");
 const { currencies, validTimezone } = require("../src/workspace-core");
 const { assertPin } = require("../src/pin-policy");
 
@@ -16,9 +16,11 @@ function parseInput(input) {
   const currency = String(input.currency || "USD").trim().toUpperCase();
   const market = String(input.market || "GLOBAL").trim().toUpperCase();
 
-  const billingCycle = String(input.billingCycle || "MONTHLY")
+  const subscriptionType = String(input.subscriptionType ?? (input.billingCycle || "MONTHLY"))
     .trim()
     .toUpperCase();
+  const billingCycle = subscriptionType === "YEARLY" ? "YEARLY" : "MONTHLY";
+  const customMonthlyPriceMinor = input.customMonthlyPriceMinor ?? null;
 
   const timezone = String(input.timezone || "UTC").trim();
 
@@ -51,11 +53,14 @@ function parseInput(input) {
 
   if (
     !PRICES[market]?.BASIC ||
-    !["MONTHLY", "YEARLY"].includes(billingCycle)
+    !["TRIAL", "MONTHLY", "YEARLY", "CUSTOM"].includes(subscriptionType)
   ) {
-    throw Error(
-      "Bazar AZ/GLOBAL, dövr MONTHLY/YEARLY olmalıdır.",
-    );
+    throw Error("Choose a valid market and subscription type.");
+  }
+  if (subscriptionType === "CUSTOM"
+    ? !validCustomMonthlyPrice(customMonthlyPriceMinor, market, billingCycle)
+    : customMonthlyPriceMinor !== null) {
+    throw Error("Enter a positive custom monthly price in AZN.");
   }
 
   if (!validTimezone(timezone)) {
@@ -75,9 +80,21 @@ function parseInput(input) {
     password,
     currency,
     market,
+    subscriptionType,
     billingCycle,
+    customMonthlyPriceMinor,
     timezone,
   };
+}
+
+function paidPeriodEnd(startsAt, cycle) {
+  const end = new Date(startsAt);
+  const day = end.getUTCDate();
+  end.setUTCDate(1);
+  end.setUTCMonth(end.getUTCMonth() + (cycle === "YEARLY" ? 12 : 1));
+  const lastDay = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth() + 1, 0)).getUTCDate();
+  end.setUTCDate(Math.min(day, lastDay));
+  return end;
 }
 
 async function createCompany(input) {
@@ -111,25 +128,8 @@ async function createCompany(input) {
   }
 
   const startsAt = new Date();
-  const endsAt = new Date(startsAt);
-  const day = endsAt.getUTCDate();
-
-  endsAt.setUTCDate(1);
-
-  endsAt.setUTCMonth(
-    endsAt.getUTCMonth() +
-      (data.billingCycle === "YEARLY" ? 12 : 1),
-  );
-
-  const lastDay = new Date(
-    Date.UTC(
-      endsAt.getUTCFullYear(),
-      endsAt.getUTCMonth() + 1,
-      0,
-    ),
-  ).getUTCDate();
-
-  endsAt.setUTCDate(Math.min(day, lastDay));
+  const isTrial = data.subscriptionType === "TRIAL";
+  const endsAt = isTrial ? trialEnd(startsAt) : paidPeriodEnd(startsAt, data.billingCycle);
 
   return db.$transaction(
     async (tx) => {
@@ -153,6 +153,8 @@ async function createCompany(input) {
           plan: "BASIC",
           market: data.market,
           billingCycle: data.billingCycle,
+          customMonthlyPriceMinor: data.customMonthlyPriceMinor,
+          ...(isTrial ? { trialStartedAt: startsAt, trialEndsAt: endsAt } : {}),
 
           currency: data.currency,
           currencyConfigured: true,

@@ -1,3 +1,4 @@
+import trialPolicy from "../../../shared/trial.json";
 import { createElement, useEffect, useState } from "react";
 import { Button } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
@@ -134,7 +135,7 @@ export default function LandingPage() {
           <p className="landing-intro">{t("Track what comes in, what sells and what customers owe. Import your existing customers and balances to get started.")}</p>
           <div className="landing-actions">
             <Button component={RouterLink} to="/trial" variant="contained" size="large" endIcon={<ArrowForwardRounded />}>
-              {t("Start your 7-day free trial")}
+              {t("Start your {days}-day free trial", { days: trialPolicy.days })}
             </Button>
             <Button href="#pricing" variant="text" size="large" endIcon={<ArrowDownwardRounded />} sx={{ color: "#e9efff" }}>
               {t("See pricing")}
@@ -163,7 +164,7 @@ export default function LandingPage() {
       <section className="landing-pricing" id="pricing" aria-labelledby="landing-pricing-title">
         <div className="landing-pricing-copy">
           <h2 id="landing-pricing-title">{t("Simple Starter pricing")}</h2>
-          <p>{t("Try the Starter plan for 7 days. Choose a subscription when you are ready.")}</p>
+          <p>{t("Try the Starter plan for {days} days. Choose a subscription when you are ready.", { days: trialPolicy.days })}</p>
           <ul>
             {["Up to 3 active users", "PDF invoices", "Excel and CSV import"].map(label => (
               <li key={label}><CheckRounded aria-hidden="true" />{t(label)}</li>
@@ -198,7 +199,7 @@ export default function LandingPage() {
           </div>
 
           <Button component={RouterLink} to="/trial" variant="contained" size="large" fullWidth endIcon={<ArrowForwardRounded />}>
-            {t("Start your 7-day free trial")}
+            {t("Start your {days}-day free trial", { days: trialPolicy.days })}
           </Button>
           <p className="landing-tax-note">{t("Applicable taxes and final charges are shown before payment.")}</p>
         </div>

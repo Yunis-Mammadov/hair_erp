@@ -1,11 +1,11 @@
 const {Router}=require('express'),{randomBytes,createHash,createHmac,timingSafeEqual}=require('node:crypto'),bcrypt=require('bcrypt');
-const {platformPrisma:db}=require('../prismaClient'),F=require('../financial-core'),W=require('../workspace-core'),Mail=require('../trial-mail'),{assertPin}=require('../pin-policy'),{jwtSecret}=require('../auth-security'),{publicCompany,PRICES}=require('../config/plans');
+const {platformPrisma:db}=require('../prismaClient'),F=require('../financial-core'),W=require('../workspace-core'),Mail=require('../trial-mail'),{assertPin}=require('../pin-policy'),{jwtSecret}=require('../auth-security'),{publicCompany,PRICES,trialEnd,TRIAL_DAYS,TRIAL_TERMS_VERSION:TERMS_VERSION}=require('../config/plans');
 const Phone=require('../otp-com-phone');
 const PHONE_CHALLENGE_MS = 10 * 60000;
 const PHONE_VERIFY_LEASE_MS = 30000;
 const PHONE_ATTEMPTS = 5;
 const PHONE_REQUESTS_PER_DAY = 25;
-const router=Router(),DAY=86400000,TERMS_VERSION='2026-11-20',GENERIC='If this email is eligible, you will receive a verification link. Check your inbox and spam folder.';
+const router=Router(),DAY=86400000,GENERIC='If this email is eligible, you will receive a verification link. Check your inbox and spam folder.';
 const hash=v=>createHash('sha256').update(v).digest('hex');
 const hmac=v=>createHmac('sha256',jwtSecret()).update(v).digest('hex');
 function limitAll(max,windowMs){const hits=new Map();const timer=setInterval(()=>{for(const[k,v]of hits)if(v.until<=Date.now())hits.delete(k);},60000);timer.unref();return(req,res,next)=>{const now=Date.now(),key=req.ip||'unknown';let row=hits.get(key);if(!row||row.until<=now){if(hits.size>=10000)return res.status(429).json({message:'Too many trial requests. Please try again later.'});row={count:0,until:now+windowMs};hits.set(key,row);}if(++row.count>max)return res.set('Retry-After',String(Math.ceil((row.until-now)/1000))).status(429).json({message:'Too many trial requests. Please try again later.'});next();};}
@@ -21,7 +21,7 @@ function validInvitation(row,now=new Date()){if(!row||row.expiresAt<=now)throw F
 async function serial(fn){for(let n=0;;n++)try{return await db.$transaction(fn,{isolationLevel:'Serializable',timeout:20000});}catch(e){if(e.code==='P2034'&&n<4)continue;throw e;}}
 router.use((_req,res,next)=>{res.set('Cache-Control','no-store');res.set('Referrer-Policy','no-referrer');next();});
 router.use((req,res,next)=>{if(req.method==='POST'&&!req.is('application/json'))return res.status(415).json({message:'Request must use application/json.'});next();});
-router.get('/config',(_req,res)=>res.json({enabled:!!Mail.mode(),phoneEnabled:Phone.enabled(),trialDays:7,currencies:W.currencies,termsVersion:TERMS_VERSION,offers:PRICES.GLOBAL.BASIC}));
+router.get('/config',(_req,res)=>res.json({enabled:!!Mail.mode(),phoneEnabled:Phone.enabled(),trialDays:TRIAL_DAYS,currencies:W.currencies,termsVersion:TERMS_VERSION,offers:PRICES.GLOBAL.BASIC}));
 router.post('/request',limitAll(8,15*60000),route(async(req,res)=>{
  enabled();const b=fields(req.body,['email','locale','website']);
  if(b.website){res.json({message:GENERIC});return;}
@@ -135,7 +135,7 @@ router.post('/phone/verify', limitAll(16, 15 * 60000), route(async (req, res) =>
 router.post('/inspect',limitAll(30,15*60000),route(async(req,res)=>{
  const b=fields(req.body,['token']),row=await db.trialInvitation.findUnique({where:{tokenHash:hash(tokenOf(b))}});validInvitation(row);enabled(row);
  if(row.usedAt)throw F.fail(409,'This trial has already been activated. Sign in to your company.','TRIAL_ALREADY_USED');
- res.json({...(row.phone?{phone:row.phone}:{email:row.email}),expiresAt:row.expiresAt,trialDays:7});
+ res.json({...(row.phone?{phone:row.phone}:{email:row.email}),expiresAt:row.expiresAt,trialDays:TRIAL_DAYS});
 }));
 router.post('/activate',limitAll(10,15*60000),route(async(req,res)=>{
  const b=fields(req.body,['token','code','name','adminName','password','pin','currency','timezone','locale','acceptedTerms']);const token=tokenOf(b);
@@ -156,7 +156,7 @@ router.post('/activate',limitAll(10,15*60000),route(async(req,res)=>{
    ? await tx.company.findUnique({where:{trialPhone:row.phone},select:{id:true}})
    : await tx.company.findFirst({where:{OR:[{trialEmail:row.email},{loginEmail:row.email}]},select:{id:true}});
   if(exists)throw F.fail(409,row.phone?'This phone number has already used its trial. Sign in or contact support.':'This email has already used its trial. Sign in or contact support.','TRIAL_ALREADY_USED');
-  const startsAt=new Date(),trialEndsAt=new Date(+startsAt+7*DAY);
+  const startsAt=new Date(),trialEndsAt=trialEnd(startsAt);
   // Keep the local offer if the verification link is opened in a browser with a different language.
   const market=row.phone||row.locale==='az'||input.locale==='az'?'AZ':'GLOBAL';
   const company=await tx.company.create({data:{name:input.name,loginEmail:input.code+'@zindex.com',passwordHash,plan:'BASIC',market,currency:input.currency,currencyConfigured:true,timezone:input.timezone,locale:input.locale,isActive:true,isDemo:false,startsAt,endsAt:trialEndsAt,trialEmail:row.email,trialPhone:row.phone,trialStartedAt:startsAt,trialEndsAt,trialTermsVersion:TERMS_VERSION}});

@@ -31,6 +31,17 @@ const PLANS = Object.freeze({
 });
 // Subscription prices in the minor units of the subscription currency.
 const PRICES = Object.freeze(require("../../../shared/pricing.json"));
+const { days: TRIAL_DAYS, termsVersion: TRIAL_TERMS_VERSION } = require("../../../shared/trial.json");
+const DAY_MS = 86400000;
+
+function trialEnd(startsAt) {
+  return new Date(+startsAt + TRIAL_DAYS * DAY_MS);
+}
+
+function validCustomMonthlyPrice(amountMinor, market, cycle) {
+  return Number.isInteger(amountMinor) && amountMinor > 0 && amountMinor <= 2147483647 &&
+    market === "AZ" && cycle === "MONTHLY";
+}
 function hasFeature(company, feature) {
   return Boolean(PLANS[company?.plan]?.features.includes(feature));
 }
@@ -38,7 +49,7 @@ function isTrial(company) { return Boolean(company?.trialStartedAt && !company.t
 function trialInfo(company,now=new Date()) {
  if(!company.trialStartedAt)return null;
  const endsAt=company.trialEndsAt;
- return {status:company.trialConvertedAt?'converted':endsAt&&endsAt>now?'active':'expired',startedAt:company.trialStartedAt,endsAt,convertedAt:company.trialConvertedAt||null,daysRemaining:company.trialConvertedAt?0:Math.max(0,Math.ceil((+endsAt-+now)/86400000))};
+ return {status:company.trialConvertedAt?'converted':endsAt&&endsAt>now?'active':'expired',startedAt:company.trialStartedAt,endsAt,convertedAt:company.trialConvertedAt||null,daysRemaining:company.trialConvertedAt?0:Math.max(0,Math.ceil((+endsAt-+now)/DAY_MS))};
 }
 function subscriptionIsActive(company, now = new Date()) {
   return Boolean(
@@ -50,9 +61,22 @@ function subscriptionIsActive(company, now = new Date()) {
       (!isTrial(company) || (company.trialEndsAt && company.trialEndsAt > now)),
   );
 }
+function subscriptionDetails(company) {
+  const { market, plan, billingCycle, customMonthlyPriceMinor } = company;
+  const offer = PRICES[market]?.[plan];
+  const subscriptionType = isTrial(company) ? "TRIAL"
+    : customMonthlyPriceMinor != null ? "CUSTOM"
+    : billingCycle;
+  const amountMinor = subscriptionType === "TRIAL" ? 0
+    : customMonthlyPriceMinor ?? offer?.[billingCycle];
+  const subscriptionPrice = offer && amountMinor != null
+    ? { currency: offer.currency, amountMinor }
+    : null;
+  return { subscriptionType, subscriptionPrice };
+}
+
 function publicCompany(company) {
   const plan = PLANS[company.plan];
-  const offer = PRICES[company.market]?.[company.plan];
   return {
     id: company.id,
     trial: trialInfo(company),
@@ -77,14 +101,17 @@ function publicCompany(company) {
     endsAt: company.endsAt,
     features: [...plan.features],
     limits: { maxUsers: plan.maxUsers, maxWarehouses: plan.maxWarehouses },
-    subscriptionPrice: offer
-      ? { currency: offer.currency, amountMinor: offer[company.billingCycle] }
-      : null,
+    ...subscriptionDetails(company),
   };
 }
 module.exports = {
   isTrial,
   trialInfo,
+  trialEnd,
+  TRIAL_DAYS,
+  TRIAL_TERMS_VERSION,
+  subscriptionDetails,
+  validCustomMonthlyPrice,
   PLANS,
   PRICES,
   hasFeature,

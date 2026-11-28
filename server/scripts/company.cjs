@@ -50,6 +50,23 @@ function offerInput() {
     timezone: market === "GLOBAL" ? "UTC" : "Asia/Baku",
   };
 }
+async function applyOffer(tx, companyId, offer, accountDetails = {}) {
+  const current = await tx.company.findUniqueOrThrow({ where: { id: companyId } });
+  return tx.company.update({
+    where: { id: companyId },
+    data: {
+      ...accountDetails,
+      ...offer,
+      currency: current.currency,
+      timezone: current.timezone,
+      customMonthlyPriceMinor: offer.market === "AZ" && offer.billingCycle === "MONTHLY"
+        ? current.customMonthlyPriceMinor
+        : null,
+      authVersion: { increment: 1 },
+    },
+  });
+}
+
 async function applyActiveUsers(tx, companyId, plan, adminId) {
   const users = await tx.user.findMany({
     where: { companyId },
@@ -153,10 +170,7 @@ async function main() {
         });
         if (!admin) throw new Error("Aktiv admin yoxdur.");
         await applyActiveUsers(tx, companyId, offer.plan, admin.id);
-        return tx.company.update({
-          where: { id: companyId },
-          data: { ...offer, currency: (await tx.company.findUniqueOrThrow({where:{id:companyId}})).currency, timezone: (await tx.company.findUniqueOrThrow({where:{id:companyId}})).timezone, authVersion: { increment: 1 } },
-        });
+        return applyOffer(tx, companyId, offer);
       },
       {
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
@@ -229,18 +243,7 @@ async function main() {
         },
         select: { id: true, fullName: true, role: true },
       });
-      const company = await tx.company.update({
-        where: { id: companyId },
-        data: {
-          name,
-          loginEmail,
-          passwordHash,
-          ...offer,
-          currency: (await tx.company.findUniqueOrThrow({where:{id:companyId}})).currency,
-          timezone: (await tx.company.findUniqueOrThrow({where:{id:companyId}})).timezone,
-          authVersion: { increment: 1 },
-        },
-      });
+      const company = await applyOffer(tx, companyId, offer, { name, loginEmail, passwordHash });
       return { company: publicCompany(company), admin: updatedAdmin };
     },
     {

@@ -1,3 +1,6 @@
+import pricing from "../../../shared/pricing.json";
+import trial from "../../../shared/trial.json";
+import { customMonthlyPriceMinor } from "../lib/subscription-pricing.mjs";
 import OperatorCompanyAction from "../components/OperatorCompanyAction";
 import { RecordPager } from "../components/RecordsTools";
 import { useState } from "react";
@@ -28,10 +31,11 @@ const emptyForm = {
   code: "",
   name: "",
   password: "",
-  currency: "USD",
-  market: "GLOBAL",
-  billingCycle: "MONTHLY",
-  timezone: "UTC",
+  currency: "AZN",
+  market: "AZ",
+  subscriptionType: "MONTHLY",
+  customPrice: "",
+  timezone: "Asia/Baku",
 };
 
 export default function OperatorCompaniesPage() {
@@ -51,11 +55,16 @@ export default function OperatorCompaniesPage() {
   const headers = {
     Authorization: `Bearer ${secret}`,
   };
+  const offer = pricing[form.market].BASIC;
+  const customPrice = form.subscriptionType === "CUSTOM" ? customMonthlyPriceMinor(form.customPrice) : null;
+  const invalidCustomPrice = form.subscriptionType === "CUSTOM" && customPrice === null;
 
   const change = (key) => (event) => {
     setForm((old) => ({
       ...old,
       [key]: event.target.value,
+      ...(key === "market" && event.target.value !== "AZ" && old.subscriptionType === "CUSTOM"
+        ? { subscriptionType: "MONTHLY" } : {}),
     }));
   };
 
@@ -100,7 +109,7 @@ export default function OperatorCompaniesPage() {
   async function save(event) {
     event.preventDefault();
 
-    if (busy) return;
+    if (busy || invalidCustomPrice) return;
 
     setBusy(true);
     setError("");
@@ -109,7 +118,11 @@ export default function OperatorCompaniesPage() {
     try {
       const { data } = await operatorApi.post(
         "/operator/companies",
-        form,
+        {
+          name: form.name, code: form.code, password: form.password, pins: form.pins,
+          currency: form.currency, market: form.market, timezone: form.timezone,
+          subscriptionType: form.subscriptionType, customMonthlyPriceMinor: customPrice,
+        },
         { headers },
       );
 
@@ -124,6 +137,7 @@ export default function OperatorCompaniesPage() {
         code: "",
         name: "",
         password: "",
+        customPrice: "",
         pins: { ADMIN: "", WAREHOUSE: "", EXPEDITOR: "" },
       }));
     } catch (err) {
@@ -320,19 +334,28 @@ export default function OperatorCompaniesPage() {
 
               <TextField
                 select
-                label="Abunə dövrü"
-                value={form.billingCycle}
-                onChange={change("billingCycle")}
+                label="Abunəlik növü"
+                value={form.subscriptionType}
+                onChange={change("subscriptionType")}
                 disabled={busy}
               >
-                <MenuItem value="MONTHLY">
-                  Aylıq
-                </MenuItem>
-
-                <MenuItem value="YEARLY">
-                  İllik
-                </MenuItem>
+                <MenuItem value="TRIAL">Sınaq · {trial.days} gün pulsuz</MenuItem>
+                <MenuItem value="MONTHLY">Aylıq · {offer.MONTHLY / 100} {offer.currency}</MenuItem>
+                <MenuItem value="YEARLY">İllik · {offer.YEARLY / 100} {offer.currency}</MenuItem>
+                {form.market === "AZ" && <MenuItem value="CUSTOM">Digər · Xüsusi aylıq qiymət</MenuItem>}
               </TextField>
+
+              {form.subscriptionType === "CUSTOM" && (
+                <TextField
+                  label="Xüsusi aylıq qiymət (AZN)"
+                  value={form.customPrice}
+                  onChange={change("customPrice")}
+                  required
+                  disabled={busy}
+                  error={Boolean(form.customPrice) && invalidCustomPrice}
+                  slotProps={{ htmlInput: { inputMode: "decimal", maxLength: 11 } }}
+                />
+              )}
 
               <TextField
                 label="Saat qurşağı"
@@ -354,7 +377,7 @@ export default function OperatorCompaniesPage() {
               <Button
                 type="submit"
                 variant="contained"
-                disabled={busy}
+                disabled={busy || invalidCustomPrice}
               >
                 {busy
                   ? "Yaradılır…"
@@ -391,6 +414,13 @@ export default function OperatorCompaniesPage() {
                 {" · "}
                 {company.plan}
               </Typography>
+
+              {company.subscriptionPrice && (
+                <Typography variant="body2">
+                  {{ TRIAL: "Sınaq", MONTHLY: "Aylıq", YEARLY: "İllik", CUSTOM: "Digər · Aylıq" }[company.subscriptionType]}
+                  {" · "}{company.subscriptionPrice.amountMinor / 100} {company.subscriptionPrice.currency}
+                </Typography>
+              )}
 
               <Typography variant="body2">
                 Bitmə:{" "}
