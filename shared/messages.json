@@ -709,7 +709,7 @@
   },
   "Supplier": {
     "en": "Supplier",
-    "az": "Supplier",
+    "az": "Təchizatçı",
     "tr": "Tedarikçi",
     "ru": "Поставщик"
   },
@@ -7504,5 +7504,23 @@
     "az": "Kodu almaq üçün WhatsApp-ı açın və hazır mesajı göndərin.",
     "tr": "Kodu almak için WhatsApp’ı açın ve hazırlanan mesajı gönderin.",
     "ru": "Откройте WhatsApp и отправьте готовое сообщение, чтобы получить код."
+  },
+  "New category": {
+    "en": "New category",
+    "az": "Yeni kateqoriya",
+    "tr": "Yeni kategori",
+    "ru": "Новая категория"
+  },
+  "Category name": {
+    "en": "Category name",
+    "az": "Kateqoriya adı",
+    "tr": "Kategori adı",
+    "ru": "Название категории"
+  },
+  "Select a product or type a new product name.": {
+    "en": "Select a product or type a new product name.",
+    "az": "Kataloqdan seç və ya yeni məhsulun adını yaz.",
+    "tr": "Katalogdan seç veya yeni ürünün adını yaz.",
+    "ru": "Выберите товар из каталога или введите название нового."
   }
 }
